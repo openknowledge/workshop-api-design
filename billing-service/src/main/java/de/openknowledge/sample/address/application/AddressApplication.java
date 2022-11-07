@@ -18,9 +18,12 @@ package de.openknowledge.sample.address.application;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import org.eclipse.microprofile.auth.LoginConfig;
+
 /**
  * Application initialization
  */
 @ApplicationPath("/")
+@LoginConfig(authMethod = "MP-JWT")
 public class AddressApplication extends Application {
 }

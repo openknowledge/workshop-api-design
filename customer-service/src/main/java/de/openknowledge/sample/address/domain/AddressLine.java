@@ -60,7 +60,7 @@ public class AddressLine {
             throw new IllegalStateException("Could not determine house number");
         }
     }
-
+    
     @Override
     public String toString() {
         return line;

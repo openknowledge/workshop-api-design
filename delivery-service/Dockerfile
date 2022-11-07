@@ -1,5 +1,6 @@
 FROM maven:3.9.9-eclipse-temurin-21 AS mvn
 
+RUN mkdir -p /usr
 WORKDIR /usr/src/online-shop
 COPY pom.xml ./
 RUN mvn package dependency:go-offline # cache dependencies

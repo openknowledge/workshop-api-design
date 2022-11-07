@@ -1,0 +1,38 @@
+name: Online Shop
+on:
+  push:
+    branches: [ "**" ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build address-validation-service
+        run: mvn clean package -f address-validation-service/pom.xml -Dservice.name=address-validation-service
+
+      - name: Build delivery-service
+        run: mvn clean package -f delivery-service/pom.xml -Dservice.name=delivery-service
+
+      - name: Build billing-service
+        run: mvn clean package -f billing-service/pom.xml -Dservice.name=billing-service
+
+      - name: Build customer-service
+        run: mvn clean package -f customer-service/pom.xml -Dservice.name=customer-service
+
+      - name: Build with Docker
+        run: docker compose build
+
+      - name: Start with Docker
+        run: docker compose up -d
+
+      - name: Stop Docker Containers
+        run: docker compose down

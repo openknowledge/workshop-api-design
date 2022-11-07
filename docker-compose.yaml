@@ -1,0 +1,26 @@
+services:
+  customer-service:
+    build: customer-service/
+    container_name: customer-service
+    ports:
+      - "4000:8080"
+    environment:
+      - BILLING_SERVICE_URL=http://billing-service:8080
+      - DELIVERY_SERVICE_URL=http://delivery-service:8080
+
+  billing-service:
+    build: billing-service/
+    ports:
+      - "4001:8080"
+
+  delivery-service:
+    build: delivery-service/
+    ports:
+      - "4002:8080"
+    environment:
+      - ADDRESS_VALIDATION_SERVICE_URL=http://address-validation-service:8080
+
+  address-validation-service:
+    build: address-validation-service/
+    ports:
+      - "4003:8080"

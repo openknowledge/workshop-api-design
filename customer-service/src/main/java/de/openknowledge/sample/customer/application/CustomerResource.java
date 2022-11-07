@@ -15,11 +15,15 @@
  */
 package de.openknowledge.sample.customer.application;
 
+import static org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeIn.HEADER;
+import static org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType.HTTP;
+
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -35,6 +39,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
+
 import de.openknowledge.sample.address.domain.Address;
 import de.openknowledge.sample.address.domain.BillingAddressRepository;
 import de.openknowledge.sample.address.domain.DeliveryAddressRepository;
@@ -49,6 +56,7 @@ import de.openknowledge.sample.customer.domain.CustomerRepository;
 @Path("/customers")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@SecurityScheme(securitySchemeName = "bearer", type = HTTP, in = HEADER, scheme = "bearer", bearerFormat = "JWT")
 public class CustomerResource {
 
     private static final Logger LOG = Logger.getLogger(CustomerResource.class.getSimpleName());
@@ -62,7 +70,9 @@ public class CustomerResource {
 
     @GET
     @Path("/")
+    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
+    @SecurityRequirement(name = "bearer")
     public List<Customer> getCustomers() {
         LOG.info("RESTful call 'GET all customers'");
         return customerRepository.findAll();
@@ -70,7 +80,9 @@ public class CustomerResource {
 
     @POST
     @Path("/")
+    @RolesAllowed("admin")
     @Consumes(MediaType.APPLICATION_JSON)
+    @SecurityRequirement(name = "bearer")
     public Response createCustomer(Customer customer, @Context UriInfo uri) throws URISyntaxException {
         LOG.info("RESTful call 'POST new customer'");
         customerRepository.persist(customer);
@@ -78,8 +90,10 @@ public class CustomerResource {
     }
 
     @GET
+    @RolesAllowed("user")
     @Path("/{customerNumber}")
     @Produces(MediaType.APPLICATION_JSON)
+    @SecurityRequirement(name = "bearer")
     public Customer getCustomer(@PathParam("customerNumber") CustomerNumber customerNumber) {
         LOG.info("RESTful call 'GET customer'");
         Customer customer = customerRepository.find(customerNumber).orElseThrow(customerNotFound(customerNumber));
@@ -89,8 +103,10 @@ public class CustomerResource {
     }
 
     @PUT
+    @RolesAllowed("user")
     @Path("/{customerNumber}/billing-address")
     @Produces(MediaType.APPLICATION_JSON)
+    @SecurityRequirement(name = "bearer")
     public void setBillingAddress(@PathParam("customerNumber") CustomerNumber customerNumber, Address billingAddress) {
         LOG.info("RESTful call 'PUT billing address'");
         customerRepository.find(customerNumber).orElseThrow(customerNotFound(customerNumber));
@@ -98,8 +114,10 @@ public class CustomerResource {
     }
 
     @PUT
+    @RolesAllowed("user")
     @Path("/{customerNumber}/delivery-address")
     @Produces(MediaType.APPLICATION_JSON)
+    @SecurityRequirement(name = "bearer")
     public void setDeliveryAddress(
         @PathParam("customerNumber") CustomerNumber customerNumber,
         Address deliveryAddress) {

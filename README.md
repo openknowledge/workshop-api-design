@@ -1,37 +1,66 @@
-## Workshop API Security
+# Workshop API Design
+   
+Herzlich willkommen zum Workshop API Design.
+   
+## Aufgabe: Authentifizierung mit JWT
 
-This repository contains samples for the workshop API Security.
-
-# Running the samples of the workshop
-
-The samples run with Docker Compose.
-So please ensure you have docker installed in a recent version.
-
-Start the examples by typing
+Starten Sie die Services mit Docker Compose:
 
 ```
 docker compose up --build
 ```
 
-from within the folder you cloned the repository.
+Unter [Customer Service](http://localhost:4000/webjars/swagger-ui/index.html)
+erreichen Sie die Swagger UI des Customer Service.
 
-# Exercises
+Wenn Sie dort versuchen, sich die Liste aller Kunden ausgeben zu lassen,
+werden Sie feststellen, dass Sie dies nicht dürfen.
 
-You find the exercises in the corresponding branches
+### Holen eines Json Web Token
 
-* [Exercise JWT](https://github.com/openknowledge/workshop-api-security/tree/jwt)
-* [Exercise Client Credential Flow](https://github.com/openknowledge/workshop-api-security/tree/client-credential)
-* [Exercise Excessive Data Exposure](https://github.com/openknowledge/workshop-api-security/tree/excessive-data-exposure)
-* [Exercise Rate Limiting](https://github.com/openknowledge/workshop-api-security/tree/rate-limiting)
-* [Exercise Domain Object Security](https://github.com/openknowledge/workshop-api-security/tree/domain-object-security)
-
-## Troubleshooting (Mac M1 processor)
-
-The keycloak image used in some of the excercises
-is not compatible with the new M1 processor of Mac.
-In order to run the samples, you have to build the container from scratch:
-
+Mit dem folgenden HTTP-Aufruf können Sie ein Token erhalten:
 ```
-git clone git clone https://github.com/keycloak/keycloak-containers.git keycloak/containers
-docker build -t jboss/keycloak:14.0.0 ./keycloak
+POST http://localhost:9191/auth/realms/master/protocol/openid-connect/token
 ```
+Header:
+```
+Content-Type: application/x-www-form-urlencoded
+```
+Body:
+```
+grant_type:password
+client_id:onlineshop
+username:erika
+password:erika123
+```
+
+Folgende Benutzer stehen zur Verfügung:
+
+* admin / admin123 (role admin)
+* erika / erika123 (role user)
+* max / max123 (role user)
+* james / james123 (role user)
+
+Sie können die Authentifizierung auch über die
+[Swagger UI des Authentication Service](http://localhost:6060/)
+durchführen.
+
+### Analysieren des Tokenn
+
+Das erhaltene Token ist base64-codiert.
+Man kann es sich unter [JWT.io](https://jwt.io) anschauen.
+
+### Aufruf des Services
+
+Das erhaltene JWT können Sie zur Authentifizierung beim
+[Customer Service](http://localhost:4000/webjars/swagger-ui/index.html)
+verwenden.
+
+### Authorisierung
+
+Sie werden feststellen, dass sie auch mit dem Benutzer `erika`
+nicht alle Kunden sehen dürfen.
+Sie dürfen aber Kundendetails von `erika` (Kundennummer `0816`) sehen.
+Was müssen Sie tun, um alle Kunden abrufen zu können?
+Dürfen Sie auch die Details von Max Mustermann (Kundennummer `0815` sehen?
+Was ist das Problem?

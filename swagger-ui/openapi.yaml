@@ -1,0 +1,62 @@
+openapi: 3.1.0
+info:
+  title: Authentication Service
+  version: 1.0.0
+servers:
+- url: http://localhost:9191
+paths:
+  /auth/realms/master/protocol/openid-connect/token:
+    post:
+      operationId: authenticate
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+components:
+  schemas:
+    TokenRequest:
+      type: object
+      example:
+        grant_type: "password"
+        client_id: "onlineshop"
+        username: "erika"
+        password: "erika123"
+      properties:
+        grant_type:
+          type: string
+          example: "password"
+        client_id:
+          type: string
+          example: "onlineshop"
+        username:
+          type: string
+          example: "erika"
+        password:
+          type: string
+          example: "erika123"
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        expires_in:
+          type: integer
+        token_type:
+          type: string
+        scope:
+          type: string
+        session_state:
+          type: string
+        not_before_policy:
+          type: integer
+        refresh_token:
+          type: string
+        refresh_expires_in:
+          type: integer

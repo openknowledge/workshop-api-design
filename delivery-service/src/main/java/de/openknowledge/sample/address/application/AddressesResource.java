@@ -17,6 +17,7 @@ package de.openknowledge.sample.address.application;
 
 import java.util.logging.Logger;
 
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -40,6 +41,7 @@ import de.openknowledge.sample.address.domain.CustomerNumber;
  * RESTFul endpoint for delivery addresses
  */
 @ApplicationScoped
+@RolesAllowed("user")
 @Path("/delivery-addresses")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)

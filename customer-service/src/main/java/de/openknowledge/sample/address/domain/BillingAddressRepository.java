@@ -31,8 +31,10 @@ import javax.ws.rs.core.Response;
 
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import de.openknowledge.sample.customer.domain.CustomerNumber;
+import de.openknowledge.sample.jwt.infrastructure.JwtClientFilter;
 
 @ApplicationScoped
 public class BillingAddressRepository {
@@ -44,33 +46,36 @@ public class BillingAddressRepository {
     @ConfigProperty(name = "billing-service.url")
     String billingServiceUrl;
 
+    @Inject
+    JsonWebToken token;
+
     Client client;
 
     @PostConstruct
     public void newClient() {
-        client = ClientBuilder.newClient();
+        client = ClientBuilder.newClient().register(new JwtClientFilter(token));
     }
 
     public Optional<Address> find(CustomerNumber customerNumber) {
         LOG.info("load billing address from " + billingServiceUrl);
         return Optional.of(client
-            .register(JsonbJaxrsProvider.class)
-            .target(billingServiceUrl)
-            .path(BILLING_ADDRESSES_PATH)
-            .path(customerNumber.toString())
-            .request(MediaType.APPLICATION_JSON)
-            .get())
-            .filter(r -> r.getStatusInfo().getFamily() == SUCCESSFUL)
-            .filter(Response::hasEntity)
-            .map(r -> r.readEntity(Address.class));
+                .register(JsonbJaxrsProvider.class)
+                .target(billingServiceUrl)
+                .path(BILLING_ADDRESSES_PATH)
+                .path(customerNumber.toString())
+                .request(MediaType.APPLICATION_JSON)
+                .get())
+                .filter(r -> r.getStatusInfo().getFamily() == SUCCESSFUL)
+                .filter(Response::hasEntity)
+                .map(r -> r.readEntity(Address.class));
     }
 
     public void update(CustomerNumber customerNumber, Address billingAddress) {
         LOG.info("update billing address at " + billingServiceUrl);
         client.target(billingServiceUrl)
-            .path(BILLING_ADDRESSES_PATH)
-            .path(customerNumber.toString())
-            .request(MediaType.APPLICATION_JSON)
-            .post(entity(billingAddress, MediaType.APPLICATION_JSON_TYPE));
+                .path(BILLING_ADDRESSES_PATH)
+                .path(customerNumber.toString())
+                .request(MediaType.APPLICATION_JSON)
+                .post(entity(billingAddress, MediaType.APPLICATION_JSON_TYPE));
     }
 }

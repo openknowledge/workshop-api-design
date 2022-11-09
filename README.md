@@ -1,37 +1,23 @@
-## Workshop API Security
+## Workshop API Design
 
-This repository contains samples for the workshop API Security.
+Herzlich willkommen zum Workshop API Design.
 
-# Running the samples of the workshop
+# Aufgabe: Rate Limiting über API Gateway
 
-The samples run with Docker Compose.
-So please ensure you have docker installed in a recent version.
-
-Start the examples by typing
+Starten Sie die Services mit Docker Compose:
 
 ```
 docker compose up --build
 ```
 
-from within the folder you cloned the repository.
+## Laden aller Kunden über den API Gateway
 
-# Exercises
+Unter [Customers](http://localhost:8000/customers) können Sie die Kunden laden.
 
-You find the exercises in the corresponding branches
+Wenn Sie den Reload-Button schnell
+hintereinander drücken,
+soll der Status Code `503 - Service temporarily unavailable` erscheinen.
 
-* [Exercise JWT](https://github.com/openknowledge/workshop-api-security/tree/jwt)
-* [Exercise Client Credential Flow](https://github.com/openknowledge/workshop-api-security/tree/client-credential)
-* [Exercise Excessive Data Exposure](https://github.com/openknowledge/workshop-api-security/tree/excessive-data-exposure)
-* [Exercise Rate Limiting](https://github.com/openknowledge/workshop-api-security/tree/rate-limiting)
-* [Exercise Domain Object Security](https://github.com/openknowledge/workshop-api-security/tree/domain-object-security)
-
-## Troubleshooting (Mac M1 processor)
-
-The keycloak image used in some of the excercises
-is not compatible with the new M1 processor of Mac.
-In order to run the samples, you have to build the container from scratch:
-
-```
-git clone git clone https://github.com/keycloak/keycloak-containers.git keycloak/containers
-docker build -t jboss/keycloak:14.0.0 ./keycloak
-```
+Um das zu erreichen,
+fügen Sie die auskommentierten Zeilen
+in `api-gateway/nginx.conf` hinzu.

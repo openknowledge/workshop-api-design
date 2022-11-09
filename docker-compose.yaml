@@ -1,4 +1,12 @@
 services:
+  api-gateway:
+    image: nginx:1.21.0
+    container_name: api-gateway
+    ports:
+      - "8000:8080"
+    volumes:
+      - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf
+
   customer-service:
     build: customer-service/
     container_name: customer-service

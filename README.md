@@ -11,40 +11,22 @@ docker compose up --build
 ```
 
 Unter [Startseite](http://localhost:6060/index.html) finden Sie die Startseite.
-Der Login-Button ist allerdings noch funktionslos.
+Der Login-Button verwendet allerdings noch kein PKCE.
 
-Sie können die Startseite ändern, indem Sie `authentication-ui/static/index.html`
-bearbeiten.
-
-Beim Klick auf den Login-Button soll ein Redirect auf den Authorization-Endpoint
-`http://localhost:9191/realms/master/protocol/openid-connect/auth` erfolgen.
-Dabei müssen folgende Query-Parameter übergeben werden:
+Um PKCE zu verwenden, müssen sie dem Authorization-Request zwei Parameter hinzufügen:
 
 ```
-client_id: "onlineshop"
-scope: "openid"
-response_type: "code"
-redirect_uri: <die eigene Seite>
+code_challenge_method: "S256"
+code_challenge: <<Der Code Challenge>>
 ```
 
-Wenn das Login erfolgreich war,
-wird der Authorization-Server den Redirect ausführen
-und einen Query-Parameter namens `code` mitschicken.
-Dies ist der Authorization-Code.
+Um den Code Challenge zu erstellen, müssen Sie zunächst einen zufälligen String erzeugen,
+den sogenannten Code Verifier.
+Den Code Verifier müssen Sie sich lokal (z.B. im Session-Storage) speichern.
+Darüber wird eine Man-In-The-Middle-Attacke verhindert.
+Indem Sie der Methode `generateCodeChallenge` diesen zufälligen String übergeben,
+erhalten sie den passenden Code Challenge.
 
-Mit dem Authorization Code kann nun ein POST-Request auf den Token-Endpoint
-`http://localhost:9191/realms/master/protocol/openid-connect/token`
-erfolgen.
-Der POST-Request wird mit dem Content-Type `application/x-www-form-urlencoded` ausgeführt.
-Dabei wird folgender Body mitgeschickt:
-
-```
-client_id: "onlineshop"
-scope: "openid"
-grant_type: "authorization_code"
-redirect_uri: <die eigene Seite>
-code: <<der Authorization Code>>
-```
-
-In der Antwort dieses Requests ist das JWT enthalten.
-Dieses kann nun auf der Startseite angezeigt werden.
+Später müssen Sie beim Token-Request einen Parameter namens `code_verifier` hinzufügen,
+der den gespeicherten Code Verifier enthält. Nur wenn dieser zum Code Challenge passt,
+erhalten Sie dann ein JWT.

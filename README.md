@@ -48,4 +48,3 @@ code: <<der Authorization Code>>
 
 In der Antwort dieses Requests ist das JWT enthalten.
 Dieses kann nun auf der Startseite angezeigt werden.
-

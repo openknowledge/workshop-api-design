@@ -9,8 +9,18 @@
     <button id="loginButton">Login</button>
     <div id="result"></div>
     <script>
+        const authorizeEndpoint = "http://localhost:9191/auth/realms/master/protocol/openid-connect/auth";
+        const tokenEndpoint = "http://localhost:9191/auth/realms/master/protocol/openid-connect/token";
+
         document.getElementById("loginButton").onclick = function() {
-            console.log("Redirect to authentication server");
+            var redirectUri = window.location.href;
+            var args = new URLSearchParams({
+                client_id: "onlineshop",
+                scope: "openid",
+                response_type: "code",
+                redirect_uri: redirectUri
+            });
+            window.location = authorizeEndpoint + "/?" + args;
         }
 
         if (window.location.search) {
@@ -18,7 +28,23 @@
             var code = args.get("code");
 
             if (code) {
-                console.log("Authenticate with authorization code");
+                fetch(tokenEndpoint, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        client_id: "onlineshop",
+                        scope: "openid",
+                        grant_type: "authorization_code",
+                        redirect_uri: location.href.replace(location.search, ''),
+                        code: code
+                    })
+                }
+                ).then(response => response.json()
+                ).then(json => {
+                    document.getElementById("result").innerHTML = json.access_token;
+                });
             }
         }
     </script>

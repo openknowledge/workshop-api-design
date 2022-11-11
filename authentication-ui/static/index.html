@@ -13,14 +13,24 @@
         const tokenEndpoint = "http://localhost:9191/auth/realms/master/protocol/openid-connect/token";
 
         document.getElementById("loginButton").onclick = function() {
-            var redirectUri = window.location.href;
-            var args = new URLSearchParams({
-                client_id: "onlineshop",
-                scope: "openid",
-                response_type: "code",
-                redirect_uri: redirectUri
-            });
-            window.location = authorizeEndpoint + "/?" + args;
+            var codeVerifier = generateRandomString(64);
+            window.sessionStorage.setItem("code_verifier", codeVerifier);
+
+            Promise.resolve()
+                .then(() => generateCodeChallenge(codeVerifier))
+                .then(codeChallenge => {
+
+                    var redirectUri = window.location.href;
+                    var args = new URLSearchParams({
+                        client_id: "onlineshop",
+                        scope: "openid",
+                        response_type: "code",
+                        code_challenge_method: "S256",
+                        code_challenge: codeChallenge,
+                        redirect_uri: redirectUri
+                    });
+                    window.location = authorizeEndpoint + "/?" + args;
+                });
         }
 
         async function generateCodeChallenge(codeVerifier) {
@@ -55,6 +65,7 @@
                     body: new URLSearchParams({
                         client_id: "onlineshop",
                         scope: "openid",
+                        code_verifier: window.sessionStorage.getItem("code_verifier"),
                         grant_type: "authorization_code",
                         redirect_uri: location.href.replace(location.search, ''),
                         code: code

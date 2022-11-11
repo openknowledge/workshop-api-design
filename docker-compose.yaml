@@ -1,12 +1,19 @@
 services:
-  swagger-ui:
-    image: swaggerapi/swagger-ui:v5.17.7
+  authentication-ui:
+    image: nginx:1.27.1
     ports:
       - "6060:8080"
     volumes:
-      - ./swagger-ui:/usr/share/nginx/html/doc
+      - ./authentication-ui/nginx.conf.template:/etc/nginx/nginx.conf.template
+      - ./authentication-ui/static:/var/www
     environment:
-      API_URL: doc/openapi.yaml
+      CODESPACE_NAME: ${CODESPACE_NAME:-}
+    command: |
+      /bin/bash -c '
+      export CODESPACE_HOST=$([ -n "$CODESPACE_NAME" ] && echo "$CODESPACE_NAME-6060.app.github.dev" || echo "localhost:6060");
+      envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf;
+      exec nginx -g "daemon off;"
+      '
 
   customer-service:
     build: customer-service/

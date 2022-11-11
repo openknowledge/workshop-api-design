@@ -15,6 +15,7 @@
  */
 package de.openknowledge.sample.address.infrastructure;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -24,6 +25,7 @@ import javax.ws.rs.ext.Provider;
  * Filter to allow cross origin calls.
  */
 @Provider
+@ApplicationScoped
 public class CorsFilter implements ContainerResponseFilter {
 
     @Override

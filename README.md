@@ -2,61 +2,50 @@
    
 Herzlich willkommen zum Workshop API Design.
    
-## Aufgabe: Authentifizierung mit JWT
+## Aufgabe: Implementierung des Authorization Code Flows
 
 Starten Sie die Services mit Docker Compose:
 
-Unter [Customer Service](http://localhost:4000/webjars/swagger-ui/index.html)
-erreichen Sie die Swagger UI des Customer Service.
-
-Wenn Sie dort versuchen, sich die Liste aller Kunden ausgeben zu lassen,
-werden Sie feststellen, dass Sie dies nicht dürfen.
-
-### Holen eines Json Web Token
-
-Mit dem folgenden HTTP-Aufruf können Sie ein Token erhalten:
 ```
-POST http://localhost:9191/realms/master/protocol/openid-connect/token
-```
-Header:
-```
-Content-Type: application/x-www-form-urlencoded
-```
-Body:
-```
-grant_type:password
-client_id:onlineshop
-username:erika
-password:erika123
+docker compose up --build
 ```
 
-Folgende Benutzer stehen zur Verfügung:
+Unter [Startseite](http://localhost:6060/index.html) finden Sie die Startseite.
+Der Login-Button ist allerdings noch funktionslos.
 
-* admin / admin123 (role admin)
-* erika / erika123 (role user)
-* max / max123 (role user)
-* james / james123 (role user)
+Sie können die Startseite ändern, indem Sie `authentication-ui/static/index.html`
+bearbeiten.
 
-Sie können die Authentifizierung auch über die
-[Swagger UI des Authentication Service](http://localhost:6060/)
-durchführen.
+Beim Klick auf den Login-Button soll ein Redirect auf den Authorization-Endpoint
+`http://localhost:9191/realms/master/protocol/openid-connect/auth` erfolgen.
+Dabei müssen folgende Query-Parameter übergeben werden:
 
-### Analysieren des Tokens
+```
+client_id: "onlineshop"
+scope: "openid"
+response_type: "code"
+redirect_uri: <die eigene Seite>
+```
 
-Das erhaltene Token ist base64-codiert.
-Man kann es sich unter [JWT.io](https://jwt.io) anschauen.
+Wenn das Login erfolgreich war,
+wird der Authorization-Server den Redirect ausführen
+und einen Query-Parameter namens `code` mitschicken.
+Dies ist der Authorization-Code.
 
-### Aufruf des Services
+Mit dem Authorization Code kann nun ein POST-Request auf den Token-Endpoint
+`http://localhost:9191/realms/master/protocol/openid-connect/token`
+erfolgen.
+Der POST-Request wird mit dem Content-Type `application/x-www-form-urlencoded` ausgeführt.
+Dabei wird folgender Body mitgeschickt:
 
-Das erhaltene JWT können Sie zur Authentifizierung beim
-[Customer Service](http://localhost:4000/webjars/swagger-ui/index.html)
-verwenden.
+```
+client_id: "onlineshop"
+scope: "openid"
+grant_type: "authorization_code"
+redirect_uri: <die eigene Seite>
+code: <<der Authorization Code>>
+```
 
-### Authorisierung
+In der Antwort dieses Requests ist das JWT enthalten.
+Dieses kann nun auf der Startseite angezeigt werden.
 
-Sie werden feststellen, dass sie auch mit dem Benutzer `erika`
-nicht alle Kunden sehen dürfen.
-Sie dürfen aber Kundendetails von `erika` (Kundennummer `0816`) sehen.
-Was müssen Sie tun, um alle Kunden abrufen zu können?
-Dürfen Sie auch die Details von Max Mustermann (Kundennummer `0815` sehen?
-Was ist das Problem?

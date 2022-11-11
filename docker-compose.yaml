@@ -1,12 +1,11 @@
 services:
-  swagger-ui:
-    image: swaggerapi/swagger-ui:v5.17.7
+  authentication-ui:
+    image: nginx:1.21.0
     ports:
       - "6060:8080"
     volumes:
-      - ./swagger-ui:/usr/share/nginx/html/doc
-    environment:
-      API_URL: doc/openapi.yaml
+      - ./authentication-ui/nginx.conf:/etc/nginx/nginx.conf
+      - ./authentication-ui/static:/var/www
 
   customer-service:
     build: customer-service/

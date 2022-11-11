@@ -15,6 +15,7 @@
  */
 package de.openknowledge.sample.address.infrastructure;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.validation.ValidationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -23,6 +24,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 @Provider
+@ApplicationScoped
 public class ValidationExceptionHandler implements ExceptionMapper<ValidationException> {
 
     private static final String PROBLEM_JSON_TYPE = "application/problem+json";

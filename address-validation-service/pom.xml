@@ -14,6 +14,7 @@
     <groupId>de.openkonwledge.sample.shop</groupId>
     <artifactId>${service.name}</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <packaging>war</packaging>
 
     <properties>
         <service.name>online-shop</service.name>
@@ -26,8 +27,19 @@
         <junit.version>5.8.2</junit.version>
     </properties>
 
-    <dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>1.27.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
+    <dependencies>
         <dependency>
             <groupId>org.apache.meecrowave</groupId>
             <artifactId>meecrowave-specs-api</artifactId>
@@ -123,6 +135,15 @@
             <version>1.0.6</version>
         </dependency>
         <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+            <version>1.27.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
@@ -177,16 +198,22 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.4</version>
+                <version>3.0.0-M5</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.meecrowave</groupId>
                 <artifactId>meecrowave-maven-plugin</artifactId>
                 <version>${meecrowave.version}</version>
+                <configuration>
+                    <argLine>-javaagent:/opt/opentelemetry-javaagent.jar -Dotel.javaagent.extensions=/opentelemetry-javaagent-extension.jar -Dlog4j2.configurationFile=/opt/log4j2.xml</argLine>
+                    <properties>
+                        <meecrowave.jvm.args>-javaagent:/opt/opentelemetry-javaagent.jar -Dotel.javaagent.extensions=/opentelemetry-javaagent-extension.jar -Dlog4j2.configurationFile=/opt/log4j2.xml</meecrowave.jvm.args>
+                    </properties>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.2.0</version>
                 <configuration>
                     <consoleOutput>true</consoleOutput>
                     <headerLocation>${project.basedir}/src/main/checkstyle/java.header</headerLocation>
@@ -203,6 +230,41 @@
                         <configuration>
                             <configLocation>${project.basedir}/src/main/checkstyle/configuration.xml</configLocation>
                             <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-runner</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.meecrowave</groupId>
+                                    <artifactId>meecrowave-core</artifactId>
+                                    <version>${meecrowave-version}</version>
+                                    <classifier>runner</classifier>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.opentelemetry.javaagent</groupId>
+                                    <artifactId>opentelemetry-javaagent</artifactId>
+                                    <version>2.16.0</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.opentelemetry.contrib</groupId>
+                                    <artifactId>opentelemetry-samplers</artifactId>
+                                    <version>1.46.0-alpha</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/runner</outputDirectory>
+                            <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>
                 </executions>

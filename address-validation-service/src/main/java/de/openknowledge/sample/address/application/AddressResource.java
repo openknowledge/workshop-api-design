@@ -18,7 +18,6 @@ package de.openknowledge.sample.address.application;
 import static java.util.stream.Collectors.joining;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -64,8 +63,9 @@ public class AddressResource {
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response validateAddress(Address address, @Context UriInfo uri) throws URISyntaxException {
+    public Response validateAddress(Address address, @Context UriInfo uri) throws InterruptedException {
         LOGGER.info("RESTful call 'POST valid address'");
+
         if (addressesRepository.isValid(address)) {
             LOGGER.fine("address is valid");
             return Response.ok().build();

@@ -1,39 +1,41 @@
 # Workshop API Design
 
-Herzlich willkommen zum Workshop API Design.
+Herzlich willkommen zur Übung der Verwendung von Pact in der Build- und Deployment-Pipeline
 
-## Übungen
+## Setup starten
 
-### API Design
+Starte das Setup mit docker compose
 
-- [OpenAPI](https://github.com/openknowledge/workshop-api-design/tree/openapi)
-- [Mocking](https://github.com/openknowledge/workshop-api-design/tree/wiremock)
-- [AsyncAPI](https://github.com/openknowledge/workshop-api-design/tree/asyncapi)
+```
+docker compose up --build
+```
 
-### API Testing
+Es werden neben unseren vier bekannten Microservices folgende Services gestartet:
+- [Prometheus Server](http://localhost:4318)
+- [Jaeger Server](http://localhost:5318)
+- [Grafana Server](http://localhost:3000)
 
-- [Pact](https://github.com/openknowledge/workshop-api-design/tree/pact-mock-server)
-- [Pact Pipeline](https://github.com/openknowledge/workshop-api-design/tree/pact)
+## Übung 1 - Finden des langsamen Services
 
-### API Security
+Wir wollen den Betrieb unserer Services überwachen.
+Ein besonderes Augenmerk liegt dabei auf dem Setzen der Lieferaddresse.
+Dies ist ein Service-Call über mehrere Services,
+der in der Vergangenheit häufiger Schwierigkeiten bereitet hat.
+Der Customer Service ruft dabei den Delivery Service auf,
+der wiederum den Address-Validation Service aufruft.
+Wir haben mit den Stakeholdern vereinbart,
+dass das Ändern der Lieferaddresse nicht länger als 100ms dauern darf.
+Genauer haben wir vereinbart, dass 95 % der Requests in unter 100ms abgearbeitet sein sollen.
 
-- [JWT](https://github.com/openknowledge/workshop-api-design/tree/jwt)
-- [OAuth2](https://github.com/openknowledge/workshop-api-design/tree/oauth2)
-- [OAuth2 mit PKCE](https://github.com/openknowledge/workshop-api-design/tree/oauth2-pkce)
+Betrachten wir die Beobachtung der letzten fünf Minuten,
+können wir sehen, dass wir dieses Versprechen aktuell nicht einhalten.
+Woran sehen wir das?
 
-### API Governance
+Nun wissen wir nicht, wo das Problem liegt. Es kann in allen beteiligten Services liegen,
+also Customer Service, Delivery Service oder Address-Validation Service.
 
-- [Linting](https://github.com/openknowledge/workshop-api-design/tree/linting)
+In welchem Service liegt das Problem?
 
-### API Management
+## Übung 2 - Finden der Ursache des Performance-Problems
 
-- [Rate Limiting](https://github.com/openknowledge/workshop-api-design/tree/rate-limiting)
-- [Backstage](https://github.com/openknowledge/workshop-api-design/tree/backstage)
-
-### API Operation
-
-- [Observability](https://github.com/openknowledge/workshop-api-design/tree/observability)
-
-### API Evolution
-
-- [Versioning](https://github.com/openknowledge/workshop-api-design/tree/versioning)
+Was ist die Ursache dafür, dass der Service so langsam ist?

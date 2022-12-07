@@ -1,0 +1,14 @@
+minio:
+  enabled: true
+loki:
+  replicas: 1
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+  useTestSchema: true
+read:
+  replicas: 1
+write:
+  replicas: 1
+backend:
+  replicas: 1

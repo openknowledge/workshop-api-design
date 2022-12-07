@@ -4,14 +4,14 @@ WORKDIR /usr/src/online-shop
 COPY pom.xml ./
 RUN mvn package dependency:go-offline # cache dependencies
 COPY src ./src
-RUN mvn clean package meecrowave:bundle -Dservice.name=delivery-service -Dmaven.test.skip=true -Dcheckstyle.skip=true
+RUN mvn clean package -Dservice.name=delivery-service -DskipTests
 
 FROM eclipse-temurin:21-jre
 
-RUN apt-get update -qq && apt-get install --no-install-recommends -qqy unzip && rm -rf /var/lib/apt/lists/*
-COPY --from=mvn /usr/src/online-shop/target/delivery-service-meecrowave-distribution.zip /opt/delivery-service.zip
-WORKDIR /opt
-RUN unzip delivery-service.zip && rm delivery-service.zip
 EXPOSE 8080
-
-ENTRYPOINT ["/opt/delivery-service-distribution/bin/meecrowave.sh", "run"]
+COPY --from=mvn /usr/src/online-shop/target/runner/meecrowave-core-runner.jar /opt/meecrowave-runner.jar
+COPY --from=mvn /usr/src/online-shop/target/runner/opentelemetry-javaagent.jar /opt/opentelemetry-javaagent.jar
+COPY --from=mvn /usr/src/online-shop/target/runner/opentelemetry-samplers.jar /opt/opentelemetry-javaagent-extension.jar
+COPY --from=mvn /usr/src/online-shop/target/delivery-service.war /opt/delivery-service.war
+COPY src/main/resources/log4j2.xml /opt/log4j2.xml
+ENTRYPOINT ["java", "--illegal-access=permit", "-javaagent:/opt/opentelemetry-javaagent.jar", "-Dotel.javaagent.extensions=/opentelemetry-javaagent-extension.jar", "-Djava.net.preferIPv4Stack=true", "-Dlog4j2.configurationFile=/opt/log4j2.xml", "-jar", "/opt/meecrowave-runner.jar", "--webapp", "/opt/delivery-service.war"]

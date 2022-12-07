@@ -76,6 +76,15 @@ public class Address {
         return recipient.equals(recipient) && Objects.equals(street, address.street) && Objects.equals(city, address.city);
     }
 
+    @Override
+    public String toString() {
+        return "Address{"
+            + "recipient=" + recipient
+            + ", street=" + street
+            + ", city=" + city
+            + '}';
+    }
+
     public static Builder of(String recipient) {
         return new Builder(new Recipient(recipient));
     }

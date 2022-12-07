@@ -1,17 +1,43 @@
 services:
+
   customer-service:
     build: customer-service/
+    container_name: customer-service
     ports:
       - "8181:8080"
     environment:
       - BILLING_SERVICE_URL=http://billing-service:8080
       - DELIVERY_SERVICE_URL=http://delivery-service:8080
+      - OTEL_SERVICE_NAME=customer-service
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
+      - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://collector:4318/v1/metrics
+    depends_on:
+      collector:
+        condition: service_started
+      jaeger:
+        condition: service_started
 
   billing-service:
     build: billing-service/
     container_name: billing-service
     ports:
       - "8182:8080"
+    environment:
+      - OTEL_SERVICE_NAME=billing-service
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=console
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
+    depends_on:
+      collector:
+        condition: service_started
+      jaeger:
+        condition: service_started
 
   delivery-service:
     build: delivery-service/
@@ -20,9 +46,106 @@ services:
       - "8183:8080"
     environment:
       - ADDRESS_VALIDATION_SERVICE_URL=http://address-validation-service:8080
+      - OTEL_SERVICE_NAME=delivery-service
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=console
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
+    depends_on:
+      collector:
+        condition: service_started
+      jaeger:
+        condition: service_started
 
   address-validation-service:
     build: address-validation-service/
     container_name: address-validation_service
     ports:
       - "8184:8080"
+    environment:
+      - OTEL_SERVICE_NAME=address-validation-service
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=console
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
+    depends_on:
+      collector:
+        condition: service_started
+      jaeger:
+        condition: service_started
+
+  loki:
+    image: grafana/loki:3.4.0
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    depends_on:
+      grafana:
+        condition: service_started
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.66.0
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "5318:4318"
+      - "16686:16686"
+    depends_on:
+      grafana:
+        condition: service_started
+
+  prometheus:
+    image: prom/prometheus:v3.2.0
+    container_name: prometheus
+    ports:
+      - "9091:8080"
+      - "9090:9090"
+    volumes:
+      - ./deployment/docker-compose/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      grafana:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana:11.5.2
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/tracing-dashboard.json
+    volumes:
+      - ./deployment/docker-compose/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      - ./deployment/docker-compose/dashboard.json:/etc/grafana/provisioning/dashboards/tracing-dashboard.json
+      - ./deployment/docker-compose/datasource.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+
+  collector:
+    image: otel/opentelemetry-collector-contrib:0.126.0
+    volumes:
+      - ./collector-config.yaml:/etc/otelcol-contrib/config.yaml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"   # Prometheus exporter metrics
+    expose:
+      - 4318
+    depends_on:
+      loki:
+        condition: service_started
+      prometheus:
+        condition: service_started
+  traffic-generator:
+    image: curlimages/curl:8.7.1
+    volumes:
+    - "./scripts/post-delivery-addresses-script.sh:/work/post-delivery-addresses-script.sh:rwx"
+    command: /work/post-delivery-addresses-script.sh
+    depends_on:
+      customer-service:
+        condition: service_started
+      delivery-service:
+        condition: service_started
+      address-validation-service:
+        condition: service_started

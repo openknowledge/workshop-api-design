@@ -1,0 +1,136 @@
+{
+	"info": {
+		"_postman_id": "f23733c6-87d0-45df-b578-8ec322fafd42",
+		"name": "service-management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Show customers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:30082/customers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30082",
+					"path": [
+						"customers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create customer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Sherlock Holmes\",\n    \"number\": \"1234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:30082/customers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30082",
+					"path": [
+						"customers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show customer Copy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:30082/customers/0815",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30082",
+					"path": [
+						"customers",
+						"0815"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change delivery address",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"city\": \"45127 Essen\",\n    \"recipient\": \"Erika Mustermann\",\n    \"street\": {\n        \"name\": \"II. Hagen\",\n        \"number\": \"7\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:30082/customers/0815/delivery-address",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30082",
+					"path": [
+						"customers",
+						"0815",
+						"delivery-address"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change billing address",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"city\": \"45127 Essen\",\n    \"recipient\": \"Erika Mustermann\",\n    \"street\": {\n        \"name\": \"II. Hagen\",\n        \"number\": \"7\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:30082/customers/0815/billing-address",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30082",
+					"path": [
+						"customers",
+						"0815",
+						"billing-address"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

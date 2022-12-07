@@ -1,0 +1,49 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: jaeger-monitor
+  namespace: observability
+spec:
+  podMetricsEndpoints:
+    - path: /metrics
+      port: "admin-http"
+  namespaceSelector:
+    matchNames:
+      - observability
+  selector:
+    matchLabels:
+      app: jaeger
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: collector-monitor
+  namespace: production
+spec:
+  podMetricsEndpoints:
+    - path: /metrics
+      port: "metrics"
+    - path: /metrics
+      port: "prometheus"
+  namespaceSelector:
+    matchNames:
+      - production
+  selector:
+    matchLabels:
+      sidecar.opentelemetry.io/injected: production.otel-collector
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: app-monitor
+  namespace: production
+spec:
+  podMetricsEndpoints:
+    - path: /metrics
+      port: "http"
+  namespaceSelector:
+    matchNames:
+      - production
+  selector:
+    matchLabels:
+      app.type: microservice

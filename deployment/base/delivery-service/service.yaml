@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: delivery-service
+spec:
+  selector:
+    app: delivery-service
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30083
+      name: service
+    - protocol: TCP
+      port: 8888
+      targetPort: 8888
+      name: collector
+

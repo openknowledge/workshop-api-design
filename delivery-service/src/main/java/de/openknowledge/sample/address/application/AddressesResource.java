@@ -15,6 +15,7 @@
  */
 package de.openknowledge.sample.address.application;
 
+import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -31,6 +32,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import de.openknowledge.sample.address.domain.Address;
 import de.openknowledge.sample.address.domain.AddressRepository;
 import de.openknowledge.sample.address.domain.AddressValidationService;
@@ -46,7 +51,7 @@ import de.openknowledge.sample.address.domain.CustomerNumber;
 public class AddressesResource {
 
     private static final Logger LOG = Logger.getLogger(AddressesResource.class.getSimpleName());
-
+    private static final Random RAND = new Random();
     @Inject
     private AddressValidationService addressValidationService;
     @Inject
@@ -55,8 +60,11 @@ public class AddressesResource {
     @GET
     @Path("/{customerNumber}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Address getAddress(@PathParam("customerNumber") CustomerNumber number) {
+    @WithSpan("Get Customer Address by Customer Number")
+    public Address getAddress(@SpanAttribute("customerNumber") @PathParam("customerNumber") CustomerNumber number) {
         LOG.info("RESTful call 'GET address'");
+        Span.current().addEvent("RESTful call 'GET address'");
+
         return addressRepository.find(number).orElseThrow(NotFoundException::new);
     }
 
@@ -66,11 +74,22 @@ public class AddressesResource {
     public Response setAddress(
         @PathParam("customerNumber") CustomerNumber customerNumber,
         Address address,
-        @Context UriInfo uri) {
+        @Context UriInfo uri) throws InterruptedException {
+
+        if (RAND.nextBoolean()) {
+            int millisecondsToSleep = RAND.nextInt(1001) + 500;
+            Thread.sleep(millisecondsToSleep);
+            Span.current().addEvent("I am sleeping for " + toSeconds(millisecondsToSleep) + " seconds!");
+            LOG.info("I am sleeping for " + toSeconds(millisecondsToSleep) + " seconds!");
+        }
 
         LOG.info("RESTful call 'POST address'");
         addressValidationService.validate(address);
         addressRepository.update(customerNumber, address);
         return Response.ok().build();
+    }
+
+    private static double toSeconds(int secondsToSleep) {
+        return secondsToSleep / 1000d;
     }
 }

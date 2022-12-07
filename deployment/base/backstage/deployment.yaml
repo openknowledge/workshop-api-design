@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backstage-deployment
+  labels:
+    app: backstage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backstage
+  template:
+    metadata:
+      labels:
+        app: backstage
+    spec:
+      containers:
+        - name: backstage
+          image: docker.host.internal:5000/backstage:latest
+          ports:
+            - containerPort: 7007
+              name: http
+          env:
+            - name: PACT_URL
+              value: http://pact:8080/pacts/latest

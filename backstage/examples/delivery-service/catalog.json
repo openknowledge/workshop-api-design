@@ -1,0 +1,44 @@
+[
+  {
+    "apiVersion": "backstage.io/v1alpha1",
+    "kind": "Component",
+    "metadata": {
+      "name": "delivery-service",
+      "links": [{
+        "url": "http://localhost:30083/webjars/swagger-ui/index.html",
+        "title": "Delivery Service"
+      }],
+      "annotations": {
+        "backstage.io/managed-by-origin-location": "url:http://localhost:9080/service-repository/api/backstage/catalog-info.yaml",
+        "backstage.io/managed-by-location": "url:http://localhost:9080/service-repository/api/backstage/catalog-info.yaml"
+      }
+    },
+    "spec": {
+      "type": "business-api",
+      "description": "This is the description of the delivery service.",
+      "lifecycle": "experimental",
+      "owner": "ok-delivery-team",
+      "providesApis": [
+        "delivery-service-api"
+      ],
+      "consumesApis": []
+    }
+  },
+  {
+    "apiVersion": "backstage.io/v1alpha1",
+    "kind": "API",
+    "metadata": {
+      "name": "delivery-service-api",
+      "annotations": {
+        "backstage.io/managed-by-origin-location": "url:http://localhost:9080/service-repository/api/backstage/catalog-info.yaml",
+        "backstage.io/managed-by-location": "url:http://localhost:9080/service-repository/api/backstage/catalog-info.yaml"
+      }
+    },
+    "spec": {
+      "type": "openapi",
+      "lifecycle": "experimental",
+      "owner": "ok-delivery-team",
+      "definition": "{\"servers\":[{\"url\":\"http://localhost:30083\"}],\"components\":{\"schemas\":{\"Address\":{\"properties\":{\"city\":{\"$ref\":\"#/components/schemas/City\",\"example\":\"26122 Oldenburg\",\"type\":\"object\"},\"street\":{\"$ref\":\"#/components/schemas/Street\",\"type\":\"object\"},\"recipient\":{\"$ref\":\"#/components/schemas/Recipient\",\"example\":\"Max Mustermann\",\"type\":\"object\"}},\"type\":\"object\"},\"Recipient\":{\"example\":\"Max Mustermann\",\"properties\":{},\"type\":\"object\"},\"Street\":{\"properties\":{\"number\":{\"example\":\"1\",\"type\":\"string\"},\"name\":{\"example\":\"Poststr.\",\"type\":\"string\"}},\"type\":\"object\"},\"City\":{\"example\":\"26122 Oldenburg\",\"properties\":{},\"type\":\"object\"}}},\"openapi\":\"3.0.1\",\"paths\":{\"/delivery-addresses/{customerNumber}\":{\"get\":{\"operationId\":\"getAddress\",\"parameters\":[{\"allowEmptyValue\":false,\"allowReserved\":false,\"description\":\"The business identifier of a customer \",\"example\":\"0815\",\"in\":\"path\",\"name\":\"customerNumber\",\"required\":true,\"schema\":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Address\",\"type\":\"object\"}}},\"description\":\"default response\"},\"default\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Address\",\"type\":\"object\"}}},\"description\":\"default response\"}}},\"post\":{\"operationId\":\"setAddress\",\"parameters\":[{\"allowEmptyValue\":false,\"allowReserved\":false,\"description\":\"The business identifier of a customer \",\"example\":\"0815\",\"in\":\"path\",\"name\":\"customerNumber\",\"required\":true,\"schema\":{\"type\":\"string\"}}],\"requestBody\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Address\",\"type\":\"object\"}}},\"required\":true},\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"nullable\":true,\"properties\":{},\"type\":\"object\"}}},\"description\":\"default response\"},\"default\":{\"content\":{\"application/json\":{\"schema\":{\"nullable\":true,\"properties\":{},\"type\":\"object\"}}},\"description\":\"default response\"}}}}}}"
+    }
+  }
+]

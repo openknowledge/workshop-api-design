@@ -15,6 +15,9 @@
  */
 package de.openknowledge.sample.customer.application;
 
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJECT;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
+
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.function.Supplier;
@@ -34,6 +37,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import org.eclipse.microprofile.openapi.annotations.headers.Header;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import de.openknowledge.sample.address.domain.Address;
 import de.openknowledge.sample.address.domain.BillingAddressRepository;
@@ -71,6 +80,7 @@ public class CustomerResource {
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
+    @APIResponse(responseCode = "201", headers = @Header(name = "Location", description = "contains the url of the created customer"))
     public Response createCustomer(Customer customer, @Context UriInfo uri) throws URISyntaxException {
         LOG.info("RESTful call 'POST new customer'");
         customerRepository.persist(customer);
@@ -80,8 +90,15 @@ public class CustomerResource {
     @GET
     @Path("/{customerNumber}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Customer getCustomer(@PathParam("customerNumber") CustomerNumber customerNumber) {
-        LOG.info("RESTful call 'GET customer'");
+    public Customer getCustomer(
+        @Parameter(
+            description = "The business identifier of a customer ",
+            required = true,
+            example = "0815",
+            schema = @Schema(type = STRING))
+        @PathParam("customerNumber") CustomerNumber customerNumber) {
+        
+    	LOG.info("RESTful call 'GET customer'");
         Customer customer = customerRepository.find(customerNumber).orElseThrow(customerNotFound(customerNumber));
         billingAddressRepository.find(customerNumber).ifPresent(customer::setBillingAddress);
         deliveryAddressRepository.find(customerNumber).ifPresent(customer::setDeliveryAddress);
@@ -91,7 +108,15 @@ public class CustomerResource {
     @PUT
     @Path("/{customerNumber}/billing-address")
     @Produces(MediaType.APPLICATION_JSON)
-    public void setBillingAddress(@PathParam("customerNumber") CustomerNumber customerNumber, Address billingAddress) {
+    @APIResponse(responseCode = "204", description = "No content", content = @Content(schema = @Schema(type = OBJECT, nullable = true)))
+    public void setBillingAddress(
+        @Parameter(
+            description = "The business identifier of a customer ",
+            required = true,
+            example = "0815",
+            schema = @Schema(type = STRING))
+        @PathParam("customerNumber") CustomerNumber customerNumber, Address billingAddress) {
+        
         LOG.info("RESTful call 'PUT billing address'");
         customerRepository.find(customerNumber).orElseThrow(customerNotFound(customerNumber));
         billingAddressRepository.update(customerNumber, billingAddress);
@@ -100,8 +125,15 @@ public class CustomerResource {
     @PUT
     @Path("/{customerNumber}/delivery-address")
     @Produces(MediaType.APPLICATION_JSON)
-    public void setDeliveryAddress(@PathParam("customerNumber") CustomerNumber customerNumber,
-            Address deliveryAddress) {
+    @APIResponse(responseCode = "204", description = "No content", content = @Content(schema = @Schema(type = OBJECT, nullable = true)))
+    public void setDeliveryAddress(
+        @Parameter(
+            description = "The business identifier of a customer ",
+            required = true,
+            example = "0815",
+            schema = @Schema(type = STRING))
+        @PathParam("customerNumber") CustomerNumber customerNumber, Address deliveryAddress) {
+        
         LOG.info("RESTful call 'PUT delivery address'");
         customerRepository.find(customerNumber).orElseThrow(customerNotFound(customerNumber));
         deliveryAddressRepository.update(customerNumber, deliveryAddress);

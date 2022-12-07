@@ -18,10 +18,14 @@ package de.openknowledge.sample.address.domain;
 import javax.json.bind.adapter.JsonbAdapter;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import de.openknowledge.sample.address.domain.CustomerNumber.Adapter;
 
 import static org.apache.commons.lang3.Validate.notBlank;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
+@Schema(name = "CustomerNumber", type = STRING)
 @JsonbTypeAdapter(Adapter.class)
 public class CustomerNumber {
     private String number;

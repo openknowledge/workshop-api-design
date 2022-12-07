@@ -1,0 +1,44 @@
+[
+  {
+    "apiVersion": "backstage.io/v1alpha1",
+    "kind": "Component",
+    "metadata": {
+      "name": "address-validation-service",
+      "links": [{
+        "url": "http://localhost:30080/webjars/swagger-ui/index.html",
+        "title": "Address Validation Service"
+      }],
+      "annotations": {
+        "backstage.io/managed-by-origin-location": "url:http://localhost:9080/service-repository/api/backstage/catalog-info.yaml",
+        "backstage.io/managed-by-location": "url:http://localhost:9080/service-repository/api/backstage/catalog-info.yaml"
+      }
+    },
+    "spec": {
+      "type": "system-api",
+      "description": "This is the description of the address-validation service.",
+      "lifecycle": "experimental",
+      "owner": "ok-user-team",
+      "providesApis": [
+        "address-validation-service-api"
+      ],
+      "consumesApis": []
+    }
+  },
+  {
+    "apiVersion": "backstage.io/v1alpha1",
+    "kind": "API",
+    "metadata": {
+      "name": "address-validation-service-api",
+      "annotations": {
+        "backstage.io/managed-by-origin-location": "url:http://localhost:9080/service-repository/api/backstage/catalog-info.yaml",
+        "backstage.io/managed-by-location": "url:http://localhost:9080/service-repository/api/backstage/catalog-info.yaml"
+      }
+    },
+    "spec": {
+      "type": "openapi",
+      "lifecycle": "experimental",
+      "owner": "ok-user-team",
+      "definition": "{\"servers\":[{\"url\":\"http://localhost:30080\"}],\"components\":{\"schemas\":{\"Address\":{\"properties\":{\"city\":{\"$ref\":\"#/components/schemas/City\",\"type\":\"object\"},\"street\":{\"$ref\":\"#/components/schemas/Street\",\"type\":\"object\"}},\"type\":\"object\"},\"City\":{\"properties\":{\"zipCode\":{\"type\":\"string\"},\"cityName\":{\"type\":\"string\"}},\"type\":\"object\"},\"Street\":{\"properties\":{\"number\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"}},\"type\":\"object\"}}},\"openapi\":\"3.0.1\",\"paths\":{\"/valid-addresses\":{\"post\":{\"operationId\":\"validateAddress\",\"parameters\":[],\"requestBody\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Address\",\"type\":\"object\"}}},\"required\":true},\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"nullable\":true,\"properties\":{},\"type\":\"object\"}}},\"description\":\"default response\"},\"default\":{\"content\":{\"application/json\":{\"schema\":{\"nullable\":true,\"properties\":{},\"type\":\"object\"}}},\"description\":\"default response\"}}}}}}"
+    }
+  }
+]

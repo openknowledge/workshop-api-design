@@ -15,13 +15,17 @@
  */
 package de.openknowledge.sample.customer.domain;
 
-import de.openknowledge.sample.customer.domain.CustomerNumber.Adapter;
+import static org.apache.commons.lang3.Validate.notBlank;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import javax.json.bind.adapter.JsonbAdapter;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
-import static org.apache.commons.lang3.Validate.notBlank;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+import de.openknowledge.sample.customer.domain.CustomerNumber.Adapter;
+
+@Schema(name = "CustomerNumber", type = STRING, example = "0815")
 @JsonbTypeAdapter(Adapter.class)
 public class CustomerNumber {
     private String number;

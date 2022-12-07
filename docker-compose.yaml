@@ -23,3 +23,27 @@ services:
     build: address-validation-service/
     ports:
       - "4003:8080"
+
+  pact:
+    image: pactfoundation/pact-broker:latest
+    ports:
+      - "9292:8080"
+    environment:
+      PACT_BROKER_PORT: '8080'
+      PACT_BROKER_LOG_LEVEL: INFO
+      PACT_BROKER_SQL_LOG_LEVEL: DEBUG
+      PACT_BROKER_DATABASE_ADAPTER: sqlite
+      PACT_BROKER_DATABASE_NAME: pact_broker.sqlite
+      # The list of allowed base URLs (not setting this makes the app vulnerable to cache poisoning)
+      # This list allows the app to be addressed from the host and from within another docker container correctly
+      # Ngnix config below makes the app accessible on ports 443 and 80, while the Ruby application itself runs on port 9292
+      PACT_BROKER_BASE_URL: 'https://localhost http://localhost http://localhost:9292 http://pact:9292 https://host.docker.internal http://host.docker.internal http://host.docker.internal:9292'
+
+  backstage:
+    build: backstage/
+    ports:
+      - 7007:7007
+    environment:
+      PACT_URL: http://pact:9292/pacts/latest
+    depends_on:
+      - pact

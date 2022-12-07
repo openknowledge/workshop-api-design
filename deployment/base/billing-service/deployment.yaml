@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing-deployment
+  labels:
+    app: billing-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: billing-service
+  template:
+    metadata:
+      labels:
+        app: billing-service
+      annotations:
+        sidecar.opentelemetry.io/inject: "otel-collector"
+        instrumentation.opentelemetry.io/inject-java: "true"
+    spec:
+      containers:
+        - name: billing-service
+          image: docker.host.internal:5000/billing:latest
+          ports:
+            - containerPort: 8080
+              name: http

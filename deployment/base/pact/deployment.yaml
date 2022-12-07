@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pact-deployment
+  labels:
+    app: pact
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pact
+  template:
+    metadata:
+      labels:
+        app: pact
+    spec:
+      containers:
+        - name: pact
+          image: pactfoundation/pact-broker:latest-multi
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ADDRESS_VALIDATION_SERVICE_URL
+              value: http://address-validation-service:8080
+            - name: PACT_BROKER_PORT
+              value: "8080"
+            - name: PACT_BROKER_LOG_LEVEL
+              value: INFO
+            - name: PACT_BROKER_SQL_LOG_LEVEL
+              value: DEBUG
+            - name: PACT_BROKER_DATABASE_USERNAME
+              value: postgres
+            - name: PACT_BROKER_DATABASE_PASSWORD
+              value: postgres
+            - name: PACT_BROKER_DATABASE_HOST
+              value: localhost
+            - name: PACT_BROKER_DATABASE_NAME
+              value: pact_broker
+
+        - name: postgres
+          image: postgres:latest
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_DB
+              value: pact_broker
+          ports:
+            - containerPort: 5432
+              name: postgres

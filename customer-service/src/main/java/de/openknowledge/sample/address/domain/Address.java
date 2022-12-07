@@ -17,13 +17,16 @@ package de.openknowledge.sample.address.domain;
 
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import java.util.Objects;
 
 import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.annotation.JsonbTypeAdapter;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+@Schema(name = "Address")
 public class Address {
     private Recipient recipient;
     private Street street;
@@ -40,6 +43,7 @@ public class Address {
         setCity(city);
     }
 
+    @Schema(name = "recipient", type = STRING, example = "Max Mustermann")
     public Recipient getRecipient() {
         return recipient;
     }
@@ -52,6 +56,7 @@ public class Address {
         this.street = street;
     }
 
+    @Schema(name = "city", type = STRING, example = "26122 Oldenburg")
     public City getCity() {
         return city;
     }

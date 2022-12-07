@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery-deployment
+  labels:
+    app: delivery-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: delivery-service
+  template:
+    metadata:
+      labels:
+        app: delivery-service
+      annotations:
+        sidecar.opentelemetry.io/inject: "otel-collector"
+        instrumentation.opentelemetry.io/inject-java: "true"
+    spec:
+      containers:
+        - name: delivery-service
+          image: docker.host.internal:5000/delivery:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ADDRESS_VALIDATION_SERVICE_URL
+              value: http://address-validation-service:8080

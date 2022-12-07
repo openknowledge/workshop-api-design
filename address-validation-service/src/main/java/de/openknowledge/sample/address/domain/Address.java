@@ -15,6 +15,9 @@
  */
 package de.openknowledge.sample.address.domain;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+@Schema(name = "Address")
 public class Address {
     private Street street;
     private City city;

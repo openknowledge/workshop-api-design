@@ -18,9 +18,17 @@ package de.openknowledge.sample.customer.application;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import org.apache.meecrowave.Meecrowave;
+
 /**
  * Application initialization
  */
 @ApplicationPath("/")
 public class CustomerApplication extends Application {
+
+    public static void main(String... args) {
+        try (Meecrowave meecrowave = new Meecrowave()) {
+            meecrowave.bake().await();
+        }
+    }
 }

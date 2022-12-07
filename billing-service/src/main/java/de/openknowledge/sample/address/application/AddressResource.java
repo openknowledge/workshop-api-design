@@ -15,6 +15,8 @@
  */
 package de.openknowledge.sample.address.application;
 
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
+
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -30,6 +32,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
 import de.openknowledge.sample.address.domain.Address;
 import de.openknowledge.sample.address.domain.AddressRepository;
@@ -52,7 +57,14 @@ public class AddressResource {
     @GET
     @Path("/{customerNumber}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Address getAddress(@PathParam("customerNumber") CustomerNumber number) {
+    public Address getAddress(
+        @Parameter(
+            description = "The business identifier of a customer ",
+            required = true,
+            example = "0815",
+            schema = @Schema(type = STRING))
+        @PathParam("customerNumber") CustomerNumber number) {
+        
         LOGGER.info("RESTful call 'GET address'");
         return addressesRepository.find(number).orElseThrow(NotFoundException::new);
     }
@@ -60,8 +72,16 @@ public class AddressResource {
     @POST
     @Path("/{customerNumber}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response setAddress(@PathParam("customerNumber") CustomerNumber customerNumber, Address address,
-            @Context UriInfo uri) {
+    public Response setAddress(
+        @Parameter(
+            description = "The business identifier of a customer ",
+            required = true,
+            example = "0815",
+            schema = @Schema(type = STRING))
+        @PathParam("customerNumber") CustomerNumber customerNumber,
+        Address address,
+        @Context UriInfo uri) {
+        
         LOGGER.info("RESTful call 'POST address'");
         addressesRepository.update(customerNumber, address);
         return Response.ok().build();

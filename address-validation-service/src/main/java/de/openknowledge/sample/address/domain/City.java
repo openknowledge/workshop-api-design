@@ -18,6 +18,7 @@ package de.openknowledge.sample.address.domain;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,8 +26,11 @@ import java.util.stream.Stream;
 import javax.json.bind.adapter.JsonbAdapter;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import de.openknowledge.sample.address.domain.City.Adapter;
 
+@Schema(name = "City")
 @JsonbTypeAdapter(Adapter.class)
 public class City {
 
@@ -48,10 +52,12 @@ public class City {
         // for framework
     }
 
+    @Schema(type = STRING, pattern = "^\\d{5}$", example = "26122")
     public ZipCode getZipCode() {
         return new ZipCode(name.substring(0, 5));
     }
 
+    @Schema(hidden = true)
     public List<CityName> getCityNames() {
         String names = name.substring(5);
         if (names.endsWith("u.a.")) {
@@ -60,6 +66,7 @@ public class City {
         return Stream.of(names.split(",")).map(CityName::new).collect(toList());
     }
 
+    @Schema(type = STRING, example = "Oldenburg")
     public CityName getCityName() {
         return getCityNames().iterator().next();
     }

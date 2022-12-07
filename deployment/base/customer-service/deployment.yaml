@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-deployment
+  labels:
+    app: customer-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer-service
+  template:
+    metadata:
+      labels:
+        app: customer-service
+      annotations:
+        sidecar.opentelemetry.io/inject: "otel-collector"
+        instrumentation.opentelemetry.io/inject-java: "true"
+    spec:
+      containers:
+        - name: customer-service
+          image: docker.host.internal:5000/customer:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: BILLING_SERVICE_URL
+              value: http://billing-service:8080
+            - name: DELIVERY_SERVICE_URL
+              value: http://delivery-service:8080

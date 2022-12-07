@@ -1,56 +1,70 @@
-# Running the samples of the workshop
+# Workshop API Design
 
-The samples run on Minikube.
+Herzlich willkommen zum Workshop API Design.
 
-## Install Kubernetes
+## Aufsetzen eines Kubernetes-Clusters mit KinD
 
-Install Kubernetes via Minikube. See the instructions below.
+Wir verwenden KinD, um einen lokalen Kubernetes-Cluster aufzusetzen
 
-## Information for Windows users
+Bitte installieren Sie [KinD](https://kind.sigs.k8s.io/docs/user/quick-start).
 
-Make sure you're using PowerShell or Bash! Do not use _cmd_!
+Bitte legen Sie einen Cluster an, indem Sie folgenden Befehl ausführen:
 
-## Important warning
+```shell
+kind create cluster --config=./deployment/cluster-setup/kind-config.yml --name=workshop-service-mngmt-cluster
+```
 
-If you are regularly working with kubernetes and `kubectl` it would be wise to create a backup copy of your kubeconfig file.
+Überprüfen, dass der Kontext auf
+workshop-service-mgmt-cluster gesetzt ist:
 
-This file is located
+```shell
+kubectl config current-context
+```
 
-- on macOS: `~/.kube/config`
-- on Linux: `~/.kube/config`
-- on Windows: `%UserProfile%/.kube/config`
+Wenn der Kontext nicht automatisch gesetzt wurde,
+der Cluster aber läuft,
+kann der Kontext manuell gesetzt werden:
 
-Minikube should only add a kubectl context configuration and should not mess with existing contexts...but you never know...
+```shell
+kubectl config set-context kind-workshop-service-mgmt-cluster
+```
+## Deployment in den Cluster via Skaffold
 
-## Minikube
+Um die Anwendungen in den Cluster zu deployen,
+wird [Skaffold](https://skaffold.dev/) verwendet.
 
-Install the dependencies:
+Skaffold baut die benötigten Images
+und deployed sie mit Kustomize in den Cluster.
 
-- Docker 3.3: <https://docs.docker.com/get-docker/>
-- Minikube 1.20.0: <https://minikube.sigs.k8s.io/docs/start/>
-- kubectl: either via Minikube (<https://minikube.sigs.k8s.io/docs/handbook/kubectl/>) or directly (<https://kubernetes.io/docs/tasks/tools/>)
+Führen Sie dazu folgenden Befehl aus:
 
-Start Docker first, then start Minikube. On Windows you'll need to use an administative Terminal to do so.
+```shell
+skaffold run
+```
 
-`minikube start --container-runtime=docker --driver=docker --insecure-registry "10.0.0.0/24"`
+### Known Issues mit dem Ingress Operator
 
-### Configure Docker registry
+Es kann passieren,
+dass der ingress-operator nicht schnell genug installiert wird.
+Bei einem Fehler führen Sie einfach
+den Skaffold-Befehl erneut aus.
 
-Enable registry addon:
+## Zugriff auf den Cluster
 
-`minikube addons enable registry`
+Wenn der Cluster und die Services gestartet sind (das wird etwas dauern),
+können sie über folgende URLs aufgerufen werden:
 
-In order to push images which start with "http://localhost:5000/" to Kubernete's own registry, you need to run:
+* [Pact Broker](http://localhost:30091/)
+* [Backstage](http://localhost:30090/)
+* [Customer Service](http://localhost:30082/webjars/swagger-ui/index.html)
+* [Billing Service](http://localhost:30081/webjars/swagger-ui/index.html)
+* [Delivery Service](http://localhost:30083/webjars/swagger-ui/index.html)
+* [Address Validation Service](http://localhost:30080/webjars/swagger-ui/index.html)
 
-`docker run --rm -it --network=host alpine ash -c "apk add socat && socat TCP-LISTEN:5000,reuseaddr,fork TCP:$(minikube ip):5000"`
+## Entfernen des Clusters
 
-This container needs to run the whole time during you run the samples!
+Um den Cluster zu entfernen, rufen Sie folgenen Befehl auf:
 
-### Troubleshooting (macOS)
-
-If something does not work as expected, try to delete Minikube:
-
-Remove the binary: `sudo rm -rf /usr/local/bin/minikube`
-
-Remove the config files: `sudo rm -rf ~/.minikube`
-
+```shell
+kind delete cluster -n workshop-service-mngmt-cluster
+```

@@ -16,16 +16,21 @@
 package de.openknowledge.sample.customer.domain;
 
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.annotation.JsonbTypeAdapter;
+
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import de.openknowledge.sample.address.domain.Address;
 
+@Schema(name = "Customer")
 public class Customer {
 
+    @Schema(name = "number", type = STRING, example = "0815")
     CustomerNumber number;
+    @Schema(name = "name", type = STRING, example = "Max Mustermann")
     private CustomerName name;
     private Address billingAddress;
     private Address deliveryAddress;
@@ -40,15 +45,18 @@ public class Customer {
         this.number = notNull(number, "number may not be null");
     }
 
+    @Schema(name = "name", type = STRING, example = "Max Mustermann")
     public CustomerName getName() {
         return name;
     }
 
+    @Schema(name = "number", type = STRING, example = "0815")
     public CustomerNumber getNumber() {
         return number;
     }
 
     @JsonbProperty(nillable = false)
+    @Schema(name = "billingAddress", required = false, ref = "Address")
     public Address getBillingAddress() {
         return billingAddress;
     }
@@ -58,6 +66,7 @@ public class Customer {
     }
 
     @JsonbProperty(nillable = false)
+    @Schema(name = "deliveryAddress", required = false, ref = "Address")
     public Address getDeliveryAddress() {
         return deliveryAddress;
     }

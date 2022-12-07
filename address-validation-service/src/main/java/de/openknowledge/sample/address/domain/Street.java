@@ -16,10 +16,14 @@
 package de.openknowledge.sample.address.domain;
 
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbProperty;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+@Schema(name = "Street")
 public class Street {
 
     private StreetName name;
@@ -31,10 +35,12 @@ public class Street {
         this.number = notNull(houseNumber, "house number may not be null");
     }
 
+    @Schema(type = STRING, example = "Poststr.")
     public StreetName getName() {
         return name;
     }
 
+    @Schema(type = STRING, example = "1")
     public HouseNumber getNumber() {
         return number;
     }

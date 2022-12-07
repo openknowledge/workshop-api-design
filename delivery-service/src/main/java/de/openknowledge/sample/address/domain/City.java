@@ -17,12 +17,16 @@ package de.openknowledge.sample.address.domain;
 
 
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.STRING;
 
 import javax.json.bind.adapter.JsonbAdapter;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import de.openknowledge.sample.address.domain.City.Adapter;
 
+@Schema(name = "City", type = STRING, example = "26122 Oldenburg")
 @JsonbTypeAdapter(Adapter.class)
 public class City {
 
@@ -40,6 +44,7 @@ public class City {
         // for framework
     }
 
+    @Schema(hidden = true)
     public ZipCode getZipCode() {
         String firstSegment = name.substring(0, name.indexOf(' '));
         String lastSegment = name.substring(name.lastIndexOf(' ') + 1);
@@ -52,6 +57,7 @@ public class City {
         }
     }
 
+    @Schema(hidden = true)
     public CityName getCityName() {
         String firstSegment = name.substring(0, name.indexOf(' '));
         String lastSegment = name.substring(name.lastIndexOf(' ') + 1);

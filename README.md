@@ -2,38 +2,44 @@
 
 Herzlich willkommen zum Workshop API Design.
 
-## Übungen
+# Aufgabe: Developers Portal mit Backstage
 
-### API Design
+Starten Sie die Services mit Docker Compose:
 
-- [OpenAPI](https://github.com/openknowledge/workshop-api-design/tree/openapi)
-- [Mocking](https://github.com/openknowledge/workshop-api-design/tree/wiremock)
-- [AsyncAPI](https://github.com/openknowledge/workshop-api-design/tree/asyncapi)
+```
+docker compose up --build
+```
 
-### API Testing
+## Zugriff auf die Services
 
-- [Pact](https://github.com/openknowledge/workshop-api-design/tree/pact-mock-server)
-- [Pact Pipeline](https://github.com/openknowledge/workshop-api-design/tree/pact)
+Wenn der Cluster und die Services gestartet sind (das wird etwas dauern),
+können sie über folgende URLs aufgerufen werden:
 
-### API Security
+* [Pact Broker](http://localhost:9292/)
+* [Backstage](http://localhost:7007/)
+* [Customer Service](http://localhost:4000/webjars/swagger-ui/index.html)
+* [Billing Service](http://localhost:4001/webjars/swagger-ui/index.html)
+* [Delivery Service](http://localhost:4002/webjars/swagger-ui/index.html)
+* [Address Validation Service](http://localhost:4003/webjars/swagger-ui/index.html)
 
-- [JWT](https://github.com/openknowledge/workshop-api-design/tree/jwt)
-- [OAuth2](https://github.com/openknowledge/workshop-api-design/tree/oauth2)
-- [OAuth2 mit PKCE](https://github.com/openknowledge/workshop-api-design/tree/oauth2-pkce)
+## API-Layers
 
-### API Governance
+Welche API befindet sich in welchem Layer?
 
-- [Linting](https://github.com/openknowledge/workshop-api-design/tree/linting)
+## API Depencencies
 
-### API Management
+Deployen Sie die Consumer-Contracts der APIs zum Pact-Broker
+und beobachen Sie, wie die API-Dependencies in Backstage übernommen werden.
 
-- [Rate Limiting](https://github.com/openknowledge/workshop-api-design/tree/rate-limiting)
-- [Backstage](https://github.com/openknowledge/workshop-api-design/tree/backstage)
+Führen Sie dazu in den Ordnern `delivery-service` und `customer-service` folgenden Maven-Befehl aus:
 
-### API Operation
+```
+mvn pact:publish
+```
 
-- [Observability](https://github.com/openknowledge/workshop-api-design/tree/observability)
+Falls Sie auf Ihrem System kein Maven installiert haben, führen Sie bitte folgenden Befehl aus:
 
-### API Evolution
-
-- [Versioning](https://github.com/openknowledge/workshop-api-design/tree/versioning)
+``` 
+docker run -it -v ~/.m2:/root/.m2 -v "$(PWD)":"/usr/src/mymaven" -w /usr/src/mymaven maven mvn pact:publish -Dpact.url=http://host.docker.internal:9292
+```
+ 

@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name | dump }}
+spec:
+  type: ${{ values.type | dump }}
+  owner: user:ok-member
+  lifecycle: experimental

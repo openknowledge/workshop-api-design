@@ -15,18 +15,28 @@
  */
 package de.openknowledge.sample.address.infrastructure;
 
+import org.apache.logging.log4j.ThreadContext;
+
+import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
+
 import java.io.IOException;
+import java.util.logging.Logger;
+
+import io.opentelemetry.api.trace.Span;
 
 /**
  * Filter to allow cross origin calls.
  */
 @Provider
-public class CORSFilter implements ContainerResponseFilter {
+@ApplicationScoped
+public class CORSFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
+    private static final Logger LOG = Logger.getLogger(CORSFilter.class.getSimpleName());
     @Override
     public void filter(final ContainerRequestContext requestContext,
                        final ContainerResponseContext cres) throws IOException {
@@ -35,6 +45,16 @@ public class CORSFilter implements ContainerResponseFilter {
         cres.getHeaders().add("Access-Control-Allow-Credentials", "true");
         cres.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
         cres.getHeaders().add("Access-Control-Max-Age", "1209600");
+
+        ThreadContext.remove("traceId");
+        ThreadContext.remove("spanId");
     }
 
+    @Override
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+        LOG.info("Current Span: " + Span.current().getSpanContext().getTraceId() + " " + Span.current().getSpanContext().getSpanId());
+
+        ThreadContext.put("traceId", Span.current().getSpanContext().getTraceId());
+        ThreadContext.put("spanId", Span.current().getSpanContext().getSpanId());
+    }
 }

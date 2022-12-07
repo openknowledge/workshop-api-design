@@ -1,0 +1,4 @@
+serviceMonitor:
+  enabled: "true"
+config:
+  enableTracing: "true"

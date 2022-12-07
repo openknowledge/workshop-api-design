@@ -15,10 +15,15 @@
  */
 package de.openknowledge.sample.customer.application;
 
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
+import de.openknowledge.sample.address.domain.Address;
+import de.openknowledge.sample.address.domain.BillingAddressRepository;
+import de.openknowledge.sample.address.domain.DeliveryAddressRepository;
+import de.openknowledge.sample.customer.domain.Customer;
+import de.openknowledge.sample.customer.domain.CustomerNumber;
+import de.openknowledge.sample.customer.domain.CustomerRepository;
+
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -35,12 +40,20 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import de.openknowledge.sample.address.domain.Address;
-import de.openknowledge.sample.address.domain.BillingAddressRepository;
-import de.openknowledge.sample.address.domain.DeliveryAddressRepository;
-import de.openknowledge.sample.customer.domain.Customer;
-import de.openknowledge.sample.customer.domain.CustomerNumber;
-import de.openknowledge.sample.customer.domain.CustomerRepository;
+import java.net.URISyntaxException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
+
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.metrics.DoubleHistogram;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 /**
  * RESTFul endpoint for customers
@@ -51,7 +64,7 @@ import de.openknowledge.sample.customer.domain.CustomerRepository;
 @Produces(MediaType.APPLICATION_JSON)
 public class CustomerResource {
 
-    private final static Logger LOG = Logger.getLogger(CustomerResource.class.getSimpleName());
+    private static final Logger LOG = Logger.getLogger(CustomerResource.class.getSimpleName());
 
     @Inject
     private CustomerRepository customerRepository;
@@ -59,12 +72,18 @@ public class CustomerResource {
     private BillingAddressRepository billingAddressRepository;
     @Inject
     private DeliveryAddressRepository deliveryAddressRepository;
+    private final DoubleHistogram setAddressHistogram = GlobalOpenTelemetry.meterBuilder("de.openknowledge.sample").build()
+            .histogramBuilder("setAddressRequestDurations")
+            .setUnit("Milliseconds")
+            .build();
 
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Customer> getCustomers() {
+    public List<Customer> getCustomers(@Context UriInfo info) {
         LOG.info("RESTful call 'GET all customers'");
+        LOG.info("Host: " +
+                info.getRequestUri().getHost());
         return customerRepository.findAll();
     }
 
@@ -97,17 +116,35 @@ public class CustomerResource {
         billingAddressRepository.update(customerNumber, billingAddress);
     }
 
+    @Timed(name = "setDeliveryAddressForCustomer2",
+            description = "Metrics to monitor the times of processItem method.",
+            unit = MetricUnits.MILLISECONDS,
+            absolute = true)
     @PUT
     @Path("/{customerNumber}/delivery-address")
     @Produces(MediaType.APPLICATION_JSON)
-    public void setDeliveryAddress(@PathParam("customerNumber") CustomerNumber customerNumber,
-            Address deliveryAddress) {
+    @WithSpan("Change Delivery Address for Customer")
+    public void setDeliveryAddress(@SpanAttribute("customerNumber") @PathParam("customerNumber") CustomerNumber customerNumber,
+                                   @SpanAttribute("newCustomerAddress") Address deliveryAddress) {
+        Instant start = Instant.now();
         LOG.info("RESTful call 'PUT delivery address'");
-        customerRepository.find(customerNumber).orElseThrow(customerNotFound(customerNumber));
-        deliveryAddressRepository.update(customerNumber, deliveryAddress);
+        Span.current().addEvent("RESTful call 'PUT delivery address'");
+
+        try {
+            customerRepository.find(customerNumber).orElseThrow(customerNotFound(customerNumber));
+            deliveryAddressRepository.update(customerNumber, deliveryAddress);
+        } finally {
+            Duration duration = Duration.between(start, Instant.now());
+            setAddressHistogram.record(duration.toMillis());
+            Span.current().addEvent("Adding a Record of " + duration.toMillis() + "ms to Histogram");
+        }
     }
 
     private Supplier<NotFoundException> customerNotFound(CustomerNumber number) {
-        return () -> new NotFoundException("customer " + number + " not found");
+        return () -> {
+            NotFoundException notFoundException = new NotFoundException("customer " + number + " not found");
+            Span.current().recordException(notFoundException);
+            return notFoundException;
+        };
     }
 }

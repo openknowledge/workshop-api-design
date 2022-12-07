@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: address-validation-deployment
+  labels:
+    app: address-validation-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: address-validation-service
+      app.type: microservice
+  template:
+    metadata:
+      labels:
+        app: address-validation-service
+        app.type: microservice
+      annotations:
+        sidecar.opentelemetry.io/inject: "otel-collector"
+        instrumentation.opentelemetry.io/inject-java: "true"
+    spec:
+      containers:
+        - name: address-validation-service
+          image: docker.host.internal:5000/address-validation:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: GERONIMO_METRICS_JAXRS_ACCEPTEDHOSTS
+              value: prometheus-kube-prometheus-stack-prometheus-0
+            - name: GERONIMO_METRICS_JAXRS_ACCEPTED_HOSTS
+              value: prometheus-kube-prometheus-stack-prometheus-0

@@ -1,0 +1,68 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-collector
+  namespace: production
+spec:
+  mode: sidecar
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+
+    exporters:
+      logging:
+        loglevel: debug
+      otlp:
+        endpoint: jaeger-collector.observability:4317
+        tls:
+          insecure: true  
+      prometheus:
+        endpoint: '0.0.0.0:8889'
+        
+    processors:
+      filter/metricspath:
+        spans:
+          exclude:
+            match_type: strict
+            attributes:
+            - key: http.target
+              value: /metrics
+      filter/metricsendpoint:
+        spans:
+          exclude:
+            match_type: strict
+            attributes:
+            - key: code.namespace
+              value: de.openknowledge.sample.address.infrastructure.MetricsEndpoint
+    extensions:
+      health_check: {}
+
+    service:
+      extensions: [health_check]
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [filter/metricspath, filter/metricsendpoint]
+          exporters: [otlp]
+        metrics:
+          receivers: [otlp]
+          exporters: [logging, prometheus]
+---
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: autoinject-instrumentation
+  namespace: production
+spec:
+  exporter:
+    endpoint: "http://0.0.0.0:4317"
+  propagators:
+    - tracecontext
+    - baggage
+    - b3
+  sampler:
+    type: parentbased_traceidratio
+    argument: '1'

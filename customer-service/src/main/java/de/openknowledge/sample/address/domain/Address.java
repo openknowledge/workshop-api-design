@@ -18,11 +18,10 @@ package de.openknowledge.sample.address.domain;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import java.util.Objects;
-
 import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.annotation.JsonbTypeAdapter;
+
+import java.util.Objects;
 
 public class Address {
     private Recipient recipient;
@@ -103,5 +102,14 @@ public class Address {
         public Address build() {
             return address;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Address{" +
+                "recipient=" + recipient +
+                ", street=" + street +
+                ", city=" + city +
+                '}';
     }
 }

@@ -15,11 +15,14 @@
  */
 package de.openknowledge.sample.address.application;
 
+import io.opentelemetry.api.trace.Span;
 import static java.util.stream.Collectors.joining;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -57,14 +60,15 @@ public class AddressResource {
 
     @GET
     public Response healthCheck() {
-    	return Response.ok().build();
+        return Response.ok().build();
     }
     
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response validateAddress(Address address, @Context UriInfo uri) throws URISyntaxException {
+    public Response validateAddress(Address address, @Context UriInfo uri) throws InterruptedException {
         LOGGER.info("RESTful call 'POST valid address'");
+
         if (addressesRepository.isValid(address)) {
             LOGGER.fine("address is valid");
             return Response.ok().build();

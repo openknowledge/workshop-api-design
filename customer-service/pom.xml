@@ -26,8 +26,19 @@
         <junit.version>5.8.2</junit.version>
     </properties>
 
-    <dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>1.27.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
+    <dependencies>
         <dependency>
             <groupId>org.apache.meecrowave</groupId>
             <artifactId>meecrowave-specs-api</artifactId>
@@ -98,21 +109,6 @@
             <version>1.2.2</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.microprofile.opentracing</groupId>
-            <artifactId>microprofile-opentracing-api</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>io.opentracing</groupId>
-            <artifactId>opentracing-api</artifactId>
-            <version>0.31.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo</groupId>
-            <artifactId>geronimo-opentracing</artifactId>
-            <version>1.0.3</version>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.microprofile.health</groupId>
             <artifactId>microprofile-health-api</artifactId>
             <version>3.0-RC3</version>
@@ -141,6 +137,15 @@
             <groupId>org.apache.geronimo</groupId>
             <artifactId>geronimo-metrics</artifactId>
             <version>1.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+            <version>1.27.0</version>
         </dependency>
     </dependencies>
     <build>

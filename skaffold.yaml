@@ -1,0 +1,89 @@
+apiVersion: skaffold/v4beta5
+kind: Config
+metadata:
+  name: workshop-service-management
+build:
+  artifacts:
+    - image: docker.host.internal:5000/address-validation
+      context: address-validation-service
+      docker:
+        dockerfile: Dockerfile
+    - image: docker.host.internal:5000/billing
+      context: billing-service
+      docker:
+        dockerfile: Dockerfile
+    - image: docker.host.internal:5000/customer
+      context: customer-service
+      docker:
+        dockerfile: Dockerfile
+    - image: docker.host.internal:5000/delivery
+      context: delivery-service
+      docker:
+        dockerfile: Dockerfile
+
+deploy:
+  helm:
+    releases:
+      - name: ingress-nginx
+        repo: https://kubernetes.github.io/ingress-nginx
+        remoteChart: ingress-nginx
+        namespace: ingress-nginx
+        createNamespace: true
+        valuesFiles:
+          - ./ingress-nginx-values.yaml
+      - name: kube-prometheus-stack
+        repo: https://prometheus-community.github.io/helm-charts
+        remoteChart: kube-prometheus-stack
+        namespace: observability
+        createNamespace: true
+        valuesFiles:
+          - ./kube-prometheus-stack-values.yaml
+      - name: cert-manager
+        repo: https://charts.jetstack.io
+        remoteChart: cert-manager
+        namespace: cert-manager
+        createNamespace: true
+        setValues:
+          installCRDs: true
+      - name: jaeger-operator
+        repo: https://jaegertracing.github.io/helm-charts
+        remoteChart: jaeger-operator
+        namespace: observability
+        createNamespace: true
+        valuesFiles:
+          - ./jaeger-operator-values.yaml
+      - name: backstage
+        repo: https://backstage.github.io/charts
+        remoteChart: backstage
+        namespace: observability
+        createNamespace: true
+      - name: opentelemetry-operator
+        repo: https://open-telemetry.github.io/opentelemetry-helm-charts
+        remoteChart: opentelemetry-operator
+        namespace: observability
+        createNamespace: true
+        valuesFiles:
+          - ./otel-operator-values.yaml
+      - name: loki
+        repo: https://grafana.github.io/helm-charts
+        remoteChart: loki
+        namespace: observability
+        createNamespace: true
+        valuesFiles:
+          - ./loki-values.yaml
+      - name: promtail
+        repo: https://grafana.github.io/helm-charts
+        remoteChart: promtail
+        namespace: observability
+        createNamespace: true
+        valuesFiles:
+          - ./promtail-values.yaml
+  statusCheckDeadlineSeconds: 300
+  tolerateFailuresUntilDeadline: true
+
+  kubectl: {}
+
+manifests:
+  kustomize:
+    paths:
+      - deployment/base

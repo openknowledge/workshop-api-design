@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 open knowledge GmbH
+ * Copyright 2019 - 2023 open knowledge GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package de.openknowledge.sample.address.infrastructure;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.validation.ValidationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -23,6 +24,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 @Provider
+@ApplicationScoped
 public class ValidationExceptionHandler implements ExceptionMapper<ValidationException> {
 
     private static final String PROBLEM_JSON_TYPE = "application/problem+json";

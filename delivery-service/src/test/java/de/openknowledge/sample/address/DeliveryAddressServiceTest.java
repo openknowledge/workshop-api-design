@@ -43,13 +43,14 @@ import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.StateChangeAction;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
+import au.com.dius.pact.provider.junitsupport.loader.VersionSelector;
 import de.openknowledge.sample.address.domain.AddressValidationService;
 import rocks.limburg.cdimock.MockitoBeans;
 
 @IgnoreNoPactsToVerify
 @MockitoBeans(types = {AddressValidationService.class})
 @Provider("delivery-service")
-@PactBroker(url = "${pactBroker.url:http://localhost:5050}")
+@PactBroker(url = "${pactBroker.url:http://localhost:5050}", consumerVersionSelectors = @VersionSelector(tag = "${pact.tag}"))
 @MonoMeecrowaveConfig
 public class DeliveryAddressServiceTest {
 

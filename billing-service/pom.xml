@@ -19,8 +19,9 @@
         <maven.compiler.target>17</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <meecrowave.version>2.0.0</meecrowave.version>
         <pactBroker.url>http://localhost:5050</pactBroker.url>
+        <pact.tag>develop</pact.tag>
+        <meecrowave.version>2.0.0</meecrowave.version>
         <deltaspike.version>1.9.6</deltaspike.version>
         <junit.version>5.8.2</junit.version>
     </properties>
@@ -135,6 +136,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <pact.provider.version>${project.version}</pact.provider.version>
+                        <pact.tag>${pact.tag}</pact.tag>
                         <pactBroker.url>${pactBroker.url}</pactBroker.url>
                     </systemPropertyVariables>
                 </configuration>

@@ -22,6 +22,24 @@ pipeline {
 
     triggers {
         pollSCM("* * * * *")
+        GenericTrigger(
+            genericRequestVariables: [
+                [key: 'stage', regexpFilter: ''],
+                [key: 'verifyPacts', regexpFilter: '']
+            ],
+
+            causeString: 'Triggered by web hook',
+
+            token: 'address-validation-service',
+
+            printContributedVariables: true,
+            printPostContent: true,
+
+            silentResponse: false,
+
+            regexpFilterText: '$stage',
+            regexpFilterExpression: ".*${(env.BRANCH_NAME == 'main' ? 'prod' : 'test')}.*"
+        )
     }
 
     stages {
@@ -60,6 +78,9 @@ pipeline {
         stage ('Test') {
             when {
                 anyOf {
+                    expression {
+                        params.verifyPacts == true
+                    }
                     not {
                         branch 'main'
                     }
@@ -125,6 +146,7 @@ pipeline {
                         """
                     }
                 }
+                sh "curl -H 'Content-Type: application/json' -X PUT http://pact:9292/pacticipants/address-validation-service/versions/${env.VERSION}/tags/${env.STAGE}"
             }
         }
         stage ('Deploy') {

@@ -22,6 +22,24 @@ pipeline {
 
     triggers {
         pollSCM("* * * * *")
+        GenericTrigger(
+            genericRequestVariables: [
+                [key: 'stage', regexpFilter: ''],
+                [key: 'verifyPacts', regexpFilter: '']
+            ],
+
+            causeString: 'Triggered by web hook',
+
+            token: 'billing-service',
+
+            printContributedVariables: true,
+            printPostContent: true,
+
+            silentResponse: false,
+
+            regexpFilterText: '$stage',
+            regexpFilterExpression: ".*${(env.BRANCH_NAME == 'main' ? 'prod' : 'test')}.*"
+        )
     }
 
     stages {

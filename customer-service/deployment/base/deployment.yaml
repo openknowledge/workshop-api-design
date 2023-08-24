@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-deployment
+  labels:
+    app: customer-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer-service
+  template:
+    metadata:
+      labels:
+        app: customer-service
+    spec:
+      containers:
+        - name: customer
+          image: customer:latest
+          ports:
+            - containerPort: 4000
+              name: http
+          env:
+            - name: BILLING_SERVICE_URL
+              value: http://billing-service:4001
+            - name: DELIVERY_SERVICE_URL
+              value: http://delivery-service:4002

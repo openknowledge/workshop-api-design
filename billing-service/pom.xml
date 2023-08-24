@@ -16,8 +16,8 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <scm>
-        <connection>scm:git:http://openknowledge:workshop@gogs-service:3000/openknowledge/billing-service.git</connection>
-        <developerConnection>scm:git:http://openknowledge:workshop@gogs-service:3000/openknowledge/billing-service.git</developerConnection>
+        <connection>scm:git:http://openknowledge:workshop@gogs:3000/openknowledge/billing-service.git</connection>
+        <developerConnection>scm:git:http://openknowledge:workshop@gogs:3000/openknowledge/billing-service.git</developerConnection>
     </scm>
 
     <properties>

@@ -16,8 +16,8 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <scm>
-        <connection>scm:git:http://openknowledge:workshop@gogs-service:3000/openknowledge/customer-service.git</connection>
-        <developerConnection>scm:git:http://openknowledge:workshop@gogs-service:3000/openknowledge/customer-service.git</developerConnection>
+        <connection>scm:git:http://openknowledge:workshop@gogs:3000/openknowledge/customer-service.git</connection>
+        <developerConnection>scm:git:http://openknowledge:workshop@gogs:3000/openknowledge/customer-service.git</developerConnection>
     </scm>
 
     <properties>
@@ -26,6 +26,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pactBroker.url>http://localhost:5000</pactBroker.url>
         <meecrowave.version>1.2.15</meecrowave.version>
         <deltaspike.version>1.9.6</deltaspike.version>
         <junit.version>5.8.2</junit.version>
@@ -178,6 +179,14 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>au.com.dius.pact.provider</groupId>
+                <artifactId>maven</artifactId>
+                <version>4.3.5</version>
+                <configuration>
+                    <pactBrokerUrl>${pactBroker.url}</pactBrokerUrl>
+                </configuration>
             </plugin>
         </plugins>
     </build>

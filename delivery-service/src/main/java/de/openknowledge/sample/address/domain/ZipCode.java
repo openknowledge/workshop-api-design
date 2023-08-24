@@ -27,6 +27,10 @@ public class ZipCode {
 
     private String code;
 
+    protected ZipCode() {
+        // for frameworks
+    }
+
     public ZipCode(String code) {
         this.code = notNull(code, "code may not be empty").trim();
     }

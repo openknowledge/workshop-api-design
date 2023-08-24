@@ -19,16 +19,25 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbProperty;
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
 
+@Embeddable
 public class Street {
 
+    @Embedded
     private StreetName name;
+    @Embedded
     private HouseNumber number;
 
     @JsonbCreator
     public Street(@JsonbProperty("name") StreetName name, @JsonbProperty("number") HouseNumber houseNumber) {
         this.name = notNull(name, "name may not be null");
         this.number = notNull(houseNumber, "house number may not be null");
+    }
+
+    protected Street() {
+        // for frameworks
     }
 
     public StreetName getName() {

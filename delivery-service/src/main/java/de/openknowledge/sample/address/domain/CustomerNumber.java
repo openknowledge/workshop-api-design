@@ -17,14 +17,20 @@ package de.openknowledge.sample.address.domain;
 
 import static org.apache.commons.lang3.Validate.notBlank;
 
+import java.io.Serializable;
+
 import javax.json.bind.adapter.JsonbAdapter;
 import javax.json.bind.annotation.JsonbTypeAdapter;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 import de.openknowledge.sample.address.domain.CustomerNumber.Adapter;
 
+@Embeddable
 @JsonbTypeAdapter(Adapter.class)
-public class CustomerNumber {
+public class CustomerNumber implements Serializable {
 
+    @Column(name = "ID")
     private String number;
 
     protected CustomerNumber() {

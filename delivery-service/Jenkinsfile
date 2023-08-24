@@ -2,6 +2,10 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(name: 'verifyPacts', defaultValue: false, description: 'should this job just run to verify pacts from a consumer')
+    }
+
     options {
         disableConcurrentBuilds()
     }
@@ -12,6 +16,7 @@ pipeline {
         PERFORM_RELEASE = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') && env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ')}"
         RELEASE_VERSION = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') ? env.SNAPSHOT_VERSION.substring(0, env.SNAPSHOT_VERSION.lastIndexOf('-SNAPSHOT')) : SNAPSHOT_VERSION}"
         VERSION = "${env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ') ? env.RELEASE_VERSION : env.SNAPSHOT_VERSION}"
+        ROOT_DIRECTORY = "${params.verifyPacts == true && env.BRANCH_NAME == 'main' && env.SNAPSHOT_VERSION.endsWith("-SNAPSHOT") ? 'target/checkout' : '.'}"
     }
 
     triggers {
@@ -26,19 +31,29 @@ pipeline {
                         branch 'main'
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
+                    expression {
+                        params.verifyPacts == true
+                    }
                 }
             }
             steps {
                 echo "Building version ${env.VERSION}"
                 script {
-                    if (env.PERFORM_RELEASE.equals('true') && !env.RELEASE_VERSION.equals(env.SNAPSHOT_VERSION)) {
+                    if (params.verifyPacts == true && env.BRANCH_NAME == 'main' && env.SNAPSHOT_VERSION.endsWith("-SNAPSHOT")) {
+                        int previousRevision = Integer.parseInt(env.RELEASE_VERSION.substring(env.RELEASE_VERSION.lastIndexOf(".") + 1)) - 1
+                        if (previousRevision >= 0) {
+                            previousVersion = RELEASE_VERSION.substring(0, env.RELEASE_VERSION.lastIndexOf(".")) + "." + previousRevision
+                            sh "mvn scm:checkout -DscmVersionType=tag -DscmVersion=${previousVersion}"
+                            echo "Testing against version ${previousVersion}"
+                        }
+                    } else if (env.PERFORM_RELEASE.equals('true') && !env.RELEASE_VERSION.equals(env.SNAPSHOT_VERSION)) {
                         sh "mvn versions:set -DnewVersion=${env.RELEASE_VERSION} -B"
-                        sh "sed -i 's/${env.SNAPSHOT_VERSION}/${env.RELEASE_VERSION}/g' deployment/overlays/prod/kustomization.yaml"
-                    } else {
-                        sh "sed -i 's/${env.SNAPSHOT_VERSION}/${env.GIT_COMMIT}/g' deployment/overlays/test/kustomization.yaml"
                     }
                 }
-                sh 'mvn clean test-compile -B'
+                sh """
+                    cd ${ROOT_DIRECTORY}
+                    mvn clean test-compile -B
+                """
             }
         }
         stage ('Test') {
@@ -48,10 +63,33 @@ pipeline {
                         branch 'main'
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
+                    expression {
+                        params.verifyPacts == true
+                    }
                 }
             }
             steps {
-                sh "mvn test pact:publish -DpactBroker.url=http://pact-service:8080 -Dpact.verifier.publishResults=true -B"
+                sh """
+                    cd ${ROOT_DIRECTORY}
+                    mvn test -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true -B
+                """
+            }
+        }
+        stage ('Test providers') {
+            when {
+                anyOf {
+                    not {
+                        branch 'main'
+                    }
+                    environment name: 'PERFORM_RELEASE', value: 'true'
+                }
+                expression {
+                    params.verifyPacts == false
+                }
+            }
+            steps {
+                sh 'mvn pact:publish -DpactBroker.url=http://pact-service:8080 -Dpact.verifier.publishResults=true -B'
+                build job: "address-validation-service/${env.BRANCH_NAME}", parameters: [booleanParam(name: 'verifyPacts', value: true)]
             }
         }
         stage ('Package') {
@@ -62,10 +100,12 @@ pipeline {
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
                 }
+                expression {
+                    params.verifyPacts == false
+                }
             }
             steps {
-                sh 'mvn package -DskipTests -B'
-                sh 'docker build -t delivery .'
+                sh 'mvn package meecrowave:bundle -DskipTests -B'
             }
         }
         stage ('Push') {
@@ -76,16 +116,13 @@ pipeline {
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
                 }
+                expression {
+                    params.verifyPacts == false
+                }
             }
             steps {
-                sh """
-                    docker tag delivery localhost:30010/delivery:${env.VERSION}
-                    docker tag delivery localhost:30010/delivery:${env.BRANCH_NAME == 'main' ? 'stable' : 'latest'}
-                    docker tag delivery localhost:30010/delivery:${env.GIT_COMMIT}
-                    docker push localhost:30010/delivery:${env.VERSION}
-                    docker push localhost:30010/delivery:${env.BRANCH_NAME == 'main' ? 'stable' : 'latest'}
-                    docker push localhost:30010/delivery:${env.GIT_COMMIT}
-                """
+                sh 'sshpass -p jenkins scp -o StrictHostKeyChecking=no -P 2222 target/delivery-service-meecrowave-distribution.zip jenkins@test:~/'
+                sh 'sshpass -p jenkins scp -o StrictHostKeyChecking=no -P 2222 target/delivery-service-meecrowave-distribution.zip jenkins@prod:~/'
                 script {
                     if (env.PERFORM_RELEASE.equals('true') && !env.RELEASE_VERSION.equals(env.SNAPSHOT_VERSION)) {
                         sh 'git config --global user.name "Jenkins"'
@@ -94,7 +131,6 @@ pipeline {
                         sh "mvn scm:tag -Dtag=${env.RELEASE_VERSION} -B"
                         int nextRevision = Integer.parseInt(env.RELEASE_VERSION.substring(env.RELEASE_VERSION.lastIndexOf(".") + 1)) + 1
                         nextVersion = RELEASE_VERSION.substring(0, env.RELEASE_VERSION.lastIndexOf(".")) + "." + nextRevision + "-SNAPSHOT"
-                        sh "sed -i 's/${env.RELEASE_VERSION}/${nextVersion}/g' deployment/overlays/prod/kustomization.yaml"
                         sh "mvn versions:set scm:checkin -DnewVersion=${nextVersion} -Dmessage='update version to ${nextVersion}' -B"
                     }
                 }
@@ -102,6 +138,9 @@ pipeline {
         }
         stage ('Deploy') {
             when {
+                expression {
+                    params.verifyPacts == false
+                }
                 anyOf {
                     not {
                         branch 'main'
@@ -113,10 +152,19 @@ pipeline {
                 script {
                     if (env.PERFORM_RELEASE.equals('true') && !env.RELEASE_VERSION.equals(env.SNAPSHOT_VERSION)) {
                         sh "mvn scm:checkout -DscmVersion=${env.RELEASE_VERSION} -DscmVersionType=tag -B"
-                        sh 'kubectl apply -k deployment/overlays/prod'
+                        sh """
+                          sshpass -p jenkins ssh -o StrictHostKeyChecking=no -p 2222 jenkins@prod "~/delivery-service-distribution/bin/meecrowave.sh stop\
+                            && rm -rf ~/delivery-service-distribution\
+                            && unzip ~/delivery-service-meecrowave-distribution.zip\
+                            && ~/delivery-service-distribution/bin/meecrowave.sh start"
+                        """
                     } else {
-                        sh 'kubectl apply -k deployment/overlays/test'
-                        sh "sed -i 's/${env.GIT_COMMIT}/${env.SNAPSHOT_VERSION}/g' deployment/overlays/test/kustomization.yaml"
+                        sh """
+                          sshpass -p jenkins ssh -o StrictHostKeyChecking=no -p 2222 jenkins@test "~/delivery-service-distribution/bin/meecrowave.sh stop\
+                            && rm -rf ~/delivery-service-distribution\
+                            && unzip ~/delivery-service-meecrowave-distribution.zip\
+                            && ~/delivery-service-distribution/bin/meecrowave.sh start"
+                        """
                     }
                 }
             }

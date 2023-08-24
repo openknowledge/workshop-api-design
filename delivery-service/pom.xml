@@ -16,8 +16,8 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <scm>
-        <connection>scm:git:http://openknowledge:workshop@gogs-service:3000/openknowledge/delivery-service.git</connection>
-        <developerConnection>scm:git:http://openknowledge:workshop@gogs-service:3000/openknowledge/delivery-service.git</developerConnection>
+        <connection>scm:git:http://openknowledge:workshop@gogs:3000/openknowledge/delivery-service.git</connection>
+        <developerConnection>scm:git:http://openknowledge:workshop@gogs:3000/openknowledge/delivery-service.git</developerConnection>
     </scm>
 
     <properties>
@@ -225,6 +225,14 @@
                 <version>4.3.5</version>
                 <configuration>
                     <pactBrokerUrl>${pactBroker.url}</pactBrokerUrl>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.meecrowave</groupId>
+                <artifactId>meecrowave-maven-plugin</artifactId>
+                <version>${meecrowave.version}</version>
+                <configuration>
+                    <conf>${project.basedir}/src/main/meecrowave/conf</conf>
                 </configuration>
             </plugin>
         </plugins>

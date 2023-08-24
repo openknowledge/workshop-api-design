@@ -22,6 +22,8 @@ import javax.json.bind.annotation.JsonbTypeAdapter;
 
 import de.openknowledge.sample.address.domain.AddressLine.Adapter;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
 @JsonbTypeAdapter(Adapter.class)
 public class AddressLine {
 
@@ -65,7 +67,6 @@ public class AddressLine {
     public String toString() {
         return line;
     }
-
 
     @Override
     public int hashCode() {

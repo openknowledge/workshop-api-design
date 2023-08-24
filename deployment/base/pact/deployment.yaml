@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pact-deployment
+  labels:
+    app: pact-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pact-service
+  template:
+    metadata:
+      labels:
+        app: pact-service
+    spec:
+      containers:
+        - name: pact
+          image: pactfoundation/pact-broker:2.111.0-pactbroker2.107.1
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: PACT_BROKER_PORT
+              value: "8080"
+            - name: PACT_BROKER_DATABASE_ADAPTER
+              value: sqlite
+            - name: PACT_BROKER_DATABASE_NAME
+              value: pact_broker.sqlite

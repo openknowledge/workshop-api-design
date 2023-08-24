@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-deployment
+  labels:
+    app: jenkins-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins-service
+  template:
+    metadata:
+      labels:
+        app: jenkins-service
+    spec:
+      containers:
+        - name: jenkins
+          image: host.docker.internal:5000/jenkins:local
+          ports:
+            - containerPort: 8080
+              name: http

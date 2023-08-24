@@ -19,12 +19,13 @@ import static org.apache.commons.lang3.Validate.notBlank;
 
 import javax.json.bind.adapter.JsonbAdapter;
 import javax.json.bind.annotation.JsonbTypeAdapter;
+import javax.persistence.Embeddable;
 
 import de.openknowledge.sample.address.domain.HouseNumber.Adapter;
 
+@Embeddable
 @JsonbTypeAdapter(Adapter.class)
 public class HouseNumber {
-
     private String number;
 
     protected HouseNumber() {

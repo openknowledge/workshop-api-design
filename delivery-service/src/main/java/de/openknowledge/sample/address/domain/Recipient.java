@@ -19,12 +19,16 @@ import static org.apache.commons.lang3.Validate.notBlank;
 
 import javax.json.bind.adapter.JsonbAdapter;
 import javax.json.bind.annotation.JsonbTypeAdapter;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 import de.openknowledge.sample.address.domain.Recipient.Adapter;
 
+@Embeddable
 @JsonbTypeAdapter(Adapter.class)
 public class Recipient {
 
+    @Column(name = "RECIPIENT")
     private String name;
 
     protected Recipient() {
@@ -43,7 +47,6 @@ public class Recipient {
     public String toString() {
         return name;
     }
-
 
     @Override
     public int hashCode() {
@@ -64,7 +67,6 @@ public class Recipient {
 
         return toString().equals(recipient.toString());
     }
-
 
     public static class Adapter implements JsonbAdapter<Recipient, String> {
 

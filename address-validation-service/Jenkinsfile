@@ -1,0 +1,119 @@
+#!/usr/bin/env groovy
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        SNAPSHOT_VERSION = readMavenPom().getVersion()
+        LAST_COMMIT_MESSAGE = "${currentBuild.changeSets.size() == 0 ? 'update version to ' : currentBuild.changeSets[currentBuild.changeSets.size() - 1].items.length == 0 ? 'update version to ' : currentBuild.changeSets[currentBuild.changeSets.size() - 1].items[currentBuild.changeSets[currentBuild.changeSets.size() - 1].items.length - 1].msg}"
+        PERFORM_RELEASE = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') && env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ')}"
+        RELEASE_VERSION = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') ? env.SNAPSHOT_VERSION.substring(0, env.SNAPSHOT_VERSION.lastIndexOf('-SNAPSHOT')) : SNAPSHOT_VERSION}"
+        VERSION = "${env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ') ? env.RELEASE_VERSION : env.SNAPSHOT_VERSION}"
+    }
+
+    triggers {
+        pollSCM("* * * * *")
+    }
+
+    stages {
+        stage ('Compile') {
+            when {
+                anyOf {
+                    not {
+                        branch 'main'
+                    }
+                    environment name: 'PERFORM_RELEASE', value: 'true'
+                }
+            }
+            steps {
+                echo "Building version ${env.VERSION}"
+                script {
+                    if (env.PERFORM_RELEASE.equals('true') && !env.RELEASE_VERSION.equals(env.SNAPSHOT_VERSION)) {
+                        sh "mvn versions:set -DnewVersion=${env.RELEASE_VERSION} -B"
+                    }
+                }
+                sh 'mvn clean test-compile -B'
+            }
+        }
+        stage ('Test') {
+            when {
+                anyOf {
+                    not {
+                        branch 'main'
+                    }
+                    environment name: 'PERFORM_RELEASE', value: 'true'
+                }
+            }
+            steps {
+                sh "mvn test -B"
+            }
+        }
+        stage ('Package') {
+            when {
+                anyOf {
+                    not {
+                        branch 'main'
+                    }
+                    environment name: 'PERFORM_RELEASE', value: 'true'
+                }
+            }
+            steps {
+                sh 'mvn package meecrowave:bundle -Dservice.name=address-validation-service -DskipTests -B'
+            }
+        }
+        stage ('Push') {
+            when {
+                anyOf {
+                    not {
+                        branch 'main'
+                    }
+                    environment name: 'PERFORM_RELEASE', value: 'true'
+                }
+            }
+            steps {
+                script {
+                    if (env.PERFORM_RELEASE.equals('true') && !env.RELEASE_VERSION.equals(env.SNAPSHOT_VERSION)) {
+                        sh """
+                            sshpass -p 'jenkins' ssh -o "StrictHostKeyChecking=no" -p 2222 -q jenkins@prod 'mkdir -p ~/artifacts/address-validation-service/${env.RELEASE_VERSION}/'
+                            sshpass -p 'jenkins' scp -o "StrictHostKeyChecking=no" -P 2222 -q target/address-validation-service*.zip jenkins@prod:/config/artifacts/address-validation-service/${env.RELEASE_VERSION}/
+                            git config --global user.name 'Jenkins'
+                            git config --global user.email 'ci@openknowledge.de'
+                            mvn scm:checkin -Dmessage='release of version ${env.RELEASE_VERSION}' -B
+                            mvn scm:tag -Dtag=${env.RELEASE_VERSION} -B
+                        """
+                        int nextRevision = Integer.parseInt(env.RELEASE_VERSION.substring(env.RELEASE_VERSION.lastIndexOf(".") + 1)) + 1
+                        nextVersion = RELEASE_VERSION.substring(0, env.RELEASE_VERSION.lastIndexOf(".")) + "." + nextRevision + "-SNAPSHOT"
+                        sh "mvn versions:set scm:checkin -DnewVersion=${nextVersion} -Dmessage='update version to ${nextVersion}' -B"
+                    } else {
+                        sh """
+                            sshpass -p 'jenkins' ssh -o "StrictHostKeyChecking=no" -p 2222 -q jenkins@test 'mkdir -p ~/artifacts/address-validation-service/${env.SNAPSHOT_VERSION}/'
+                            sshpass -p 'jenkins' scp -o "StrictHostKeyChecking=no" -P 2222 -q target/address-validation-service*.zip jenkins@test:/config/artifacts/address-validation-service/${env.SNAPSHOT_VERSION}/
+                        """
+                    }
+                }
+            }
+        }
+        stage ('Deploy') {
+            when {
+                anyOf {
+                    not {
+                        branch 'main'
+                    }
+                    environment name: 'PERFORM_RELEASE', value: 'true'
+                }
+            }
+            steps {
+                script {
+                    if (env.PERFORM_RELEASE.equals('true') && !env.RELEASE_VERSION.equals(env.SNAPSHOT_VERSION)) {
+                        sh "sshpass -p 'jenkins' ssh -o 'StrictHostKeyChecking=no' -p 2222 -q jenkins:jenkins@prod '[ -f ~/address-validation-service-distribution/bin/meecrowave.sh ] && ~/address-validation-service-distribution/bin/meecrowave.sh stop && rm -rf ~/address-validation-service-distribution/; unzip ~/artifacts/address-validation-service/${env.RELEASE_VERSION}/address-validation-service-meecrowave-distribution.zip -d ~/; nohup ~/address-validation-service-distribution/bin/meecrowave.sh start --http=8084'"
+                    } else {
+                        sh "sshpass -p 'jenkins' ssh -o 'StrictHostKeyChecking=no' -p 2222 -q jenkins:jenkins@test '[ -f ~/address-validation-service-distribution/bin/meecrowave.sh ] && ~/address-validation-service-distribution/bin/meecrowave.sh stop && rm -rf ~/address-validation-service-distribution/; unzip ~/artifacts/address-validation-service/${env.SNAPSHOT_VERSION}/address-validation-service-meecrowave-distribution.zip -d ~/; nohup ~/address-validation-service-distribution/bin/meecrowave.sh start --http=8084'"
+                    }
+                }
+            }
+        }
+    }
+}

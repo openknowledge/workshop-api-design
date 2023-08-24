@@ -15,12 +15,23 @@
  */
 package de.openknowledge.sample.customer.application;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+
+import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+import org.eclipse.microprofile.openapi.annotations.info.Info;
+import org.eclipse.microprofile.openapi.annotations.servers.Server;
 
 /**
  * Application initialization
  */
-@ApplicationPath("/")
+@ApplicationScoped
+@OpenAPIDefinition(
+    info = @Info(title = "Customer Service", version = "1.0.0"),
+    servers = {
+        @Server(url = "/customers", description = "Customer Service"),
+    })
+@ApplicationPath("/customers")
 public class CustomerApplication extends Application {
 }

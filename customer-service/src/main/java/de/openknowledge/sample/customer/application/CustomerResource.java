@@ -46,7 +46,7 @@ import de.openknowledge.sample.customer.domain.CustomerRepository;
  * RESTFul endpoint for customers
  */
 @ApplicationScoped
-@Path("/customers")
+@Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class CustomerResource {

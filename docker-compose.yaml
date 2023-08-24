@@ -1,29 +1,66 @@
 services:
-  customer-service:
-    build: customer-service/
-    container_name: customer-service
+  pact:
+    image: pactfoundation/pact-broker:2.123.0-pactbroker2.112.0
     ports:
-      - "8181:8080"
+    - "5000:9292"
     environment:
-      - BILLING_SERVICE_URL=http://billing-service:8080
-      - DELIVERY_SERVICE_URL=http://delivery-service:8080
-
-  billing-service:
-    build: billing-service/
-    container_name: billing-service
+    - PACT_BROKER_DATABASE_ADAPTER=sqlite
+    - PACT_BROKER_WEBHOOK_SCHEME_WHITELIST=http
+    - PACT_BROKER_WEBHOOK_HTTP_METHOD_WHITELIST=GET
+    - PACT_BROKER_WEBHOOK_HOST_WHITELIST=jenkins
+  gogs:
+    build: gogs/
     ports:
-      - "8182:8080"
-
-  delivery-service:
-    build: delivery-service/
-    container_name: delivery-service
+    - "3000:3000"
+  gogs-db:
+    image: postgres:15.4-bullseye
     ports:
-      - "8183:8080"
+    - "5432:5432"
     environment:
-      - ADDRESS_VALIDATION_SERVICE_URL=http://address-validation-service:8080
-
-  address-validation-service:
-    build: address-validation-service/
-    container_name: address-validation_service
+    - POSTGRES_PASSWORD=g0g5db
+  jenkins:
+    build: jenkins/
     ports:
-      - "8184:8080"
+    - "4000:8080"
+  setup:
+    build:
+      context: .
+      dockerfile: ./setup/Dockerfile
+  prod:
+    build: server/
+    ports:
+    - 8181:8081
+    - 8182:8082
+    - 8183:8083
+    - 8184:8084
+    environment:
+    - PASSWORD_ACCESS=true
+    - USER_PASSWORD=jenkins
+    - USER_NAME=jenkins
+  test:
+    build: server/
+    ports:
+    - 8281:8081
+    - 8282:8082
+    - 8283:8083
+    - 8284:8084
+    environment:
+    - PASSWORD_ACCESS=true
+    - USER_PASSWORD=jenkins
+    - USER_NAME=jenkins
+  delivery-db:
+    image: postgres:17.5
+    environment:
+    - POSTGRES_DB=postgres
+    - POSTGRES_USER=delivery-service
+    - POSTGRES_PASSWORD=delivery-password
+    volumes:
+    - ./delivery-service/src/main/resources/sql:/docker-entrypoint-initdb.d
+  delivery-db-test:
+    image: postgres:17.5
+    environment:
+    - POSTGRES_DB=postgres
+    - POSTGRES_USER=delivery-service
+    - POSTGRES_PASSWORD=delivery-password
+    volumes:
+    - ./delivery-service/src/main/resources/sql:/docker-entrypoint-initdb.d

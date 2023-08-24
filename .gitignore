@@ -5,4 +5,5 @@
 /keycloak/*
 !/keycloak/keycloak.mv.db
 target/
+workspace/
 *.iml

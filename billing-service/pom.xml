@@ -15,6 +15,11 @@
     <artifactId>${service.name}</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
+    <scm>
+        <connection>scm:git:http://openknowledge:workshop@gogs:3000/openknowledge/billing-service.git</connection>
+        <developerConnection>scm:git:http://openknowledge:workshop@gogs:3000/openknowledge/billing-service.git</developerConnection>
+    </scm>
+
     <properties>
         <service.name>online-shop</service.name>
         <maven.compiler.source>11</maven.compiler.source>
@@ -108,6 +113,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>au.com.dius.pact.provider</groupId>
+            <artifactId>junit5</artifactId>
+            <version>4.3.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.meecrowave</groupId>
             <artifactId>meecrowave-junit</artifactId>
             <version>${meecrowave.version}</version>
@@ -134,6 +145,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M5</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <pact.provider.version>${project.version}</pact.provider.version>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.meecrowave</groupId>

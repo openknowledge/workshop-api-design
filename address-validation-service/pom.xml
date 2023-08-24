@@ -19,6 +19,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pactBroker.url>http://localhost:5050</pactBroker.url>
         <meecrowave.version>2.0.0</meecrowave.version>
         <deltaspike.version>1.9.6</deltaspike.version>
         <junit.version>5.8.2</junit.version>
@@ -101,11 +102,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>2.28.2</version>
-        </dependency>
-        <dependency>
             <groupId>au.com.dius.pact.provider</groupId>
             <artifactId>junit5</artifactId>
             <version>4.3.5</version>
@@ -131,7 +127,6 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -140,6 +135,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <pact.provider.version>${project.version}</pact.provider.version>
+                        <pactBroker.url>${pactBroker.url}</pactBroker.url>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -152,24 +148,8 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.2.1</version>
                 <configuration>
-                    <consoleOutput>true</consoleOutput>
-                    <headerLocation>${project.basedir}/src/main/checkstyle/java.header</headerLocation>
-                    <failsOnError>true</failsOnError>
-                    <consoleOutput>true</consoleOutput>
+                    <conf>${project.basedir}/src/main/meecrowave/conf</conf>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>checkstyle</goal>
-                        </goals>
-                        <configuration>
-                            <configLocation>${project.basedir}/src/main/checkstyle/configuration.xml</configLocation>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

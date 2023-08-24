@@ -26,6 +26,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <pactBroker.url>http://localhost:5000</pactBroker.url>
+        <pact.tag>develop</pact.tag>
         <meecrowave.version>1.2.15</meecrowave.version>
         <deltaspike.version>1.9.6</deltaspike.version>
         <junit.version>5.8.2</junit.version>
@@ -90,6 +91,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <pact.provider.version>${project.version}</pact.provider.version>
+                        <pact.tag>${pact.tag}</pact.tag>
                         <pactBroker.url>${pactBroker.url}</pactBroker.url>
                     </systemPropertyVariables>
                 </configuration>

@@ -38,16 +38,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
+import au.com.dius.pact.provider.junitsupport.IgnoreNoPactsToVerify;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.StateChangeAction;
-import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
+import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
 import de.openknowledge.sample.address.domain.AddressValidationService;
 import rocks.limburg.cdimock.MockitoBeans;
 
+@IgnoreNoPactsToVerify
 @MockitoBeans(types = {AddressValidationService.class})
 @Provider("delivery-service")
-@PactFolder("src/test/pacts")
+@PactBroker(url = "${pactBroker.url:http://localhost:5000}")
 @MonoMeecrowaveConfig
 public class DeliveryAddressServiceTest {
 

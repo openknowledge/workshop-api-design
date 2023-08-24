@@ -48,7 +48,7 @@ pipeline {
                 }
             }
             steps {
-                sh "mvn test -B"
+                sh 'mvn test pact:publish -DpactBroker.url=http://pact:9292 -B'
             }
         }
         stage ('Package') {

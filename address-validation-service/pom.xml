@@ -12,8 +12,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.openkonwledge.sample.shop</groupId>
-    <artifactId>${service.name}</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <artifactId>address-validation-service</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:http://openknowledge:workshop@gogs:3000/openknowledge/address-validation-service.git</connection>
@@ -26,6 +26,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pactBroker.url>http://localhost:5000</pactBroker.url>
         <meecrowave.version>1.2.15</meecrowave.version>
         <deltaspike.version>1.9.6</deltaspike.version>
         <junit.version>5.8.2</junit.version>
@@ -132,7 +133,6 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
         </dependency>
-
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -152,11 +152,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>2.28.2</version>
-        </dependency>
-        <dependency>
             <groupId>au.com.dius.pact.provider</groupId>
             <artifactId>junit5</artifactId>
             <version>4.3.5</version>
@@ -168,21 +163,8 @@
             <version>${meecrowave.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>rocks.limburg.cdimock</groupId>
-            <artifactId>cdimock</artifactId>
-            <version>1.0.4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tngtech.archunit</groupId>
-            <artifactId>archunit</artifactId>
-            <version>1.0.1</version>
-             <scope>test</scope>
-        </dependency>
     </dependencies>
     <build>
-        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -191,6 +173,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <pact.provider.version>${project.version}</pact.provider.version>
+                        <pactBroker.url>${pactBroker.url}</pactBroker.url>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -203,24 +186,8 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.2.1</version>
                 <configuration>
-                    <consoleOutput>true</consoleOutput>
-                    <headerLocation>${project.basedir}/src/main/checkstyle/java.header</headerLocation>
-                    <failsOnError>true</failsOnError>
-                    <consoleOutput>true</consoleOutput>
+                    <conf>${project.basedir}/src/main/meecrowave/conf</conf>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>checkstyle</goal>
-                        </goals>
-                        <configuration>
-                            <configLocation>${project.basedir}/src/main/checkstyle/configuration.xml</configLocation>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

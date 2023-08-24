@@ -71,7 +71,6 @@ public class CustomerServiceTest {
             .thenReturn(Optional.of(Address.of("Max Mustermann").atStreet("Poststrasse 1").inCity("26122 Oldenburg").build()));
         when(billingAddressRepository.find(new CustomerNumber("007")))
             .thenReturn(Optional.of(Address.of("Sherlock Holmes").atStreet("221B Baker Street").inCity("London NW1 6XE").build()));
-
         uri = URI.create("http://localhost:" + config.getHttpPort());
     }
 

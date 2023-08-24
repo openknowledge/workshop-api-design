@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gogs-deployment
+  labels:
+    app: gogs-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gogs-service
+  template:
+    metadata:
+      labels:
+        app: gogs-service
+    spec:
+      containers:
+        - name: gogs
+          image: host.docker.internal:5000/gogs:local
+          ports:
+            - containerPort: 3000
+              name: http

@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup
+spec:
+  template:
+    spec:
+      containers:
+      - name: setup
+        image: host.docker.internal:5000/setup:local
+      restartPolicy: Never
+  backoffLimit: 1

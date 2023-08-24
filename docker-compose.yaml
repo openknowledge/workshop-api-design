@@ -1,0 +1,10 @@
+services:
+  gogs:
+    build: gogs/
+    image: host.docker.internal:5000/gogs:local
+  jenkins:
+    build: jenkins/
+    image: host.docker.internal:5000/jenkins:local
+  setup:
+    build: setup/
+    image: host.docker.internal:5000/setup:local

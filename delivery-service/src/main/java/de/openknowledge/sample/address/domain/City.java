@@ -19,12 +19,16 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import javax.json.bind.adapter.JsonbAdapter;
 import javax.json.bind.annotation.JsonbTypeAdapter;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 import de.openknowledge.sample.address.domain.City.Adapter;
 
+@Embeddable
 @JsonbTypeAdapter(Adapter.class)
 public class City {
 
+    @Column(name = "CITY")
     private String name;
 
     public City(String name) {
@@ -33,6 +37,10 @@ public class City {
 
     protected City() {
         // for framework
+    }
+
+    public static City valueOf(String name) {
+        return new City(name);
     }
 
     public ZipCode getZipCode() {

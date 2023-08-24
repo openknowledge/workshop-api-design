@@ -19,9 +19,11 @@ import static org.apache.commons.lang3.Validate.notBlank;
 
 import javax.json.bind.adapter.JsonbAdapter;
 import javax.json.bind.annotation.JsonbTypeAdapter;
+import javax.persistence.Embeddable;
 
 import de.openknowledge.sample.address.domain.StreetName.Adapter;
 
+@Embeddable
 @JsonbTypeAdapter(Adapter.class)
 public class StreetName {
 

@@ -227,6 +227,14 @@
                     <pactBrokerUrl>${pactBroker.url}</pactBrokerUrl>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.meecrowave</groupId>
+                <artifactId>meecrowave-maven-plugin</artifactId>
+                <version>${meecrowave.version}</version>
+                <configuration>
+                    <conf>${project.basedir}/src/main/meecrowave/conf</conf>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

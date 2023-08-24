@@ -48,7 +48,27 @@ pipeline {
                 }
             }
             steps {
-                sh 'mvn test pact:publish -DpactBroker.url=http://pact:9292 -B'
+                sh 'mvn test pact:publish -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true -B'
+            }
+        }
+        stage ('Test providers') {
+            when {
+                anyOf {
+                    not {
+                        branch 'main'
+                    }
+                    environment name: 'PERFORM_RELEASE', value: 'true'
+                }
+            }
+            steps {
+                parallel(
+                    'delivery-service': {
+                        build job: "delivery-service/${env.BRANCH_NAME}", parameters: [booleanParam(name: 'verifyPacts', value: true)]
+                    },
+                    'billing-service': {
+                        build job: "billing-service/${env.BRANCH_NAME}", parameters: [booleanParam(name: 'verifyPacts', value: true)]
+                    }
+                )
             }
         }
         stage ('Package') {

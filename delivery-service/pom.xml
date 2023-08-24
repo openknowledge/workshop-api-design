@@ -27,6 +27,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <pactBroker.url>http://localhost:5000</pactBroker.url>
+        <pact.tag>develop</pact.tag>
         <meecrowave.version>1.2.15</meecrowave.version>
         <deltaspike.version>1.9.6</deltaspike.version>
         <hibernate.version>5.4.21.Final</hibernate.version>
@@ -183,6 +184,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <pact.provider.version>${project.version}</pact.provider.version>
+                        <pact.tag>${pact.tag}</pact.tag>
                         <pactBroker.url>${pactBroker.url}</pactBroker.url>
                         <javax.persistence.jdbc.url>jdbc:h2:mem:delivery</javax.persistence.jdbc.url>
                         <javax.persistence.jdbc.driver>org.h2.Driver</javax.persistence.jdbc.driver>

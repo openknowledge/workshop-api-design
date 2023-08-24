@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery-deployment
+  labels:
+    app: delivery-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: delivery-service
+  template:
+    metadata:
+      labels:
+        app: delivery-service
+    spec:
+      containers:
+        - name: delivery
+          image: delivery:latest
+          ports:
+            - containerPort: 4002
+              name: http
+          env:
+            - name: ADDRESS_VALIDATION_SERVICE_URL
+              value: http://address-validation-service:4003
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery-db-deployment
+  labels:
+    app: delivery-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: delivery-db
+  template:
+    metadata:
+      labels:
+        app: delivery-db
+    spec:
+      containers:
+        - name: delivery-postgres
+          image: host.docker.internal:5000/delivery-db:local
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: delivery-service
+            - name: POSTGRES_PASSWORD
+              value: delivery-password

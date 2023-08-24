@@ -17,6 +17,7 @@ pipeline {
         RELEASE_VERSION = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') ? env.SNAPSHOT_VERSION.substring(0, env.SNAPSHOT_VERSION.lastIndexOf('-SNAPSHOT')) : SNAPSHOT_VERSION}"
         VERSION = "${env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ') ? env.RELEASE_VERSION : env.SNAPSHOT_VERSION}"
         ROOT_DIRECTORY = "${params.verifyPacts == true && env.BRANCH_NAME == 'main' && env.SNAPSHOT_VERSION.endsWith("-SNAPSHOT") ? 'target/checkout' : '.'}"
+        STAGE = "${env.BRANCH_NAME == 'main' ? 'prod' : 'test'}"
     }
 
     triggers {
@@ -71,7 +72,7 @@ pipeline {
             steps {
                 sh """
                     cd ${ROOT_DIRECTORY}
-                    mvn test -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true -B
+                    mvn test -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true -Dpact.tag=${params.verifyPacts ? 'pending-' + env.STAGE : env.STAGE} -B
                 """
             }
         }
@@ -88,7 +89,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'mvn pact:publish -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true -B'
+                sh "mvn pact:publish -DpactBroker.url=http://pact:9292 -Dpact.verifier.publishResults=true -Dpact.consumer.tags=pending-${env.STAGE} -B"
                 build job: "address-validation-service/${env.BRANCH_NAME}", parameters: [booleanParam(name: 'verifyPacts', value: true)]
             }
         }
@@ -162,6 +163,8 @@ pipeline {
                     } else {
                         sh "sshpass -p 'jenkins' ssh -o 'StrictHostKeyChecking=no' -p 2222 -q jenkins:jenkins@test '[ -f ~/delivery-service-distribution/bin/meecrowave.sh ] && ~/delivery-service-distribution/bin/meecrowave.sh stop && rm -rf ~/delivery-service-distribution/; unzip ~/artifacts/delivery-service/${env.SNAPSHOT_VERSION}/delivery-service-meecrowave-distribution.zip -d ~/; export JAVAX_PERSISTENCE_JDBC_URL=jdbc:postgresql://delivery-db-test:5432/postgres; nohup ~/delivery-service-distribution/bin/meecrowave.sh start --http=8083'"
                     }
+                    sh "curl -H 'Content-Type: application/json' -X PUT http://pact:9292/pacticipants/delivery-service/versions/${env.VERSION}/tags/${env.STAGE}"
+                    sh "curl -X DELETE http://pact:9292/pacticipants/delivery-service/versions/${env.VERSION}/tags/pending-${env.STAGE}"
                 }
             }
         }

@@ -19,6 +19,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pactBroker.url>http://localhost:5050</pactBroker.url>
         <meecrowave.version>2.0.0</meecrowave.version>
         <deltaspike.version>1.9.6</deltaspike.version>
         <junit.version>5.8.2</junit.version>
@@ -201,6 +202,14 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>au.com.dius.pact.provider</groupId>
+                <artifactId>maven</artifactId>
+                <version>4.3.5</version>
+                <configuration>
+                    <pactBrokerUrl>${pactBroker.url}</pactBrokerUrl>
+                </configuration>
             </plugin>
         </plugins>
     </build>

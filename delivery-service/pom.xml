@@ -19,6 +19,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pactBroker.url>http://localhost:5050</pactBroker.url>
         <meecrowave.version>2.0.0</meecrowave.version>
         <deltaspike.version>1.9.6</deltaspike.version>
         <hibernate.version>7.2.2.Final</hibernate.version>
@@ -175,6 +176,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <pact.provider.version>${project.version}</pact.provider.version>
+                        <pactBroker.url>${pactBroker.url}</pactBroker.url>
                         <jakarta.persistence.jdbc.url>jdbc:h2:mem:delivery</jakarta.persistence.jdbc.url>
                         <jakarta.persistence.jdbc.driver>org.h2.Driver</jakarta.persistence.jdbc.driver>
                         <jakarta.persistence.jdbc.user>sa</jakarta.persistence.jdbc.user>
@@ -215,7 +217,7 @@
                 <artifactId>maven</artifactId>
                 <version>4.3.5</version>
                 <configuration>
-                    <pactBrokerUrl>http://localhost:5050</pactBrokerUrl>
+                    <pactBrokerUrl>${pactBroker.url}</pactBrokerUrl>
                 </configuration>
             </plugin>
         </plugins>

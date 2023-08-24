@@ -16,23 +16,23 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build customer-service
-        run: mvn clean package -f customer-service/pom.xml
-
-      - name: Build billing-service
-        run: mvn clean package -f billing-service/pom.xml
-
-      - name: Build delivery-service
-        run: mvn clean package -f delivery-service/pom.xml
-
-      - name: Build address-validation-service
-        run: mvn clean package -f address-validation-service/pom.xml
-
       - name: Build with Docker
         run: docker compose build
 
       - name: Start with Docker
         run: docker compose up -d
+
+      - name: Build customer-service
+        run: mvn clean package -f customer-service/pom.xml pact:publish
+
+      - name: Build billing-service
+        run: mvn clean package -f billing-service/pom.xml
+
+      - name: Build delivery-service
+        run: mvn clean package -f delivery-service/pom.xml pact:publish
+
+      - name: Build address-validation-service
+        run: mvn clean package -f address-validation-service/pom.xml
 
       - name: Stop Docker Containers
         run: docker compose down

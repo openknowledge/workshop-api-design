@@ -1,0 +1,328 @@
+{
+	"info": {
+		"_postman_id": "38c24193-20db-400c-894c-93e289835152",
+		"name": "Consumer-Driven Contracts",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "27875178"
+	},
+	"item": [
+		{
+			"name": "Get Customers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "localhost:30000/customers"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Customers (test)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "localhost:31000/customers"
+			},
+			"response": []
+		},
+		{
+			"name": "Get single Customer",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "localhost:30000/customers/007"
+			},
+			"response": []
+		},
+		{
+			"name": "Get single Customer (test)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "localhost:31000/customers/007"
+			},
+			"response": []
+		},
+		{
+			"name": "Set Billing Address",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"recipient\": \"Sherlock Holmes\",\n  \"street\": {\n    \"name\": \"Baker Street\",\n    \"number\": \"221B\"\n  },\n  \"city\": \"London NW1 6XE\"\n}\n"
+				},
+				"url": "localhost:30000/customers/007/billing-address"
+			},
+			"response": []
+		},
+		{
+			"name": "Set Billing Address (test)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"recipient\": \"James Bond\",\n  \"street\": {\n    \"name\": \"Baker Street\",\n    \"number\": \"221B\"\n  },\n  \"city\": \"London NW1 6XE\"\n}\n"
+				},
+				"url": "localhost:31000/customers/007/billing-address"
+			},
+			"response": []
+		},
+		{
+			"name": "Set Delivery Address",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"recipient\": \"Erika Mustermann\",\n    \"street\": {\n        \"name\": \"Test\",\n        \"number\": \"1\"\n    },\n    \"city\": \"26122 Oldenburg\"\n}\n"
+				},
+				"url": "localhost:30000/customers/007/delivery-address"
+			},
+			"response": []
+		},
+		{
+			"name": "Set Delivery Address (test)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"recipient\": \"Max Mustermann\",\n    \"street\": {\n        \"name\": \"Test\",\n        \"number\": \"1\"\n    },\n    \"city\": \"26122 Oldenburg\"\n}\n"
+				},
+				"url": "localhost:31000/customers/007/delivery-address"
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Address (test)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"recipient\": \"Max Mustermann\",\n    \"street\": {\n        \"name\": \"Poststrasse\",\n        \"number\": \"1\"\n    },\n    \"city\": \"26122 Oldenburg\"\n}\n"
+				},
+				"url": "localhost:31003/valid-addresses"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Billing Address (test)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "localhost:31001/billing-addresses/007"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Delivery Address (test)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:31002/delivery-addresses/007"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Webhook for billing-service",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"provider\": {\n    \"name\": \"billing-service\"\n  },\n  \"events\": [{\n    \"name\": \"contract_content_changed\"\n  }],\n  \"request\": {\n    \"method\": \"GET\",\n    \"url\": \"http://jenkins-service:8080/generic-webhook-trigger/invoke?token=billing-service&stage=${pactbroker.consumerVersionTags}&verifyPacts=true\",\n    \"headers\": {\n    }\n  }\n}"
+				},
+				"url": "http://localhost:30050/webhooks"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Webhook for delivery-service",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"provider\": {\n    \"name\": \"delivery-service\"\n  },\n  \"events\": [{\n    \"name\": \"contract_content_changed\"\n  }],\n  \"request\": {\n    \"method\": \"GET\",\n    \"url\": \"http://jenkins-service:8080/generic-webhook-trigger/invoke?token=delivery-service&stage=${pactbroker.consumerVersionTags}&verifyPacts=true\",\n    \"headers\": {\n    }\n  }\n}"
+				},
+				"url": "http://localhost:30050/webhooks"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Webhook for address-validation-service",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"provider\": {\n    \"name\": \"address-validation-service\"\n  },\n  \"events\": [{\n    \"name\": \"contract_content_changed\"\n  }],\n  \"request\": {\n    \"method\": \"GET\",\n    \"url\": \"http://jenkins-service:8080/generic-webhook-trigger/invoke?token=address-validation-service&stage=${pactbroker.consumerVersionTags}&verifyPacts=true\",\n    \"headers\": {\n    }\n  }\n}"
+				},
+				"url": "http://localhost:30050/webhooks"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Verification Webhook for customer-service",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"consumer\": {\n    \"name\": \"customer-service\"\n  },\n  \"events\": [{\n    \"name\": \"provider_verification_published\"\n  }],\n  \"request\": {\n    \"method\": \"GET\",\n    \"url\": \"http://jenkins-service:8080/generic-webhook-trigger/invoke?token=customer-service&stage=${pactbroker.consumerVersionTags}&deployOnly=true&deploymentVersion=${pactbroker.consumerVersionNumber}\",\n    \"headers\": {\n    }\n  }\n}"
+				},
+				"url": "http://localhost:30050/webhooks"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Verification Webhook for delivery-service",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"consumer\": {\n    \"name\": \"delivery-service\"\n  },\n  \"events\": [{\n    \"name\": \"provider_verification_published\"\n  }],\n  \"request\": {\n    \"method\": \"GET\",\n    \"url\": \"http://jenkins-service:8080/generic-webhook-trigger/invoke?token=delivery-service&stage=${pactbroker.consumerVersionTags}&deployOnly=true&deploymentVersion=${pactbroker.consumerVersionNumber}\",\n    \"headers\": {\n    }\n  }\n}"
+				},
+				"url": "http://localhost:30050/webhooks"
+			},
+			"response": []
+		},
+		{
+			"name": "Execute Verification Webhook for Customer Service",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "http://localhost:9080/generic-webhook-trigger/invoke?token=customer-service&stage=pending-prod&deployOnly=true&deploymentVersion=1.2.1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9080",
+					"path": [
+						"generic-webhook-trigger",
+						"invoke"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "customer-service"
+						},
+						{
+							"key": "stage",
+							"value": "pending-prod"
+						},
+						{
+							"key": "deployOnly",
+							"value": "true"
+						},
+						{
+							"key": "deploymentVersion",
+							"value": "1.2.1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set prod tag to Delivery Service",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:30050/pacticipants/delivery-service/versions/1.2.0/tags/prod"
+			},
+			"response": []
+		}
+	]
+}

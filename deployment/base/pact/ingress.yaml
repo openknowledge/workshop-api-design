@@ -16,4 +16,4 @@ spec:
               service:
                 name: pact-service
                 port:
-                  number: 30080
+                  number: 30020

@@ -16,4 +16,4 @@ spec:
               service:
                 name: jenkins-service
                 port:
-                  number: 30090
+                  number: 30040

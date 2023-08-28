@@ -1,0 +1,126 @@
+{
+  "provider": {
+    "name": "address-validation-service"
+  },
+  "consumer": {
+    "name": "delivery-service"
+  },
+  "interactions": [
+    {
+      "description": "POST request for Max's address",
+      "request": {
+        "method": "POST",
+        "path": "/valid-addresses",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "city": "26122 Oldenburg",
+          "street": {
+            "number": "1",
+            "name": "Poststrasse"
+          },
+          "recipient": "Max Mustermann"
+        },
+        "matchingRules": {
+          "header": {
+            "Content-Type": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json.*"
+                }
+              ],
+              "combine": "AND"
+            }
+          }
+        }
+      },
+      "response": {
+        "status": 200
+      },
+      "providerStates": [
+        {
+          "name": "Three customers"
+        }
+      ]
+    },
+    {
+      "description": "POST request for Sherlock's address",
+      "request": {
+        "method": "POST",
+        "path": "/valid-addresses",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "city": "London NW1 6XE",
+          "street": {
+            "number": "221B",
+            "name": "Baker Street"
+          },
+          "recipient": "Sherlock Holmes"
+        },
+        "matchingRules": {
+          "header": {
+            "Content-Type": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json.*"
+                }
+              ],
+              "combine": "AND"
+            }
+          }
+        }
+      },
+      "response": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/problem+json"
+        },
+        "body": {
+          "detail": "Addresses from UK are not supported for delivery"
+        },
+        "matchingRules": {
+          "header": {
+            "Content-Type": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/problem\\+json.*"
+                }
+              ],
+              "combine": "AND"
+            }
+          },
+          "body": {
+            "$.detail": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": ".*"
+                }
+              ],
+              "combine": "AND"
+            }
+          }
+        }
+      },
+      "providerStates": [
+        {
+          "name": "Three customers"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "3.0.0"
+    },
+    "pact-jvm": {
+      "version": "4.0.10"
+    }
+  }
+}

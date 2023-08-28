@@ -27,3 +27,9 @@ spec:
               value: sqlite
             - name: PACT_BROKER_DATABASE_NAME
               value: pact_broker.sqlite
+            - name: PACT_BROKER_WEBHOOK_SCHEME_WHITELIST
+              value: http
+            - name: PACT_BROKER_WEBHOOK_HTTP_METHOD_WHITELIST
+              value: GET
+            - name: PACT_BROKER_WEBHOOK_HOST_WHITELIST
+              value: jenkins-service

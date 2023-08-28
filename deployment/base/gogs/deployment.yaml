@@ -20,3 +20,28 @@ spec:
           ports:
             - containerPort: 3000
               name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gogs-db-deployment
+  labels:
+    app: gogs-db-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gogs-db-service
+  template:
+    metadata:
+      labels:
+        app: gogs-db-service
+    spec:
+      containers:
+        - name: gogs-postgres
+          image: postgres:15.4-bullseye
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              value: g0g5db

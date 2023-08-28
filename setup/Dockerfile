@@ -1,5 +1,9 @@
-FROM bash:5.2.15
+FROM alpine/git:2.40.1
 
-COPY setup.sh /
+RUN apk --no-cache add curl bash
+COPY .git /repo/.git
+COPY setup/setup.sh /
+COPY setup/pushToGogs.sh /
+COPY setup/jenkins/ /jenkins
 
-CMD ["bash", "/setup.sh"]
+ENTRYPOINT ["sh", "/setup.sh"]

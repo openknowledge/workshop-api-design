@@ -16,4 +16,4 @@ spec:
               service:
                 name: gogs-service
                 port:
-                  number: 30090
+                  number: 30030

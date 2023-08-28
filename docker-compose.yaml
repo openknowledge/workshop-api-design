@@ -6,5 +6,12 @@ services:
     build: jenkins/
     image: host.docker.internal:5000/jenkins:local
   setup:
-    build: setup/
+    build:
+      context: .
+      dockerfile: ./setup/Dockerfile
     image: host.docker.internal:5000/setup:local
+  delivery-db:
+    build:
+      context: .
+      dockerfile: ./delivery-db/Dockerfile
+    image: host.docker.internal:5000/delivery-db:local

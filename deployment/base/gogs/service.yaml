@@ -10,5 +10,19 @@ spec:
     - protocol: TCP
       port: 3000
       targetPort: 3000
-      nodePort: 30060
+      nodePort: 30030
+      name: service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gogs-db-service
+spec:
+  selector:
+    app: gogs-db-service
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
       name: service

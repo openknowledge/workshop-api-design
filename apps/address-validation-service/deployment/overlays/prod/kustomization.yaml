@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: prod
+
+resources:
+  - ../../base
+
+patches:
+  - target:
+      version: v1
+      kind: Service
+      name: address-validation-service
+    path: ./patches/port-patch.yaml
+
+images:
+ - name: address-validation
+   newName: localhost:30010/address-validation
+   newTag: 1.1.0-SNAPSHOT

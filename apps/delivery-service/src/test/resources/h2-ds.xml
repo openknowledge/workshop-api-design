@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources xmlns="http://www.jboss.org/ironjacamar/schema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="  
+            http://www.jboss.org/ironjacamar/schema  
+            http://docs.jboss.org/ironjacamar/schema/datasources_1_0.xsd">
+	<datasource enabled="true" jndi-name="java:/jdbc/deliveryDS" pool-name="DeliveryDS">
+        <connection-url>${database.url}</connection-url>
+        <driver>h2</driver>
+        <pool>
+            <min-pool-size>4</min-pool-size>
+            <initial-pool-size>4</initial-pool-size>
+        <max-pool-size>64</max-pool-size>
+        </pool>
+        <security>
+            <user-name>sa</user-name>
+            <password>sa</password>
+        </security>
+    </datasource>
+</datasources>

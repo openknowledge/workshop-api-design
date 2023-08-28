@@ -1,0 +1,12 @@
+{
+    "name": "James Bond",
+    "number": "007",
+    "billingAddress": {
+        "recipient": "Sherlock Holmes",
+        "street": {
+            "name": "Baker Street",
+            "number": "221B"
+        },
+        "city": "London NW1 6XE"
+    }
+}

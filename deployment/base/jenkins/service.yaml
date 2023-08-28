@@ -10,5 +10,5 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-      nodePort: 30070
+      nodePort: 30040
       name: service

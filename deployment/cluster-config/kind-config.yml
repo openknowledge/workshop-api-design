@@ -9,8 +9,17 @@ nodes:
           kubeletExtraArgs:
             node-labels: "ingress-ready=true"
     extraPortMappings:
-      - containerPort: 30050
-        hostPort: 30050
+      - containerPort: 30010
+        hostPort: 30010
+        protocol: TCP
+      - containerPort: 30020
+        hostPort: 30020
+        protocol: TCP
+      - containerPort: 30030
+        hostPort: 30030
+        protocol: TCP
+      - containerPort: 30040
+        hostPort: 30040
         protocol: TCP
       - containerPort: 30060
         hostPort: 30060
@@ -18,3 +27,32 @@ nodes:
       - containerPort: 30070
         hostPort: 30070
         protocol: TCP
+      - containerPort: 30080
+        hostPort: 30080
+        protocol: TCP
+      - containerPort: 30090
+        hostPort: 30090
+        protocol: TCP
+      - containerPort: 31060
+        hostPort: 31060
+        protocol: TCP
+      - containerPort: 31070
+        hostPort: 31070
+        protocol: TCP
+      - containerPort: 31080
+        hostPort: 31080
+        protocol: TCP
+      - containerPort: 31090
+        hostPort: 31090
+        protocol: TCP
+    extraMounts:
+      - hostPath: /var/run/docker.sock
+        containerPath: /var/run/docker.sock
+  - role: worker
+    extraMounts:
+      - hostPath: /var/run/docker.sock
+        containerPath: /var/run/docker.sock
+  - role: worker
+    extraMounts:
+      - hostPath: /var/run/docker.sock
+        containerPath: /var/run/docker.sock

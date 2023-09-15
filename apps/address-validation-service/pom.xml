@@ -28,6 +28,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <pactBroker.url>http://localhost</pactBroker.url>
+        <pact.tag>develop</pact.tag>
         <meecrowave.version>1.2.13</meecrowave.version>
         <junit.version>5.8.2</junit.version>
     </properties>
@@ -87,6 +88,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <pact.provider.version>${project.version}</pact.provider.version>
+                        <pact.tag>${pact.tag}</pact.tag>
                         <pactBroker.url>${pactBroker.url}</pactBroker.url>
                     </systemPropertyVariables>
                 </configuration>

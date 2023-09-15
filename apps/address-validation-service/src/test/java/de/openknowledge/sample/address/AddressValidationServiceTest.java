@@ -31,10 +31,11 @@ import au.com.dius.pact.provider.junitsupport.IgnoreNoPactsToVerify;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
+import au.com.dius.pact.provider.junitsupport.loader.VersionSelector;
 
 @IgnoreNoPactsToVerify
 @Provider("address-validation-service")
-@PactBroker(url = "${pactBroker.url:http://localhost}")
+@PactBroker(url = "${pactBroker.url:http://localhost}", consumerVersionSelectors = @VersionSelector(tag = "${pact.tag}"))
 @MonoMeecrowaveConfig
 public class AddressValidationServiceTest {
 

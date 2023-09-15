@@ -12,6 +12,7 @@ pipeline {
         PERFORM_RELEASE = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') && env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ')}"
         RELEASE_VERSION = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') ? env.SNAPSHOT_VERSION.substring(0, env.SNAPSHOT_VERSION.lastIndexOf('-SNAPSHOT')) : SNAPSHOT_VERSION}"
         VERSION = "${env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ') ? env.RELEASE_VERSION : env.SNAPSHOT_VERSION}"
+        STAGE = "${env.BRANCH_NAME == 'main' ? 'prod' : 'test'}"
     }
 
     triggers {
@@ -51,7 +52,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'mvn test pact:publish -DpactBroker.url=http://pact-service:8080  -Dpact.verifier.publishResults=true -B'
+                sh "mvn test pact:publish -DpactBroker.url=http://pact-service:8080 -Dpact.verifier.publishResults=true -Dpact.consumer.tags=pending-${env.STAGE} -B"
             }
         }
         stage ('Test providers') {
@@ -138,8 +139,11 @@ pipeline {
                         sh 'kubectl apply -k deployment/overlays/test'
                         sh "sed -i 's/${env.GIT_COMMIT}/${env.SNAPSHOT_VERSION}/g' deployment/overlays/test/kustomization.yaml"
                     }
+                    sh "curl -H 'Content-Type: application/json' -X PUT http://pact-service:8080/pacticipants/customer-service/versions/${env.VERSION}/tags/${env.STAGE}"
+                    sh "curl -X DELETE http://pact-service:8080/pacticipants/customer-service/versions/${env.VERSION}/tags/pending-${env.STAGE}"
                 }
             }
         }
     }
 }
+

@@ -15,6 +15,8 @@
  */
 package de.openknowledge.sample.address;
 
+import static java.util.Optional.ofNullable;
+
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.meecrowave.testing.ConfigurationInject;
@@ -39,16 +41,15 @@ public class BillingAddressServiceTest {
     @ConfigurationInject
     private Meecrowave.Builder config;
 
-
     @BeforeEach
     public void setUp(PactVerificationContext context) {
-        context.setTarget(new HttpTestTarget("localhost", config.getHttpPort(), "/"));
+        ofNullable(context).ifPresent(c -> c.setTarget(new HttpTestTarget("localhost", config.getHttpPort(), "/")));
     }
 
     @TestTemplate
     @ExtendWith(PactVerificationInvocationContextProvider.class)
     void pactVerificationTestTemplate(PactVerificationContext context) {
-        context.verifyInteraction();
+        ofNullable(context).ifPresent(PactVerificationContext::verifyInteraction);
     }
 
     @State("Three customers")

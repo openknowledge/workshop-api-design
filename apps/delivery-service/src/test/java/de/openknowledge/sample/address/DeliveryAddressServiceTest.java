@@ -18,6 +18,7 @@ package de.openknowledge.sample.address;
 
 import static de.openknowledge.sample.infrastructure.H2DatabaseCleanup.with;
 import static de.openknowledge.sample.infrastructure.ScriptExecutor.executeWith;
+import static java.util.Optional.ofNullable;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doThrow;
 
@@ -66,13 +67,13 @@ public class DeliveryAddressServiceTest {
     @BeforeEach
     public void setUp(PactVerificationContext context) {
         doThrow(new ValidationException("City not found")).when(addressValidationService).validate(argThat(a -> a.getCity().toString().contains("London")));
-        context.setTarget(new HttpTestTarget("localhost", config.getHttpPort(), "/"));
+        ofNullable(context).ifPresent(c -> c.setTarget(new HttpTestTarget("localhost", config.getHttpPort(), "/")));
     }
 
     @TestTemplate
     @ExtendWith(PactVerificationInvocationContextProvider.class)
     void pactVerificationTestTemplate(PactVerificationContext context) {
-        context.verifyInteraction();
+        ofNullable(context).ifPresent(PactVerificationContext::verifyInteraction);
     }
 
     @State("Three customers")

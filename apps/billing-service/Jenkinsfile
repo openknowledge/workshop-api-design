@@ -22,6 +22,24 @@ pipeline {
 
     triggers {
         pollSCM("* * * * *")
+        GenericTrigger(
+            genericRequestVariables: [
+                [key: 'stage', regexpFilter: ''],
+                [key: 'verifyPacts', regexpFilter: '']
+            ],
+
+            causeString: 'Triggered by web hook',
+
+            token: 'billing-service',
+
+            printContributedVariables: true,
+            printPostContent: true,
+
+            silentResponse: false,
+
+            regexpFilterText: '$stage',
+            regexpFilterExpression: ".*${(env.BRANCH_NAME == 'main' ? 'prod' : 'test')}.*"
+        )
     }
 
     stages {
@@ -75,7 +93,7 @@ pipeline {
             steps {
                 sh """
                     cd ${ROOT_DIRECTORY}
-                    mvn test -DpactBroker.url=http://pact-service:8080 -Dpact.verifier.publishResults=true -Dpact.tag=${params.verifyPacts ? 'pending-' + env.STAGE : env.STAGE} -B
+                    mvn test -DpactBroker.url=http://pact-service:8080  -Dpact.verifier.publishResults=true -Dpact.tag=${params.verifyPacts ? 'pending-' + env.STAGE : env.STAGE} -B
                 """
             }
         }
@@ -92,7 +110,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'mvn package -DskipTests -B'
+                sh 'mvn package -Dmaven.test.skip=true -B'
                 sh 'docker build -t billing .'
             }
         }

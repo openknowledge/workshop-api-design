@@ -4,6 +4,8 @@ pipeline {
 
     parameters {
         booleanParam(name: 'verifyPacts', defaultValue: false, description: 'should this job just run to verify pacts from a consumer')
+        booleanParam(name: 'deployOnly', defaultValue: false, description: 'should this job just run to deploy a version')
+        string(name: 'deploymentVersion', defaultValue: 'latest', description: 'which version should be deployed')
     }
 
     options {
@@ -18,10 +20,31 @@ pipeline {
         VERSION = "${env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ') ? env.RELEASE_VERSION : env.SNAPSHOT_VERSION}"
         ROOT_DIRECTORY = "${params.verifyPacts == true && env.BRANCH_NAME == 'main' && env.SNAPSHOT_VERSION.endsWith("-SNAPSHOT") ? 'target/checkout' : '.'}"
         STAGE = "${env.BRANCH_NAME == 'main' ? 'prod' : 'test'}"
+        DEPLOYMENT_VERSION = "${params.deploymentVersion != 'latest' ? params.deploymentVersion : env.VERSION}"
     }
 
     triggers {
         pollSCM("* * * * *")
+        GenericTrigger(
+            genericRequestVariables: [
+                [key: 'stage', regexpFilter: ''],
+                [key: 'verifyPacts', regexpFilter: ''],
+                [key: 'deployOnly', regexpFilter: ''],
+                [key: 'deploymentVersion', regexpFilter: '']
+            ],
+
+            causeString: 'Triggered by web hook',
+
+            token: 'delivery-service',
+
+            printContributedVariables: true,
+            printPostContent: true,
+
+            silentResponse: false,
+
+            regexpFilterText: '$stage',
+            regexpFilterExpression: ".*${(env.BRANCH_NAME == 'main' ? 'prod' : 'test')}.*"
+        )
     }
 
     stages {
@@ -35,6 +58,9 @@ pipeline {
                     expression {
                         params.verifyPacts == true
                     }
+                }
+                expression {
+                    params.deployOnly == false
                 }
             }
             steps {
@@ -71,6 +97,9 @@ pipeline {
                         params.verifyPacts == true
                     }
                 }
+                expression {
+                    params.deployOnly == false
+                }
             }
             steps {
                 sh """
@@ -79,7 +108,7 @@ pipeline {
                 """
             }
         }
-        stage ('Test providers') {
+        stage ('Upload pacts') {
             when {
                 anyOf {
                     not {
@@ -88,12 +117,11 @@ pipeline {
                     environment name: 'PERFORM_RELEASE', value: 'true'
                 }
                 expression {
-                    params.verifyPacts == false
+                    params.verifyPacts == false && params.deployOnly == false
                 }
             }
             steps {
-                sh "mvn pact:publish -DpactBroker.url=http://pact-service:8080 -Dpact.verifier.publishResults=true -Dpact.consumer.tags=pending-${env.STAGE} -B"
-                build job: "address-validation-service/${env.BRANCH_NAME}", parameters: [booleanParam(name: 'verifyPacts', value: true)]
+                sh "mvn pact:publish -DpactBroker.url=http://pact-service:8080  -Dpact.verifier.publishResults=true  -Dpact.consumer.tags=pending-${env.STAGE} -B"
             }
         }
         stage ('Package') {
@@ -105,7 +133,7 @@ pipeline {
                     environment name: 'PERFORM_RELEASE', value: 'true'
                 }
                 expression {
-                    params.verifyPacts == false
+                    params.verifyPacts == false && params.deployOnly == false
                 }
             }
             steps {
@@ -122,7 +150,7 @@ pipeline {
                     environment name: 'PERFORM_RELEASE', value: 'true'
                 }
                 expression {
-                    params.verifyPacts == false
+                    params.verifyPacts == false && params.deployOnly == false
                 }
             }
             steps {
@@ -151,13 +179,19 @@ pipeline {
         stage ('Deploy') {
             when {
                 expression {
-                    params.verifyPacts == false
+                    script {
+                        def deploy = sh script: "pact-broker can-i-deploy --pacticipant delivery-service --version ${env.DEPLOYMENT_VERSION} --to ${env.STAGE} --broker-base-url pact-service:8080", returnStatus: true
+                        return deploy == 0
+                    }
                 }
                 anyOf {
                     not {
                         branch 'main'
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
+                    expression {
+                        params.deployOnly == true
+                    }
                 }
             }
             steps {

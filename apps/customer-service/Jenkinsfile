@@ -2,6 +2,11 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(name: 'deployOnly', defaultValue: false, description: 'should this job just run to deploy a version')
+        string(name: 'deploymentVersion', defaultValue: 'latest', description: 'which version should be deployed')
+    }
+
     options {
         disableConcurrentBuilds()
     }
@@ -13,10 +18,30 @@ pipeline {
         RELEASE_VERSION = "${env.SNAPSHOT_VERSION.contains('-SNAPSHOT') ? env.SNAPSHOT_VERSION.substring(0, env.SNAPSHOT_VERSION.lastIndexOf('-SNAPSHOT')) : SNAPSHOT_VERSION}"
         VERSION = "${env.BRANCH_NAME == 'main' && !env.LAST_COMMIT_MESSAGE.startsWith('update version to ') ? env.RELEASE_VERSION : env.SNAPSHOT_VERSION}"
         STAGE = "${env.BRANCH_NAME == 'main' ? 'prod' : 'test'}"
+        DEPLOYMENT_VERSION = "${params.deploymentVersion != 'latest' ? params.deploymentVersion : env.VERSION}"
     }
 
     triggers {
         pollSCM("* * * * *")
+        GenericTrigger(
+            genericRequestVariables: [
+                [key: 'stage', regexpFilter: ''],
+                [key: 'deployOnly', regexpFilter: ''],
+                [key: 'deploymentVersion', regexpFilter: '']
+            ],
+
+            causeString: 'Triggered by web hook',
+
+            token: 'customer-service',
+
+            printContributedVariables: true,
+            printPostContent: true,
+
+            silentResponse: false,
+
+            regexpFilterText: '$stage',
+            regexpFilterExpression: ".*${(env.BRANCH_NAME == 'main' ? 'prod' : 'test')}.*"
+        )
     }
 
     stages {
@@ -27,6 +52,9 @@ pipeline {
                         branch 'main'
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
+                }
+                expression {
+                    params.deployOnly == false
                 }
             }
             steps {
@@ -50,12 +78,15 @@ pipeline {
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
                 }
+                expression {
+                    params.deployOnly == false
+                }
             }
             steps {
-                sh "mvn test pact:publish -DpactBroker.url=http://pact-service:8080 -Dpact.verifier.publishResults=true -Dpact.consumer.tags=pending-${env.STAGE} -B"
+                sh "mvn test -DpactBroker.url=http://pact-service:8080 -Dpact.verifier.publishResults=true -B"
             }
         }
-        stage ('Test providers') {
+        stage ('Upload pacts') {
             when {
                 anyOf {
                     not {
@@ -63,16 +94,12 @@ pipeline {
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
                 }
+                expression {
+                    params.deployOnly == false
+                }
             }
             steps {
-                parallel(
-                    'delivery-service': {
-                        build job: "delivery-service/${env.BRANCH_NAME}", parameters: [booleanParam(name: 'verifyPacts', value: true)]
-                    },
-                    'billing-service': {
-                        build job: "billing-service/${env.BRANCH_NAME}", parameters: [booleanParam(name: 'verifyPacts', value: true)]
-                    }
-                )
+                sh "mvn pact:publish -DpactBroker.url=http://pact-service:8080 -Dpact.consumer.tags=pending-${env.STAGE} -B"
             }
         }
         stage ('Package') {
@@ -82,6 +109,9 @@ pipeline {
                         branch 'main'
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
+                }
+                expression {
+                    params.deployOnly == false
                 }
             }
             steps {
@@ -96,6 +126,9 @@ pipeline {
                         branch 'main'
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
+                }
+                expression {
+                    params.deployOnly == false
                 }
             }
             steps {
@@ -123,11 +156,20 @@ pipeline {
         }
         stage ('Deploy') {
             when {
+                expression {
+                    script {
+                        def deploy = sh script: "pact-broker can-i-deploy --pacticipant customer-service --version ${env.DEPLOYMENT_VERSION} --to ${env.STAGE} --broker-base-url pact-service:8080", returnStatus: true
+                        return deploy == 0
+                    }
+                }
                 anyOf {
                     not {
                         branch 'main'
                     }
                     environment name: 'PERFORM_RELEASE', value: 'true'
+                    expression {
+                        params.deployOnly == true
+                    }
                 }
             }
             steps {

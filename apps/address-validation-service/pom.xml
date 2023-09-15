@@ -27,6 +27,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pactBroker.url>http://localhost</pactBroker.url>
         <meecrowave.version>1.2.13</meecrowave.version>
         <junit.version>5.8.2</junit.version>
     </properties>
@@ -86,6 +87,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <pact.provider.version>${project.version}</pact.provider.version>
+                        <pactBroker.url>${pactBroker.url}</pactBroker.url>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

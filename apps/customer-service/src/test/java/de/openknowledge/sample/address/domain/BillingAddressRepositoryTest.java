@@ -103,7 +103,7 @@ public class BillingAddressRepositoryTest {
 
     @PactTestFor(pactMethod = "getMax")
     @Test
-    public void findDeliveryAddressForExistingCustomer() {
+    public void findBillingAddressForExistingCustomer() {
         Optional<Address> address = repository.find(new CustomerNumber("0815"));
         assertThat(address).isPresent().contains(
                 new Address(

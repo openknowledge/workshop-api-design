@@ -27,6 +27,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pactBroker.url>http://localhost</pactBroker.url>
         <meecrowave.version>1.2.13</meecrowave.version>
         <hibernate.version>5.4.21.Final</hibernate.version>
         <junit.version>5.8.2</junit.version>
@@ -153,6 +154,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <pact.provider.version>${project.version}</pact.provider.version>
+                        <pactBroker.url>${pactBroker.url}</pactBroker.url>
                         <javax.persistence.jdbc.url>jdbc:h2:mem:delivery</javax.persistence.jdbc.url>
                         <javax.persistence.jdbc.driver>org.h2.Driver</javax.persistence.jdbc.driver>
                         <javax.persistence.jdbc.user>sa</javax.persistence.jdbc.user>
@@ -165,7 +167,7 @@
                 <artifactId>maven</artifactId>
                 <version>4.3.5</version>
                 <configuration>
-                    <pactBrokerUrl>http://localhost</pactBrokerUrl>
+                    <pactBrokerUrl>${pactBroker.url}</pactBrokerUrl>
                 </configuration>
             </plugin>
         </plugins>

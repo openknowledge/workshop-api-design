@@ -51,7 +51,7 @@ pipeline {
                 }
             }
             steps {
-                sh "mvn test -B"
+                sh "mvn test -DpactBroker.url=http://pact-service:8080 -Dpact.verifier.publishResults=true -B"
             }
         }
         stage ('Package') {

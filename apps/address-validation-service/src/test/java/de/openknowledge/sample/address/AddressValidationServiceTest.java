@@ -15,6 +15,8 @@
  */
 package de.openknowledge.sample.address;
 
+import static java.util.Optional.ofNullable;
+
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.meecrowave.testing.ConfigurationInject;
@@ -25,12 +27,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
+import au.com.dius.pact.provider.junitsupport.IgnoreNoPactsToVerify;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
-import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
+import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
 
+@IgnoreNoPactsToVerify
 @Provider("address-validation-service")
-@PactFolder("src/test/pacts")
+@PactBroker(url = "${pactBroker.url:http://localhost}")
 @MonoMeecrowaveConfig
 public class AddressValidationServiceTest {
 
@@ -38,14 +42,15 @@ public class AddressValidationServiceTest {
     private Meecrowave.Builder config;
 
     @BeforeEach
-    public void setUp(PactVerificationContext context) {
-        context.setTarget(new HttpTestTarget("localhost", config.getHttpPort(), "/"));
+    public void setUp(PactVerificationContext verificationContext) {
+        ofNullable(verificationContext)
+            .ifPresent(context -> context.setTarget(new HttpTestTarget("localhost", config.getHttpPort(), "/")));
     }
 
     @TestTemplate
     @ExtendWith(PactVerificationInvocationContextProvider.class)
     void pactVerificationTestTemplate(PactVerificationContext context) {
-        context.verifyInteraction();
+        ofNullable(context).ifPresent(PactVerificationContext::verifyInteraction);
     }
 
     @State("Three customers")

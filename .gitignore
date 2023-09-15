@@ -1,5 +1,6 @@
 .*
 !.gitignore
+apps/*/target
 
 *.iml
 

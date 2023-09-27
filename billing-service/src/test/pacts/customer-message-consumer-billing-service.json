@@ -1,0 +1,40 @@
+{
+  "consumer": {
+    "name": "customer-message-consumer"
+  },
+  "provider": {
+    "name": "billing-service"
+  },
+  "messages": [
+    {
+      "description": "Update for 0815",
+      "metaData": {
+        "contentType": "application/json"
+      },
+      "contents": {
+        "number": "0815",
+        "billingAddress": {
+          "city": "45127 Essen",
+          "street": {
+            "number": "7",
+            "name": "II. Hagen"
+          },
+          "recipient": "Erika Mustermann"
+        }
+      },
+      "providerStates": [
+        {
+          "name": "Three customers"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "3.0.0"
+    },
+    "pact-jvm": {
+      "version": "4.1.7"
+    }
+  }
+}

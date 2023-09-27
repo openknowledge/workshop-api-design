@@ -18,7 +18,9 @@ package de.openknowledge.sample.address.domain;
 import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -26,12 +28,16 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.sse.InboundSseEvent;
+import javax.ws.rs.sse.SseEventSource;
 
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import de.openknowledge.sample.customer.domain.Customer;
 import de.openknowledge.sample.customer.domain.CustomerNumber;
 
 @ApplicationScoped
@@ -46,13 +52,32 @@ public class BillingAddressRepository {
 
     Client client;
 
+    private Map<CustomerNumber, Address> billingAddresses;
+
     @PostConstruct
-    public void newClient() {
+    public void initialize() {
+        initializeCache();
+        initializeClient();
+    }
+
+    void initializeCache() {
+        billingAddresses = new ConcurrentHashMap<>();
+    }
+
+    void initializeClient() {
         client = ClientBuilder.newClient();
+        WebTarget sseUrl = client.target(billingServiceUrl).path(BILLING_ADDRESSES_PATH);
+        try (SseEventSource sseStream = SseEventSource.target(sseUrl).build()) {
+            sseStream.register(this::update);
+            sseStream.open();
+        }
     }
 
     public Optional<Address> find(CustomerNumber customerNumber) {
         LOG.info("load billing address from " + billingServiceUrl);
+        if (billingAddresses.containsKey(customerNumber)) {
+            return Optional.of(billingAddresses.get(customerNumber));
+        }
         return Optional.of(client
             .register(JsonbJaxrsProvider.class)
             .target(billingServiceUrl)
@@ -72,5 +97,14 @@ public class BillingAddressRepository {
             .path(customerNumber.toString())
             .request(MediaType.APPLICATION_JSON)
             .post(entity(billingAddress, MediaType.APPLICATION_JSON_TYPE));
+    }
+
+    public void update(InboundSseEvent event) {
+        Customer customer = event.readData(Customer.class);
+        store(customer.getNumber(), customer.getBillingAddress());
+    }
+
+    private void store(CustomerNumber customer, Address billingAddress) {
+        billingAddresses.put(customer, billingAddress);
     }
 }

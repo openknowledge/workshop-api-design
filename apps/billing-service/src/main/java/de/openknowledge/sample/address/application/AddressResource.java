@@ -15,10 +15,18 @@
  */
 package de.openknowledge.sample.address.application;
 
+import static java.util.Optional.ofNullable;
+import static javax.json.bind.JsonbBuilder.create;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -29,7 +37,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.sse.Sse;
+import javax.ws.rs.sse.SseBroadcaster;
+import javax.ws.rs.sse.SseEventSink;
 
 import de.openknowledge.sample.address.domain.Address;
 import de.openknowledge.sample.address.domain.AddressRepository;
@@ -48,6 +58,15 @@ public class AddressResource {
 
     @Inject
     private AddressRepository addressesRepository;
+    @Context
+    private Sse sse;
+    
+    private Map<CustomerNumber, SseBroadcaster> topics;
+
+    @PostConstruct
+    void initialize() {
+        topics = new ConcurrentHashMap<>();
+    }
 
     @GET
     @Path("/{customerNumber}")
@@ -57,13 +76,24 @@ public class AddressResource {
         return addressesRepository.find(number).orElseThrow(NotFoundException::new);
     }
 
+    @GET
+    @Path("/{customerNumber}")
+    @Produces("text/event-stream")
+    public void getAddressUpdates(@PathParam("customerNumber") CustomerNumber number, @Context SseEventSink topic, @Context HttpServletResponse response) throws IOException {
+        LOGGER.info("Register sse event");
+        topics.computeIfAbsent(number, n -> sse.newBroadcaster()).register(topic);
+        response.flushBuffer();
+    }
+
     @POST
     @Path("/{customerNumber}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response setAddress(@PathParam("customerNumber") CustomerNumber customerNumber, Address address,
-            @Context UriInfo uri) {
+    public Response setAddress(@PathParam("customerNumber") CustomerNumber customerNumber, Address address) {
         LOGGER.info("RESTful call 'POST address'");
         addressesRepository.update(customerNumber, address);
+        ofNullable(topics.get(customerNumber))
+            .ifPresent(topic -> topic.broadcast(
+                    sse.newEvent("BillingAddressUpdated", create().toJson(new BillingAddressUpdatedEvent(customerNumber, address)))));
         return Response.ok().build();
     }
 }

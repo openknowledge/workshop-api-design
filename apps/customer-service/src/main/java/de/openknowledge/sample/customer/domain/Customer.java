@@ -19,20 +19,20 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.annotation.JsonbTypeAdapter;
 
 import de.openknowledge.sample.address.domain.Address;
 
 public class Customer {
 
     CustomerNumber number;
+    @JsonbProperty
     private CustomerName name;
     private Address billingAddress;
     private Address deliveryAddress;
 
     @JsonbCreator
-    public Customer(@JsonbProperty("name") CustomerName name) {
-        this.name = notNull(name, "name may not be null");
+    public Customer(@JsonbProperty("number") CustomerNumber number) {
+        this.number = notNull(number, "number may not be null");
     }
 
     public Customer(CustomerNumber number, CustomerName name) {

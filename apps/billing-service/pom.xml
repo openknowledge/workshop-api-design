@@ -28,6 +28,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <meecrowave.version>1.2.13</meecrowave.version>
+        <cxf.version>3.4.1</cxf.version>
         <junit.version>5.8.2</junit.version>
     </properties>
 
@@ -72,6 +73,22 @@
             <groupId>org.apache.meecrowave</groupId>
             <artifactId>meecrowave-junit</artifactId>
             <version>${meecrowave.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-client</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-sse</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.microutils</groupId>
+            <artifactId>kotlin-logging</artifactId>
+            <version>1.12.5</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -25,7 +25,6 @@ import javax.ws.rs.client.ClientBuilder;
 import au.com.dius.pact.consumer.MockServer;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
-import au.com.dius.pact.core.model.PactSpecVersion;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import org.apache.johnzon.jaxrs.jsonb.jaxrs.JsonbJaxrsProvider;
@@ -38,7 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(PactConsumerTestExt.class)
-@PactTestFor(providerName = "billing-service", pactVersion = PactSpecVersion.V3)
+@PactTestFor(providerName = "billing-service")
 public class BillingAddressRepositoryTest {
 
     private BillingAddressRepository repository;

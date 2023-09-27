@@ -22,7 +22,6 @@ import java.util.Objects;
 
 import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.annotation.JsonbTypeAdapter;
 
 public class Address {
     private Recipient recipient;

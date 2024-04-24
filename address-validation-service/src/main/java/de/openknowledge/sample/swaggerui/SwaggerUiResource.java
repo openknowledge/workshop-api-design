@@ -15,22 +15,17 @@
  */
 package de.openknowledge.sample.swaggerui;
 
-import static java.util.logging.Level.WARNING;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.util.logging.Logger;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import java.io.*;
+import java.util.logging.Logger;
+
+import static java.util.logging.Level.WARNING;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
  * RESTFul endpoint swaggerui
@@ -44,19 +39,20 @@ public class SwaggerUiResource {
     @GET
     public Response getWebJarsResource(@PathParam("path") String path) {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(String.format("META-INF/resources/%s", path));
-                BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream));
-                StringWriter content = new StringWriter()) {
-            buffer.lines().forEach(content::write);
+             BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream));
+             StringWriter writer = new StringWriter();
+             PrintWriter content = new PrintWriter(writer)) {
+            buffer.lines().forEach(content::println);
 
             String mediaType = path.endsWith(".js") ? "application/javascript" : "text/" + path.substring(path.lastIndexOf('.') + 1);
-            return Response.ok(content.toString()).type(mediaType).build();
+            return Response.ok(writer.toString()).type(mediaType).build();
         } catch (NullPointerException e) {
-        	LOG.log(WARNING, "Could not find resource [{0}]", path);
-        	return Response.status(NOT_FOUND).build();
+            LOG.log(WARNING, "Could not find resource [{0}]", path);
+            return Response.status(NOT_FOUND).build();
         } catch (IOException e) {
-        	LOG.severe(e.getMessage());
+            LOG.severe(e.getMessage());
             return Response.status(INTERNAL_SERVER_ERROR).build();
         }
     }
-    
+
 }

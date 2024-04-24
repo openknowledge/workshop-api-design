@@ -33,12 +33,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 
 import de.openknowledge.sample.address.domain.Address;
 import de.openknowledge.sample.address.domain.AddressRepository;
 import de.openknowledge.sample.address.domain.CustomerNumber;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 /**
  * RESTFul endpoint for delivery addresses
@@ -82,7 +84,13 @@ public class AddressResource {
             required = true,
             example = "0815",
             schema = @Schema(type = STRING))
-        @PathParam("customerNumber") CustomerNumber customerNumber,
+        @PathParam("customerNumber")
+        @RequestBody(
+                content = @Content(
+                        mediaType = "application/vnd.de.openknowledge.sample.address.v2+json",
+                        schema = @Schema(ref = "#/components/schemas/Address")
+                ))
+        CustomerNumber customerNumber,
         Address address,
         @Context UriInfo uri) {
         

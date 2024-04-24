@@ -5,10 +5,12 @@ info:
 components:
   schemas:
     Address:
+      type: object
       properties:
         city:
           type: "string"
           example: "26122 Oldenburg"
+          deprecated: true
         street:
           type: "object"
           $ref: "#/components/schemas/Street"
@@ -24,7 +26,6 @@ components:
         addressLine2:
           type: "string"
           example: "2. OG"
-      type: "object"
     Location:
       properties:
         zipCode:
@@ -35,6 +36,7 @@ components:
           example: "Oldenburg"
       type: "object"
     Street:
+      deprecated: true
       properties:
         number:
           type: "string"
@@ -107,4 +109,3 @@ paths:
             schema:
               type: "object"
               $ref: "#/components/schemas/Address"
-            required: true

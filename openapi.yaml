@@ -1,0 +1,177 @@
+openapi: 3.1.0
+info:
+  title: Customer Service
+  version: 1.0.0
+servers:
+- url: http://localhost:9081/customer-service
+paths:
+  /customers:
+    get:
+      operationId: getCustomers
+      responses:
+        "200":
+          description: All customers, if they are less than ten
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerCollection'
+    post:
+      operationId: createCustomer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+        required: true
+      responses:
+        "201":
+          description: Customer is created
+          headers:
+            Location:
+              description: The url of the created customer
+              explode: false
+              schema:
+                pattern: "http\\://[a-z-]+[\\:[0-9]+]/orders/[0-9]+"
+                type: string
+              style: simple
+  /customers/{customer_number}:
+    get:
+      operationId: getCustomerDetails
+      parameters:
+      - explode: false
+        in: path
+        name: customer_number
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The details of one customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+  /customers/{customer_number}/addresses:
+    get:
+      operationId: getAddressesOfCustomer
+      parameters:
+      - explode: false
+        in: path
+        name: customer_number
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The addresses of one customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressCollection'
+  /customers/{customer_number}/addresses/{address_type}:
+    get:
+      operationId: getAddressOfType
+      parameters:
+      - explode: false
+        in: path
+        name: customer_number
+        required: true
+        schema:
+          type: string
+      - explode: false
+        in: path
+        name: address_type
+        required: true
+        schema:
+          $ref: '#/components/schemas/AddressType'
+      responses:
+        "200":
+          description: The addresses of one customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+    put:
+      operationId: setAddressOfType
+      parameters:
+      - explode: false
+        in: path
+        name: customer_number
+        required: true
+        schema:
+          type: string
+      - explode: false
+        in: path
+        name: address_type
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+      responses:
+        "204":
+          description: Address was changed
+components:
+  schemas:
+    Customer:
+      example:
+        customer_umber: "0815"
+        name: "Max Mustermann"
+      properties:
+        customer_number:
+          pattern: \d+
+          type: string
+          readOnly: true
+        name:
+          type: string
+      required:
+      - customer_number
+      - name
+    CustomerCollection:
+      type: array
+      description: An array of customers
+      items:
+        $ref: '#/components/schemas/Customer'
+      minItems: 0
+      maxItems: 10
+    Address:
+      example:
+        type: "billing"
+        street: "Poststr."
+        house_number: "1"
+        zip_code: "26122"
+        city: "Oldenburg"
+      properties:
+        type:
+          ref$: '#/components/schemas/AddressType'
+        street:
+          minLength: 2
+          type: string
+        house_number:
+          minLength: 1
+          type: string
+        zip_code:
+          pattern: "\\d{5}"
+          type: string
+        city:
+          minLength: 1
+          type: string
+      required:
+      - city
+      - street
+      - zip_code
+    AddressType:
+      type: string
+      x-extensible-enum:
+      - billing
+      - delivery
+    AddressCollection:
+      type: array
+      description: An array of addresses
+      items:
+        $ref: '#/components/schemas/Address'
+      minItems: 0
+      maxItems: 10

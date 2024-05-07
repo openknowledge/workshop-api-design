@@ -1,0 +1,5 @@
+extends: '@ibm-cloud/openapi-ruleset'
+rules:
+  ibm-no-array-responses: off
+  ibm-collection-array-property: off
+  ibm-schema-keywords: off

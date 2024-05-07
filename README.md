@@ -2,29 +2,12 @@
 
 Herzlich willkommen zum Workshop API Design.
 
-## Aufgabe: Design einer RESTful API
+## Aufgabe: Mehrere Versionen zur Verfügung stellen
 
-Bitte designen Sie eine API zur Kundenverwaltung.
-- Man kann sich alle Kunden anschauen
-- Man kann einen Kunden anlegen
-- Man kann sich die Detail-Informationen eines Kunden anschauen
-- Ein Kunde hat bis zu zwei Adressen:
-eine Rechnungsadresse und eine Lieferadresse
-- Man kann die Rechnungsadresse und die Lieferadresse ändern.
+Stellen Sie einen Mock-Server zur Verfügung, der die Version 1.0, 1.1 und 2.0
+des Billing Services zur Verfügung stellt.
 
-## Verwendung des Swagger-Editors
+Der Mock-Server kann unter [Wiremock](http://localhost:7070) aufgerufen werden.
+Er kann über die [Swagger UI](http://localhost:6060) bedient werden.
 
-Bitte beschreiben Sie die API im OpenAPI-Format.
-Verwenden Sie dazu den Swagger-Editor
-
-### Starten des Swagger-Editors
-
-Mit folgendem Befehl kann der Swagger-Editor gestartet werden:
-```
-docker compose up
-```
-
-### Öffnen des Swagger-Editors
-
-Der Swagger-Editor kann über folgenden Link aufgerufen werden:
-[Swagger Editor](http://localhost:6060).
+Getestet werden kann die API über [Hurl](https://hurl.dev/) (siehe Ordner `hurl`).

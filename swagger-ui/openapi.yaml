@@ -1,0 +1,66 @@
+openapi: 3.1.0
+info:
+  title: Billing Service
+  version: 2.0.0
+servers:
+- url: http://localhost:6060
+paths:
+  /billing-addresses/{customer_number}:
+    get:
+      operationId: getBillingAddress
+      parameters:
+      - explode: false
+        in: path
+        name: customer_number
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The billing address of the customer
+          content:
+            application/vnd.de.openknowledge.onlineshop.v2+json:
+              schema:
+                $ref: '#/components/schemas/Address'
+    put:
+      operationId: setBillingAddress
+      parameters:
+      - explode: false
+        in: path
+        name: customer_number
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+      responses:
+        "204":
+          description: Address was changed
+components:
+  schemas:
+    Address:
+      example:
+        street: "Poststr."
+        house_number: "1"
+        zip_code: "26122"
+        city: "Oldenburg"
+      properties:
+        street:
+          minLength: 2
+          type: string
+        house_number:
+          minLength: 1
+          type: string
+        zip_code:
+          pattern: "\\d{5}"
+          type: string
+        city:
+          minLength: 1
+          type: string
+      required:
+      - city
+      - street
+      - zip_code

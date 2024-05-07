@@ -3,3 +3,17 @@ services:
     image: "swaggerapi/swagger-editor:v5.0.0-alpha.81-unprivileged"
     ports:
       - "6060:8080"
+  pact-mock-server:
+    image: pactfoundation/pact-cli:1.1.0.1
+    command: "mock-service --consumer customer-spa --provider customer-service -p 1234 --host 0.0.0.0 --pact-dir /tmp/pacts"
+    volumes:
+      - "./pacts:/tmp/pacts"
+    ports:
+      - "1234:1234"
+  hurl:
+    image: ghcr.io/orange-opensource/hurl:4.3.0
+    command: "--retry 5 --test /home/setup-pact-mock.hurl /home/customers.hurl /home/teardown-pact-mock.hurl"
+    volumes:
+      - "./hurl:/home"
+    depends_on:
+      - pact-mock-server

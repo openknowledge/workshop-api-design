@@ -2,29 +2,10 @@
 
 Herzlich willkommen zum Workshop API Design.
 
-## Aufgabe: Design einer RESTful API
+## Aufgabe: Erstellung von Consumer Contracts
 
-Bitte designen Sie eine API zur Kundenverwaltung.
-- Man kann sich alle Kunden anschauen
-- Man kann einen Kunden anlegen
-- Man kann sich die Detail-Informationen eines Kunden anschauen
-- Ein Kunde hat bis zu zwei Adressen:
-eine Rechnungsadresse und eine Lieferadresse
-- Man kann die Rechnungsadresse und die Lieferadresse ändern.
+Erstellen Sie einen Consumer Contract, der folgende Use Cases abdeckt:
 
-## Verwendung des Swagger-Editors
-
-Bitte beschreiben Sie die API im OpenAPI-Format.
-Verwenden Sie dazu den Swagger-Editor
-
-### Starten des Swagger-Editors
-
-Mit folgendem Befehl kann der Swagger-Editor gestartet werden:
-```
-docker compose up
-```
-
-### Öffnen des Swagger-Editors
-
-Der Swagger-Editor kann über folgenden Link aufgerufen werden:
-[Swagger Editor](http://localhost:6060).
+- Betrachten der Details von Kunde `0815`
+- Versuch, den nicht existierenden Kunden `0817` zu betrachten
+- Ändern der Rechnungsadresse des Kunden `0815`

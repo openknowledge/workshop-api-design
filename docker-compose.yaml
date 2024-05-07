@@ -1,0 +1,5 @@
+services:
+  openapi-editor:
+    image: "swaggerapi/swagger-editor:v5.0.0-alpha.81-unprivileged"
+    ports:
+      - "6060:8080"

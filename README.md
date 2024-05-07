@@ -28,3 +28,14 @@ docker compose up
 
 Der Swagger-Editor kann über folgenden Link aufgerufen werden:
 [Swagger Editor](http://localhost:6060).
+
+## Validiere die OpenAPI Spezifikation
+
+Validieren Sie die openapi.yaml,
+indem sie die Datei in das Wurzelverzeichnis dieses Repositories legen.
+
+``` 
+docker pull ibmdevxsdk/openapi-validator:1.16.10 docker run --rm --tty 
+--volume "$PWD:/data:ro" ibmdevxsdk/openapi-validator:latest --ruleset 
+ruleset.yaml openapi.yaml
+```

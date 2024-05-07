@@ -3,3 +3,8 @@ services:
     image: "swaggerapi/swagger-editor:v5.0.0-alpha.81-unprivileged"
     ports:
       - "6060:8080"
+  openapi-linter:
+    image: ibmdevxsdk/openapi-validator:1.17.0
+    command: "--ruleset ruleset.yaml openapi.yaml"
+    volumes:
+      - .:/data

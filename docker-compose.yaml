@@ -16,7 +16,7 @@ services:
 
   hurl:
     image: ghcr.io/orange-opensource/hurl:4.3.0
-    command: "--retry 5 --test /home/address-1.0.hurl /home/address-1.1.hurl"
+    command: "--retry 5 --test /home/address-1.0.hurl /home/address-1.1.hurl /home/address-2.0.hurl"
     volumes:
       - "./hurl:/home"
     depends_on:

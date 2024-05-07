@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/billing-addresses/0815"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "address-response.json",
+    "headers": {
+        "Content-Type": "application/json"
+    }
+  }
+}

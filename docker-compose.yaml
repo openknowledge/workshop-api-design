@@ -3,3 +3,16 @@ services:
     image: "swaggerapi/swagger-editor:v5.0.0-alpha.81-unprivileged"
     ports:
       - "6060:8080"
+  wiremock:
+    image: wiremock/wiremock:3.5.4
+    volumes:
+      - "./wiremock:/home/wiremock"
+    ports:
+      - "7070:8080"
+  hurl:
+    image: ghcr.io/orange-opensource/hurl:4.3.0
+    command: "--retry 5 --test /home/customers.hurl"
+    volumes:
+      - "./hurl:/home"
+    depends_on:
+      - wiremock

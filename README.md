@@ -2,38 +2,29 @@
 
 Herzlich willkommen zum Workshop API Design.
 
-## Übungen
+## Aufgabe: Design einer RESTful API
 
-### API Design
+Bitte designen Sie eine API zur Kundenverwaltung.
+- Man kann sich alle Kunden anschauen
+- Man kann einen Kunden anlegen
+- Man kann sich die Detail-Informationen eines Kunden anschauen
+- Ein Kunde hat bis zu zwei Adressen:
+eine Rechnungsadresse und eine Lieferadresse
+- Man kann die Rechnungsadresse und die Lieferadresse ändern.
 
-- [OpenAPI](https://github.com/openknowledge/workshop-api-design/tree/openapi)
-- [Mocking](https://github.com/openknowledge/workshop-api-design/tree/wiremock)
-- [AsyncAPI](https://github.com/openknowledge/workshop-api-design/tree/asyncapi)
+## Verwendung des Swagger-Editors
 
-### API Testing
+Bitte beschreiben Sie die API im OpenAPI-Format.
+Verwenden Sie dazu den Swagger-Editor
 
-- [Pact](https://github.com/openknowledge/workshop-api-design/tree/pact-mock-server)
-- [Pact Pipeline](https://github.com/openknowledge/workshop-api-design/tree/pact)
+### Starten des Swagger-Editors
 
-### API Security
+Mit folgendem Befehl kann der Swagger-Editor gestartet werden:
+```
+docker compose up
+```
 
-- [JWT](https://github.com/openknowledge/workshop-api-design/tree/jwt)
-- [OAuth2](https://github.com/openknowledge/workshop-api-design/tree/oauth2)
-- [OAuth2 mit PKCE](https://github.com/openknowledge/workshop-api-design/tree/oauth2-pkce)
+### Öffnen des Swagger-Editors
 
-### API Governance
-
-- [Linting](https://github.com/openknowledge/workshop-api-design/tree/linting)
-
-### API Management
-
-- [Rate Limiting](https://github.com/openknowledge/workshop-api-design/tree/rate-limiting)
-- [Backstage](https://github.com/openknowledge/workshop-api-design/tree/backstage)
-
-### API Operation
-
-- [Observability](https://github.com/openknowledge/workshop-api-design/tree/observability)
-
-### API Evolution
-
-- [Versioning](https://github.com/openknowledge/workshop-api-design/tree/versioning)
+Der Swagger-Editor kann über folgenden Link aufgerufen werden:
+[Swagger Editor](http://localhost:6060).

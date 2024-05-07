@@ -1,0 +1,14 @@
+[
+  {
+    "customer_number": "0815",
+    "name": "Max Mustermann"  
+  },
+  {
+    "customer_number": "0816",
+    "name": "Erika Mustermann"
+  },
+  {
+    "customer_number": "007",
+    "name": "James Bond"
+  }
+]

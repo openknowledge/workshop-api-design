@@ -11,6 +11,13 @@ services:
       - "./wiremock:/home/wiremock"
     ports:
       - "7070:8080"
+  hurl:
+    image: ghcr.io/orange-opensource/hurl:4.3.0
+    command: "--retry 5 --test /home/customers.hurl"
+    volumes:
+      - "./hurl:/home"
+    depends_on:
+      - wiremock
   api-gateway:
     image: nginx:1.27.1
     ports:

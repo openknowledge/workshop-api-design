@@ -2,19 +2,15 @@
 
 Herzlich willkommen zum Workshop API Design.
 
-## Aufgabe: Design einer RESTful API
+## Aufgabe: Design einer asynchronen API
 
-Bitte designen Sie eine API zur Kundenverwaltung.
-- Man kann sich alle Kunden anschauen
-- Man kann einen Kunden anlegen
-- Man kann sich die Detail-Informationen eines Kunden anschauen
-- Ein Kunde hat bis zu zwei Adressen:
-eine Rechnungsadresse und eine Lieferadresse
-- Man kann die Rechnungsadresse und die Lieferadresse ändern.
+Bitte designen Sie die asynchrone API der Rechnungserstellung.
+- Immer, wenn sich eine Rechnungsadresse ändert,
+wird ein fachliches Event geworfen, welches die geänderte Adresse und die Kundennummer enthält
 
 ## Verwendung des Swagger-Editors
 
-Bitte beschreiben Sie die API im OpenAPI-Format.
+Bitte beschreiben Sie die API im AsyncAPI-Format.
 Verwenden Sie dazu den Swagger-Editor
 
 ### Starten des Swagger-Editors
@@ -28,3 +24,11 @@ docker compose up
 
 Der Swagger-Editor kann über folgenden Link aufgerufen werden:
 [Swagger Editor](http://localhost:6060).
+
+## Aufgabe: Design der Konsumentenseite
+
+Die Kundenverwaltung möchte über jede Adressänderung
+von der Rechnungserstellung informiert werden.
+Bitte spezifizieren Sie die Erwartung der Kundenverwaltung
+als Konsument der Rechnungserstellung im AsyncAPI-Format.
+

@@ -2,6 +2,7 @@
 /*/.*
 !.gitignore
 !.github
+!.devcontainers
 /keycloak/*
 !/keycloak/keycloak.mv.db
 target/

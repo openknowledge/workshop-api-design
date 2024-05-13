@@ -62,6 +62,8 @@ deploy:
         remoteChart: opentelemetry-operator
         namespace: observability
         createNamespace: true
+        valuesFiles:
+          - ./otel-operator-values.yaml
       - name: loki
         repo: https://grafana.github.io/helm-charts
         remoteChart: loki

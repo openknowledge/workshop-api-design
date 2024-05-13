@@ -6,3 +6,4 @@ resources:
   - jaeger.yml
   - opentelemetry-collector.yml
   - podmonitor.yaml
+  - create-traffic-pod.yml

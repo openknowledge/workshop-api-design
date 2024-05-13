@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: traffic-generator
+  namespace: production
+spec:
+  containers:
+    - name: traffic-generator
+      image: curlimages/curl:8.7.1
+      command:
+        - "/bin/sh"
+        - "-c"
+        - >
+          while true; do
+            curl -sS --location --request PUT 'customer-service:8080/customers/0815/delivery-address' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "city": "26121 Oldenburg (Oldenburg)",
+                "recipient": "Max Mustermann",
+                "street": {
+                    "name": "Poststraße",
+                    "number": "1"
+                }
+            }'
+            echo 'PUT request for delivery address finished.'
+            sleep 0.5
+          done

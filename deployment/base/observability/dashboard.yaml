@@ -69,6 +69,8 @@ data:
           },
           "id": 7,
           "options": {
+            "minVizHeight": 75,
+            "minVizWidth": 75,
             "orientation": "auto",
             "reduceOptions": {
               "calcs": [
@@ -78,9 +80,10 @@ data:
               "values": false
             },
             "showThresholdLabels": false,
-            "showThresholdMarkers": true
+            "showThresholdMarkers": true,
+            "sizing": "auto"
           },
-          "pluginVersion": "10.1.4",
+          "pluginVersion": "10.4.1",
           "targets": [
             {
               "datasource": {
@@ -137,6 +140,8 @@ data:
           },
           "id": 8,
           "options": {
+            "minVizHeight": 75,
+            "minVizWidth": 75,
             "orientation": "auto",
             "reduceOptions": {
               "calcs": [
@@ -146,9 +151,10 @@ data:
               "values": false
             },
             "showThresholdLabels": false,
-            "showThresholdMarkers": true
+            "showThresholdMarkers": true,
+            "sizing": "auto"
           },
-          "pluginVersion": "10.1.4",
+          "pluginVersion": "10.4.1",
           "targets": [
             {
               "datasource": {
@@ -245,7 +251,8 @@ data:
               "layout": "auto"
             },
             "tooltip": {
-              "show": true,
+              "mode": "single",
+              "showColorScale": false,
               "yHistogram": false
             },
             "yAxis": {
@@ -255,7 +262,7 @@ data:
               "unit": "ms"
             }
           },
-          "pluginVersion": "10.1.4",
+          "pluginVersion": "10.4.1",
           "targets": [
             {
               "datasource": {
@@ -339,7 +346,7 @@ data:
               }
             ]
           },
-          "pluginVersion": "10.1.4",
+          "pluginVersion": "10.4.1",
           "targets": [
             {
               "datasource": {
@@ -413,7 +420,7 @@ data:
             },
             "showHeader": true
           },
-          "pluginVersion": "10.1.4",
+          "pluginVersion": "10.4.1",
           "targets": [
             {
               "datasource": {
@@ -456,8 +463,7 @@ data:
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -530,8 +536,7 @@ data:
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -615,8 +620,7 @@ data:
         }
       ],
       "refresh": false,
-      "schemaVersion": 38,
-      "style": "dark",
+      "schemaVersion": 39,
       "tags": [],
       "templating": {
         "list": [
@@ -640,8 +644,8 @@ data:
         ]
       },
       "time": {
-        "from": "2023-10-11T19:41:23.520Z",
-        "to": "2023-10-11T19:46:23.520Z"
+        "from": "now-5m",
+        "to": "now"
       },
       "timepicker": {},
       "timezone": "",

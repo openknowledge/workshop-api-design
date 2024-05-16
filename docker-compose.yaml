@@ -42,4 +42,4 @@ services:
     ports:
       - "9191:8080"
     volumes:
-      - ./keycloak/:/opt/keycloak/data/h2/
+      - ./keycloak/:/opt/jboss/keycloak/standalone/data/

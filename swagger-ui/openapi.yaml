@@ -5,7 +5,7 @@ info:
 servers:
 - url: http://localhost:9191
 paths:
-  /auth/realms/master/protocol/openid-connect/token:
+  /realms/master/protocol/openid-connect/token:
     post:
       operationId: authenticate
       requestBody:

@@ -20,7 +20,7 @@ werden Sie feststellen, dass Sie dies nicht dürfen.
 
 Mit dem folgenden HTTP-Aufruf können Sie ein Token erhalten:
 ```
-POST http://localhost:9191/auth/realms/master/protocol/openid-connect/token
+POST http://localhost:9191/realms/master/protocol/openid-connect/token
 ```
 Header:
 ```

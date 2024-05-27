@@ -56,12 +56,6 @@ deploy:
         createNamespace: true
         valuesFiles:
           - ./jaeger-operator-values.yaml
-      - name: backstage
-        repo: https://backstage.github.io/charts
-        remoteChart: backstage
-        version: 1.9.3
-        namespace: observability
-        createNamespace: true
       - name: opentelemetry-operator
         repo: https://open-telemetry.github.io/opentelemetry-helm-charts
         remoteChart: opentelemetry-operator

@@ -17,8 +17,8 @@ Sie können die Startseite ändern, indem Sie `authentication-ui/static/index.ht
 bearbeiten.
 
 Beim Klick auf den Login-Button soll ein Redirect auf den Authorization-Endpoint
-`http://localhost:9191/auth/realms/master/protocol/openid-connect/auth` erfolgen.
-Dabei müssen folgnede Query-Parameter übergeben werden:
+`http://localhost:9191/realms/master/protocol/openid-connect/auth` erfolgen.
+Dabei müssen folgende Query-Parameter übergeben werden:
 
 ```
 client_id: "onlineshop"

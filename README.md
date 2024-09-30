@@ -33,7 +33,7 @@ und einen Query-Parameter namens `code` mitschicken.
 Dies ist der Authorization-Code.
 
 Mit dem Authorization Code kann nun ein POST-Request auf den Token-Endpoint
-`http://localhost:9191/auth/realms/master/protocol/openid-connect/token`
+`http://localhost:9191/realms/master/protocol/openid-connect/token`
 erfolgen.
 Der POST-Request wird mit dem Content-Type `application/x-www-form-urlencoded` ausgeführt.
 Dabei wird folgender Body mitgeschickt:

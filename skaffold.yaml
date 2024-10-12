@@ -24,13 +24,13 @@ build:
 deploy:
   helm:
     releases:
-      - name: ingress-nginx
-        repo: https://kubernetes.github.io/ingress-nginx
-        remoteChart: ingress-nginx
-        namespace: ingress-nginx
-        createNamespace: true
-        valuesFiles:
-          - ./ingress-nginx-values.yaml
+#      - name: ingress-nginx
+#        repo: https://kubernetes.github.io/ingress-nginx
+#        remoteChart: ingress-nginx
+#        namespace: ingress-nginx
+#        createNamespace: true
+#        valuesFiles:
+#          - ./ingress-nginx-values.yaml
       - name: kube-prometheus-stack
         repo: https://prometheus-community.github.io/helm-charts
         remoteChart: kube-prometheus-stack

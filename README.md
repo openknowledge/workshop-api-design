@@ -84,6 +84,8 @@ For Jaeger: http://localhost:30091
 If for whatever reason both options above are not working, you can also use port-forwarding to
 access the applications.
 
+minikube service customer-service --url -n production
+
 ### Check what is running
 
 To check what is running on the cluster, you can use kubectl to navigate through the cluster.

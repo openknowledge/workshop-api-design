@@ -24,7 +24,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "kubectl version",
+	"postCreateCommand": "sudo apt-get update && sudo apt-get install -y nginx",
 
 	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
 	"postStartCommand": "minikube start && sudo service nginx start",

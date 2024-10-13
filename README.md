@@ -7,6 +7,7 @@ Wir deployen den Cluster in Codespaces mit Minikube
 Nach dem Start des Codespace muss noch folgendes getan werden:
 - `skaffold run`
 - `sh .devcontainers/start-minikube-service.sh`
+- Mit der Url vom Ports tab in Codespaces (die url vom port 80) kann man nun auf die services zugreifen.
 
 ## Deployment in den Cluster via Skaffold
 

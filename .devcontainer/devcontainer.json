@@ -24,7 +24,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "sudo apt-get update && sudo apt-get install -y nginx",
+	"postCreateCommand": "sudo apt-get update && sudo apt-get install -y nginx && sudo cp /workspaces/workshop-api-design/.devcontainer/nginx.conf /etc/nginx/sites-enabled/default",
 
 	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
 	"postStartCommand": "minikube start && sudo service nginx start",

@@ -38,7 +38,8 @@ spec:
             - key: code.namespace
               value: de.openknowledge.sample.address.infrastructure.MetricsEndpoint
     extensions:
-      health_check: {}
+      health_check: 
+        endpoint: 0.0.0.0:13133
 
     service:
       extensions: [health_check]

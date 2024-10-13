@@ -48,10 +48,9 @@ deploy:
       - name: jaeger-operator
         repo: https://jaegertracing.github.io/helm-charts
         remoteChart: jaeger-operator
+        version: 2.53.0
         namespace: observability
         createNamespace: true
-        valuesFiles:
-          - ./jaeger-operator-values.yaml
       - name: backstage
         repo: https://backstage.github.io/charts
         remoteChart: backstage

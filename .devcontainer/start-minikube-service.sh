@@ -1,16 +1,21 @@
-#!/bin/bash
-
-# List of your NodePort service names (hardcoded)
-services=(
-  "service1"
-  "service2"
-  "service3"
-  # Add more services as needed
-)
-
-# Loop through the list of services and print the URL for each
-for service in "${services[@]}"; do
-  echo "Fetching URL for $service:"
-  minikube service "$service" --url
-  echo ""
-done
+echo "Fetching URL for customer-service:"
+minikube service -n production customer-service --url
+echo ""
+echo "Fetching URL for address-validation-service:"
+minikube service -n production address-validation-service --url
+echo ""
+echo "Fetching URL for billing-service:"
+minikube service -n production billing-service --url
+echo ""
+echo "Fetching URL for delivery-service:"
+minikube service -n production delivery-service --url
+echo ""
+echo "Fetching URL for grafana:"
+minikube service -n observability kube-prometheus-stack-grafana --url
+echo ""
+echo "Fetching URL for prometheus:"
+minikube service -n observability kube-prometheus-stack-prometheus --url
+echo ""
+echo "Fetching URL for jaeger:"
+minikube service -n observability jaeger-query-nodeport --url
+echo ""

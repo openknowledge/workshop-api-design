@@ -2,32 +2,12 @@
 
 Herzlich willkommen zum Workshop API Design.
 
-## Aufsetzen eines Kubernetes-Clusters mit KinD
+Wir deployen den Cluster in Codespaces mit Minikube
 
-Wir verwenden KinD, um einen lokalen Kubernetes-Cluster aufzusetzen
+Nach dem Start des Codespace muss noch folgendes getan werden:
+- `skaffold run`
+- `sh .devcontainers/start-minikube-service.sh`
 
-Bitte installieren Sie [KinD](https://kind.sigs.k8s.io/docs/user/quick-start).
-
-Bitte legen Sie einen Cluster an, indem Sie folgenden Befehl ausführen:
-
-```shell
-kind create cluster --config=./deployment/cluster-setup/kind-config.yml --name=workshop-service-mngmt-cluster
-```
-
-Überprüfen, dass der Kontext auf
-workshop-service-mgmt-cluster gesetzt ist:
-
-```shell
-kubectl config current-context
-```
-
-Wenn der Kontext nicht automatisch gesetzt wurde,
-der Cluster aber läuft,
-kann der Kontext manuell gesetzt werden:
-
-```shell
-kubectl config set-context kind-workshop-service-mgmt-cluster
-```
 ## Deployment in den Cluster via Skaffold
 
 Um die Anwendungen in den Cluster zu deployen,
@@ -42,12 +22,12 @@ Führen Sie dazu folgenden Befehl aus:
 skaffold run
 ```
 
-### Known Issues mit dem Ingress Operator
-
-Es kann passieren,
-dass der ingress-operator nicht schnell genug installiert wird.
-Bei einem Fehler führen Sie einfach
-den Skaffold-Befehl erneut aus.
+### Known Issues beim Installieren
+Hin und wieder kann es passieren, dass der Codespace zu langsam ist und skaffold eine Validierung zu früh anstößt und
+dabei fehlschlägt.
+Wenn der skaffold run Befehl mit einem Fehler beendet wird einfach folgende Schritte ausführen:
+- `helm uninstall -n observability kube-prometheus-stack`
+- `skaffold run`
 
 ## Zugriff auf den Cluster
 
@@ -61,14 +41,6 @@ können sie über folgende URLs aufgerufen werden:
 * [Delivery Service](http://localhost:30083/webjars/swagger-ui/index.html)
 * [Address Validation Service](http://localhost:30080/webjars/swagger-ui/index.html)
 
-## Entfernen des Clusters
-
-Um den Cluster zu entfernen, rufen Sie folgenen Befehl auf:
-
-```shell
-kind delete cluster -n workshop-service-mngmt-cluster
-```
-
 ```
 For Address Validation: http://localhost:30080
 For Billing: http://localhost:30081
@@ -78,18 +50,6 @@ For Prometheus: http://localhost:30090
 For Grafana: http://localhost:30030
 For Jaeger: http://localhost:30091
 ```
-
-#### Port-Forwarding
-
-If for whatever reason both options above are not working, you can also use port-forwarding to
-access the applications.
-
-minikube service customer-service --url -n production
-
-### Check what is running
-
-To check what is running on the cluster, you can use kubectl to navigate through the cluster.
-k9s.io is also a nice tool to do so.
 
 ## "Fixing" the missing sidecar container for OpenTelemetry
 

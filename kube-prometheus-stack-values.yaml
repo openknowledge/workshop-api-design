@@ -43,3 +43,7 @@ grafana:
         filterBySpanID: false
         customQuery: true
         query: 'method="${__span.tags.method}"'
+  grafana.ini:
+    server:
+      # TODO This needs to be changed to the URL that you get by your codespace
+      root_url: https://jubilant-rotary-phone-p77rv7v6rjpf96rj-80.app.github.dev/grafana/

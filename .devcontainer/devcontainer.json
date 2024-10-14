@@ -7,6 +7,11 @@
 		"source=minikube-config,target=/home/vscode/.minikube,type=volume"
 	],
 	"overrideCommand": false,
+        "hostRequirements": {
+                "cpus": 8,
+                "memory": "8gb",
+                "storage": "32gb"
+        },
 
 	// Configure tool-specific properties.
 	"customizations": {

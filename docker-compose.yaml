@@ -44,6 +44,6 @@ services:
     ports:
       - 7007:7007
     environment:
-      PACT_URL: http://pact:9292/pacts/latest
+      PACT_URL: http://pact:8080/pacts/latest
     depends_on:
       - pact

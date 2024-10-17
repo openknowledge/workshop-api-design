@@ -12,7 +12,14 @@ COPY --chown=jenkins:jenkins executors.groovy /usr/share/jenkins/ref/init.groovy
 # install docker
 RUN apt-get update -qq && apt-get install --no-install-recommends -qqy apt-transport-https ca-certificates curl gnupg2 software-properties-common\
  && curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -\
- && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"\
+ && ARCHITECTURE=$(dpkg --print-architecture) \
+ && if [ "$ARCHITECTURE" = "amd64" ]; then \
+      add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"; \
+    elif [ "$ARCHITECTURE" = "arm64" ]; then \
+      add-apt-repository "deb [arch=arm64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"; \
+    else \
+      echo "Unsupported architecture: $ARCHITECTURE" && exit 1; \
+    fi \
  && apt-get update -qq && apt-get install --no-install-recommends docker-ce -y\
 
 # install kubectl

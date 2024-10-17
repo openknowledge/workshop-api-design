@@ -17,7 +17,7 @@
       "type": "system-api",
       "description": "This is the description of the address-validation service.",
       "lifecycle": "experimental",
-      "owner": "ok-user-team",
+      "owner": "ok-delivery-team",
       "providesApis": [
         "address-validation-service-api"
       ],
@@ -35,9 +35,9 @@
       }
     },
     "spec": {
-      "type": "openapi",
+      "type": "system-api",
       "lifecycle": "experimental",
-      "owner": "ok-user-team",
+      "owner": "ok-delivery-team",
       "definition": "{\"servers\":[{\"url\":\"http://localhost:30080\"}],\"components\":{\"schemas\":{\"Address\":{\"properties\":{\"city\":{\"$ref\":\"#/components/schemas/City\",\"type\":\"object\"},\"street\":{\"$ref\":\"#/components/schemas/Street\",\"type\":\"object\"}},\"type\":\"object\"},\"City\":{\"properties\":{\"zipCode\":{\"type\":\"string\"},\"cityName\":{\"type\":\"string\"}},\"type\":\"object\"},\"Street\":{\"properties\":{\"number\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"}},\"type\":\"object\"}}},\"openapi\":\"3.0.1\",\"paths\":{\"/valid-addresses\":{\"post\":{\"operationId\":\"validateAddress\",\"parameters\":[],\"requestBody\":{\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Address\",\"type\":\"object\"}}},\"required\":true},\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"nullable\":true,\"properties\":{},\"type\":\"object\"}}},\"description\":\"default response\"},\"default\":{\"content\":{\"application/json\":{\"schema\":{\"nullable\":true,\"properties\":{},\"type\":\"object\"}}},\"description\":\"default response\"}}}}}}"
     }
   }

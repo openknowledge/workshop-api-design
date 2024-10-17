@@ -24,6 +24,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <meecrowave.version>1.2.13</meecrowave.version>
         <junit.version>5.8.2</junit.version>
+        <pact.url>http://localhost:9292</pact.url>
     </properties>
 
     <dependencies>
@@ -171,7 +172,7 @@
                 <version>4.6.3</version>
                 <configuration>
                     <pactDirectory>src/main/pacts</pactDirectory> <!-- Defaults to ${project.build.directory}/pacts -->
-                    <pactBrokerUrl>http://localhost:9292</pactBrokerUrl>
+                    <pactBrokerUrl>${pact.url}</pactBrokerUrl>
                 </configuration>
             </plugin>
             <plugin>

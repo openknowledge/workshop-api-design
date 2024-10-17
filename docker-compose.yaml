@@ -1,0 +1,7 @@
+services:
+  gateway:
+    image: nginx:1.27.1
+    ports:
+      - "9090:8080"
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/nginx.conf

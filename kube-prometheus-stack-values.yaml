@@ -46,3 +46,6 @@ grafana:
   grafana.ini:
     server:
       root_url: http://localhost:9090/grafana
+      serve_from_subpath: true
+    session:
+      cookie_secure: false

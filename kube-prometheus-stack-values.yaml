@@ -45,5 +45,4 @@ grafana:
         query: 'method="${__span.tags.method}"'
   grafana.ini:
     server:
-      # TODO This needs to be changed to the URL that you get by your codespace
       root_url: http://localhost:9090/grafana

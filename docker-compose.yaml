@@ -1,17 +1,54 @@
 services:
-  gogs:
-    build: gogs/
-    image: host.docker.internal:5000/gogs:local
-  jenkins:
-    build: jenkins/
-    image: host.docker.internal:5000/jenkins:local
-  setup:
-    build:
-      context: .
-      dockerfile: ./setup/Dockerfile
-    image: host.docker.internal:5000/setup:local
-  delivery-db:
-    build:
-      context: .
-      dockerfile: ./delivery-db/Dockerfile
-    image: host.docker.internal:5000/delivery-db:local
+#  gogs:
+#    build: gogs/
+#    image: host.docker.internal:5000/gogs:local
+#  jenkins:
+#    build: jenkins/
+#    image: host.docker.internal:5000/jenkins:local
+#  setup:
+#    build:
+#      context: .
+#      dockerfile: ./setup/Dockerfile
+#    image: host.docker.internal:5000/setup:local
+#  delivery-db:
+#    build:
+#      context: .
+#      dockerfile: ./delivery-db/Dockerfile
+#    image: host.docker.internal:5000/delivery-db:local
+#  address-validation-service-prod:
+#    build: address-validation-service/
+#    image: address-validation-service:local
+#    volumes:
+#    - ./webapps:/opt/meecrowave-distribution/webapps
+#  meecrowave:
+#    build: meecrowave/
+#    volumes:
+#    - ./webapps:/usr/local/tomcat/webapps
+  server:
+    build: server/
+    ports:
+    - 2222:2222
+    environment:
+    - PASSWORD_ACCESS=true
+    - USER_PASSWORD=jenkins
+    - USER_NAME=jenkins
+    hostname: server.local
+    networks:
+      my-ntwk:
+        ipv4_address: 172.20.0.5
+  client:
+    build: client/
+    hostname: client.local
+    depends_on:
+    - server
+    networks:
+      my-ntwk:
+        ipv4_address: 172.20.0.6
+    extra_hosts:
+      - "server.local:172.20.0.5"
+networks:
+  my-ntwk:
+    ipam:
+      config:
+      - subnet: 172.20.0.0/24
+

@@ -3,7 +3,7 @@ info:
   title: Customer Service
   version: 1.0.0
 servers:
-- url: http://localhost:9081/customer-service
+- url: /customer-service
 paths:
   /customers:
     get:

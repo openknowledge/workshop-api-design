@@ -45,7 +45,7 @@ Sie können die Authentifizierung auch über die
 [Swagger UI des Authentication Service](http://localhost:6060/)
 durchführen.
 
-### Analysieren des Tokenn
+### Analysieren des Tokens
 
 Das erhaltene Token ist base64-codiert.
 Man kann es sich unter [JWT.io](https://jwt.io) anschauen.

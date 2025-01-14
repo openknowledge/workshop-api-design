@@ -39,7 +39,7 @@ import javax.ws.rs.core.Response;
 @Path("{path: webjars/.*}")
 public class SwaggerUiResource {
 
-	private final static Logger LOG = Logger.getLogger(SwaggerUiResource.class.getSimpleName());
+	private static final Logger LOG = Logger.getLogger(SwaggerUiResource.class.getSimpleName());
 
     @GET
     public Response getWebJarsResource(@PathParam("path") String path) {

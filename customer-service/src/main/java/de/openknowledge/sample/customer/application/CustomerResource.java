@@ -39,6 +39,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 
@@ -107,7 +109,12 @@ public class CustomerResource {
     @Path("/{customerNumber}/billing-address")
     @Produces(MediaType.APPLICATION_JSON)
     @SecurityRequirement(name = "bearer")
-    public void setBillingAddress(@PathParam("customerNumber") CustomerNumber customerNumber, Address billingAddress) {
+    public void setBillingAddress(
+            @Parameter(
+                name = "customerNumber",
+                schema = @Schema(type = "string"))
+            @PathParam("customerNumber") CustomerNumber customerNumber,
+            Address billingAddress) {
         LOG.info("RESTful call 'PUT billing address'");
         customerRepository.find(customerNumber).orElseThrow(customerNotFound(customerNumber));
         billingAddressRepository.update(customerNumber, billingAddress);

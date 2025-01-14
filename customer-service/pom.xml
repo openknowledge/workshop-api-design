@@ -58,7 +58,7 @@
         <dependency>
             <groupId>org.apache.geronimo</groupId>
             <artifactId>geronimo-jwt-auth</artifactId>
-            <version>1.0.5-SNAPSHOT</version>
+            <version>1.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile.openapi</groupId>
@@ -70,6 +70,11 @@
             <artifactId>geronimo-openapi-impl</artifactId>
             <version>1.0.12</version>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>2.2.27</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>

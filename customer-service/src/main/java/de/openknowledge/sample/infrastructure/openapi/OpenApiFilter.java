@@ -24,8 +24,9 @@ import org.eclipse.microprofile.openapi.models.PathItem;
 
 public class OpenApiFilter implements OASFilter {
 
+	@Override
 	public void filterOpenAPI(OpenAPI openApi) {
-		for (Entry<String, PathItem> item: openApi.getPaths().getPathItems().entrySet()) {
+		for (Entry<String, PathItem> item : openApi.getPaths().getPathItems().entrySet()) {
 			if (item.getKey().startsWith("/metrics") || item.getKey().startsWith("/health") || item.getKey().contains("webjars")) {
 				openApi.getPaths().removePathItem(item.getKey());
 			}

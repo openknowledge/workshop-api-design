@@ -9,8 +9,8 @@
     <button id="loginButton">Login</button>
     <div id="result"></div>
     <script>
-        const authorizeEndpoint = "http://localhost:9191/auth/realms/master/protocol/openid-connect/auth";
-        const tokenEndpoint = "http://localhost:9191/auth/realms/master/protocol/openid-connect/token";
+        const authorizeEndpoint = "/realms/master/protocol/openid-connect/auth";
+        const tokenEndpoint = "/realms/master/protocol/openid-connect/token";
 
         document.getElementById("loginButton").onclick = function() {
             var redirectUri = window.location.href;
@@ -20,6 +20,7 @@
                 response_type: "code",
                 redirect_uri: redirectUri
             });
+            console.log("args", args);
             window.location = authorizeEndpoint + "/?" + args;
         }
 

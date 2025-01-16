@@ -1,5 +1,6 @@
 events {
 }
+
 http {
 
   server {
@@ -12,7 +13,7 @@ http {
 
     location /realms {
       proxy_pass http://keycloak:8080;
-      proxy_set_header Host "opulent-carnival-766ppjxr567f7qr-6060.app.github.dev";
+      proxy_set_header Host ${CODESPACE_HOST};
     }
   }
 }

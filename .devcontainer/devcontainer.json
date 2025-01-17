@@ -1,40 +1,38 @@
 {
-	"name": "Kubernetes - Minikube-in-Docker",
-	"dockerFile": "Dockerfile",
-	"runArgs": ["--privileged"],
-	"mounts": [
-		"source=minikube-var-lib-docker,target=/var/lib/docker,type=volume",
-		"source=minikube-config,target=/home/vscode/.minikube,type=volume"
-	],
-	"overrideCommand": false,
-        "hostRequirements": {
-                "cpus": 8,
-                "memory": "8gb",
-                "storage": "32gb"
-        },
+  "name": "Kubernetes - Minikube-in-Docker",
+  "dockerFile": "Dockerfile",
+  "runArgs": [
+    "--privileged"
+  ],
+  "mounts": [
+    "source=minikube-var-lib-docker,target=/var/lib/docker,type=volume",
+    "source=minikube-config,target=/home/vscode/.minikube,type=volume"
+  ],
+  "overrideCommand": false,
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  // Configure tool-specific properties.
+  "customizations": {
+    // Configure properties specific to VS Code.
+    "vscode": {
+      // Add the IDs of extensions you want installed when the container is created.
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools"
+      ]
+    }
+  },
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
 
-	// Configure tool-specific properties.
-	"customizations": {
-		// Configure properties specific to VS Code.
-		"vscode": {
-			// Add the IDs of extensions you want installed when the container is created.
-			"extensions": [
-				"ms-azuretools.vscode-docker",
-				"ms-kubernetes-tools.vscode-kubernetes-tools"
-			]
-		}
-	},
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "sudo apt-get update && sudo apt-get install -y nginx && sudo cp /workspaces/workshop-api-design/.devcontainer/nginx.conf /etc/nginx/sites-enabled/default",
-
-	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
-	"postStartCommand": "minikube start && sudo service nginx start",
-
-	// Minikube does not like running as root, so use a non-root user.
-	"remoteUser": "vscode"
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y nginx && sudo cp /workspaces/workshop-api-design/.devcontainer/nginx.conf /etc/nginx/sites-enabled/default",
+  // Use 'postStartCommand' to run commands after the container is created like starting minikube.
+  "postStartCommand": "minikube start && sudo service nginx start",
+  // Minikube does not like running as root, so use a non-root user.
+  "remoteUser": "vscode"
 }
 

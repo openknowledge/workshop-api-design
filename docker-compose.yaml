@@ -66,7 +66,7 @@ services:
       - "9091:8080"
       - "9090:9090"
     volumes:
-      - ./docker-compose/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./deployment/docker-compose/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - api-design
 
@@ -79,9 +79,9 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/tracing-dashboard.json
     volumes:
-      - ./docker-compose/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
-      - ./docker-compose/dashboard.json:/etc/grafana/provisioning/dashboards/tracing-dashboard.json
-      - ./docker-compose/datasource.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./deployment/docker-compose/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      - ./deployment/docker-compose/dashboard.json:/etc/grafana/provisioning/dashboards/tracing-dashboard.json
+      - ./deployment/docker-compose/datasource.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
     networks:
       - api-design
 

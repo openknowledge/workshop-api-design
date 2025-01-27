@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: address-validation-service
-          image: docker.host.internal:5000/address-validation:latest
+          image: host.docker.internal:5000/address-validation:latest
           ports:
             - containerPort: 8080
               name: http

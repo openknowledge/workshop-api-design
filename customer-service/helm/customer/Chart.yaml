@@ -9,6 +9,6 @@ keywords:
 - consumer-driven contracts
 - customer
 maintainers:
-- name: dag.ennenga
-  email: dag.ennenga@openknowledge.de
+- name: arne.limburg
+  email: arne.limburg@openknowledge.de
 engine: gotpl

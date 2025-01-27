@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: customer-service
-          image: docker.host.internal:5000/customer:latest
+          image: host.docker.internal:5000/customer:latest
           ports:
             - containerPort: 8080
               name: http

@@ -1,7 +1,91 @@
 services:
-  gateway:
-    image: nginx:1.27.1
+#  gateway:
+#    image: nginx:1.27.1
+#    ports:
+#      - "9090:8080"
+#    volumes:
+#      - ./gateway/nginx.conf:/etc/nginx/nginx.conf
+
+  customer-service:
+    build: customer-service/
+    container_name: customer-service
     ports:
-      - "9090:8080"
+      - "4000:8080"
+    environment:
+      - BILLING_SERVICE_URL=http://billing-service:8080
+      - DELIVERY_SERVICE_URL=http://delivery-service:8080
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6831
+    networks:
+      - api-design
+
+  billing-service:
+    build: billing-service/
+    container_name: billing-service
+    ports:
+      - "4001:8080"
+    networks:
+      - api-design
+
+  delivery-service:
+    build: delivery-service/
+    container_name: delivery-service
+    ports:
+      - "4002:8080"
+    environment:
+      - ADDRESS_VALIDATION_SERVICE_URL=http://address-validation-service:8080
+    networks:
+      - api-design
+
+  address-validation-service:
+    build: address-validation-service/
+    container_name: address-validation-service
+    ports:
+      - "4003:8080"
+    networks:
+      - api-design
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    environment:
+      - JAEGER_METRICS_HTTP=5777
+      - JAEGER_METRICS_ENABLED=true
+    ports:
+      - "5777:5777"
+      - "6831:6831"
+      - "16686:16686"
+      - "14250:14250"
+    networks:
+      - api-design
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9091:8080"
+      - "9090:9090"
     volumes:
-      - ./gateway/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker-compose/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - api-design
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/tracing-dashboard.json
+    volumes:
+      - ./docker-compose/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      - ./docker-compose/dashboard.json:/etc/grafana/provisioning/dashboards/tracing-dashboard.json
+      - ./docker-compose/datasource.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    networks:
+      - api-design
+
+
+networks:
+  api-design:
+    driver: bridge

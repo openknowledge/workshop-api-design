@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: delivery-service
-          image: docker.host.internal:5000/delivery:latest
+          image: host.docker.internal:5000/delivery:latest
           ports:
             - containerPort: 8080
               name: http

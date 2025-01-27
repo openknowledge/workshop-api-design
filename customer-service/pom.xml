@@ -147,6 +147,10 @@
             <artifactId>opentelemetry-instrumentation-annotations</artifactId>
             <version>1.27.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-jaeger</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <finalName>${project.artifactId}</finalName>

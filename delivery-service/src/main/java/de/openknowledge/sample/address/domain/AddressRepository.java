@@ -41,7 +41,7 @@ public class AddressRepository {
         addresses = new ConcurrentHashMap<>();
 
         addresses.put(new CustomerNumber("0815"), new Address(new Recipient("Max Mustermann"),
-                new Street(new StreetName("Poststr."), new HouseNumber("1")), new City("26122 Oldenburg")));
+                new Street(new StreetName("Am Rundtörn"), new HouseNumber("30")), new City("26135 Oldenburg")));
 
         addresses.put(new CustomerNumber("0816"), new Address(new Recipient("Erika Mustermann"),
                 new Street(new StreetName("II. Hagen"), new HouseNumber("7")), new City("45127 Essen")));

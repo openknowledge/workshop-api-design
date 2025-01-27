@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "customer-service"
+    static_configs:
+      - targets: ["customer-service:8080"]
+  - job_name: "billing-service"
+    static_configs:
+      - targets: ["billing-service:8080"]
+  - job_name: "delivery-service"
+    static_configs:
+      - targets: ["delivery-service:8080"]
+  - job_name: "address-validation-service"
+    static_configs:
+      - targets: ["address-validation-service:8080"]
+  - job_name: "jaeger"
+    static_configs:
+      - targets: ["jaeger:5777"]

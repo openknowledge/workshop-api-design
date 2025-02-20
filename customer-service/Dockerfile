@@ -13,4 +13,4 @@ COPY --from=mvn /usr/src/online-shop/target/runner/meecrowave-core-runner.jar /o
 COPY --from=mvn /usr/src/online-shop/target/runner/opentelemetry-javaagent.jar /opt/opentelemetry-javaagent.jar
 COPY --from=mvn /usr/src/online-shop/target/customer-service.war /opt/customer-service.war
 COPY src/main/resources/log4j2.xml /opt/log4j2.xml
-ENTRYPOINT ["java", "-javaagent:/opt/opentelemetry-javaagent.jar", "--illegal-access=permit", "-Djava.net.preferIPv4Stack=true", "-Dlog4j2.configurationFile=/opt/log4j2.xml", "-jar", "/opt/meecrowave-runner.jar", "--webapp", "/opt/customer-service.war"]
+ENTRYPOINT ["java", "-javaagent:/opt/opentelemetry-javaagent.jar", "--illegal-access=permit", "-Djava.net.preferIPv4Stack=true", "-Dlog4j2.configurationFile=/opt/log4j2.xml", "-Dgeronimo.metrics.jaxrs.activated=true", "-jar", "/opt/meecrowave-runner.jar", "--webapp", "/opt/customer-service.war"]

@@ -166,7 +166,7 @@
     {
       "datasource": {
         "type": "jaeger",
-        "uid": "PC9A941E8F2E49454"
+        "uid": "jaeger"
       },
       "gridPos": {
         "h": 15,
@@ -180,7 +180,7 @@
         {
           "datasource": {
             "type": "jaeger",
-            "uid": "PC9A941E8F2E49454"
+            "uid": "jaeger"
           },
           "query": "${traceId}",
           "refId": "A"
@@ -275,7 +275,7 @@
     {
       "datasource": {
         "type": "jaeger",
-        "uid": "PC9A941E8F2E49454"
+        "uid": "jaeger"
       },
       "fieldConfig": {
         "defaults": {
@@ -342,11 +342,11 @@
         {
           "datasource": {
             "type": "jaeger",
-            "uid": "PC9A941E8F2E49454"
+            "uid": "jaeger"
           },
           "queryType": "search",
           "refId": "A",
-          "service": "delivery-deployment"
+          "service": "delivery-service"
         }
       ],
       "title": "Delivery Service",
@@ -355,7 +355,7 @@
     {
       "datasource": {
         "type": "jaeger",
-        "uid": "PC9A941E8F2E49454"
+        "uid": "jaeger"
       },
       "fieldConfig": {
         "defaults": {
@@ -416,11 +416,11 @@
         {
           "datasource": {
             "type": "jaeger",
-            "uid": "PC9A941E8F2E49454"
+            "uid": "jaeger"
           },
           "queryType": "search",
           "refId": "A",
-          "service": "customer-deployment"
+          "service": "customer-service"
         }
       ],
       "title": "Customer Service",
@@ -429,7 +429,7 @@
     {
       "datasource": {
         "type": "jaeger",
-        "uid": "PC9A941E8F2E49454"
+        "uid": "jaeger"
       },
       "fieldConfig": {
         "defaults": {
@@ -489,11 +489,11 @@
         {
           "datasource": {
             "type": "jaeger",
-            "uid": "PC9A941E8F2E49454"
+            "uid": "jaeger"
           },
           "queryType": "search",
           "refId": "A",
-          "service": "billing-deployment"
+          "service": "billing-service"
         }
       ],
       "title": "Billing Service",
@@ -502,7 +502,7 @@
     {
       "datasource": {
         "type": "jaeger",
-        "uid": "PC9A941E8F2E49454"
+        "uid": "jaeger"
       },
       "fieldConfig": {
         "defaults": {
@@ -562,11 +562,11 @@
         {
           "datasource": {
             "type": "jaeger",
-            "uid": "PC9A941E8F2E49454"
+            "uid": "jaeger"
           },
           "queryType": "search",
           "refId": "A",
-          "service": "address-validation-deployment"
+          "service": "address-validation-service"
         }
       ],
       "title": "Address Validation Service",
@@ -575,7 +575,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "P982945308D3682D1"
+        "uid": "loki"
       },
       "gridPos": {
         "h": 19,
@@ -598,7 +598,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "P982945308D3682D1"
+            "uid": "loki"
           },
           "editorMode": "code",
           "expr": "{namespace=\"production\"} |= \"${traceId}\"",

@@ -14,18 +14,31 @@ services:
     environment:
       - BILLING_SERVICE_URL=http://billing-service:8080
       - DELIVERY_SERVICE_URL=http://delivery-service:8080
+      - OTEL_SERVICE_NAME=customer-service
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://loki:3100/v1/logs
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
       - OTEL_TRACES_EXPORTER=otlp
       - OTEL_METRICS_EXPORTER=console
-      - OTEL_LOGS_EXPORTER=console
+      - OTEL_LOGS_EXPORTER=otlp
       - OTEL_METRIC_EXPORT_INTERVAL=10000
     networks:
       - api-design
+    depends_on:
+      loki:
+        condition: service_started
 
   billing-service:
     build: billing-service/
     container_name: billing-service
     ports:
       - "4001:8080"
+    environment:
+      - OTEL_SERVICE_NAME=billing-service
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=console
+      - OTEL_LOGS_EXPORTER=console
+      - OTEL_METRIC_EXPORT_INTERVAL=10000
     networks:
       - api-design
 
@@ -36,6 +49,12 @@ services:
       - "4002:8080"
     environment:
       - ADDRESS_VALIDATION_SERVICE_URL=http://address-validation-service:8080
+      - OTEL_SERVICE_NAME=delivery-service
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=console
+      - OTEL_LOGS_EXPORTER=console
+      - OTEL_METRIC_EXPORT_INTERVAL=10000
     networks:
       - api-design
 
@@ -44,22 +63,35 @@ services:
     container_name: address-validation-service
     ports:
       - "4003:8080"
+    environment:
+      - OTEL_SERVICE_NAME=address-validation-service
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=console
+      - OTEL_LOGS_EXPORTER=console
+      - OTEL_METRIC_EXPORT_INTERVAL=10000
+    networks:
+      - api-design
+
+  loki:
+    image: grafana/loki:3.4.0
+    ports:
+      - "3100:3100"
     networks:
       - api-design
 
   jaeger:
     image: jaegertracing/all-in-one:1.66.0
-    container_name: jaeger
     environment:
       - COLLECTOR_OTLP_ENABLED=true
     ports:
-      - "4317:4317"
+      - "4318:4318"
       - "16686:16686"
     networks:
       - api-design
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.2.0
     container_name: prometheus
     ports:
       - "9091:8080"
@@ -70,12 +102,14 @@ services:
       - api-design
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.5.2
     container_name: grafana
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+#      - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/tracing-dashboard.json
     volumes:
       - ./deployment/docker-compose/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml

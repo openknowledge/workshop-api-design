@@ -1,13 +1,23 @@
 apiVersion: 1
 datasources:
-  - name: prometheus
+  - uid: prometheus
+    name: prometheus
     type: prometheus
     access: proxy
     url: http://prometheus:9090
     isDefault: true
     editable: true
-  - name: jaeger
+  - uid: jaeger
+    name: jaeger
     type: jaeger
     access: proxy
-    url: http://jaeger:6831
+    url: http://jaeger:16686
     editable: true
+  - uid: loki
+    name: loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    jsonData:
+      timeout: 60
+      maxLines: 1000

@@ -15,10 +15,8 @@
  */
 package de.openknowledge.sample.address.infrastructure;
 
-import io.opentelemetry.api.metrics.MeterProvider;
-import io.opentelemetry.api.trace.Span;
-
-import org.apache.logging.log4j.ThreadContext;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -26,8 +24,10 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
-import java.io.IOException;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.ThreadContext;
+
+import io.opentelemetry.api.trace.Span;
 
 /**
  * Filter to allow cross origin calls.

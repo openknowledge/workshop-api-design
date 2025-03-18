@@ -50,6 +50,8 @@ import de.openknowledge.sample.address.domain.DeliveryAddressRepository;
 import de.openknowledge.sample.customer.domain.Customer;
 import de.openknowledge.sample.customer.domain.CustomerNumber;
 import de.openknowledge.sample.customer.domain.CustomerRepository;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
@@ -73,11 +75,11 @@ public class CustomerResource {
     private DeliveryAddressRepository deliveryAddressRepository;
     @Inject
     @Metric(name = "setAddressRequestDurations", unit = MILLISECONDS)
-    public Histogram setAddressHistogram;
-//    private final DoubleHistogram setAddressHistogram = GlobalOpenTelemetry.meterBuilder("de.openknowledge.sample").build()
-//            .histogramBuilder("setAddressRequestDurations")
-//            .setUnit("Milliseconds")
-//            .build();
+    private Histogram setAddressHistogram;
+    private final DoubleHistogram setAddressDoubleHistogram = GlobalOpenTelemetry.meterBuilder("de.openknowledge.sample").build()
+            .histogramBuilder("setAddressRequestDurations")
+            .setUnit("Milliseconds")
+            .build();
 
     @GET
     @Path("/")
@@ -138,8 +140,9 @@ public class CustomerResource {
         } finally {
             Duration duration = Duration.between(start, Instant.now());
             setAddressHistogram.update(duration.toMillis());
-            //setAddressHistogram.record(duration.toMillis());
+            setAddressDoubleHistogram.record(duration.toMillis());
             Span.current().addEvent("Adding a Record of " + duration.toMillis() + "ms to Histogram");
+            LOG.info("Call consumed " + duration.toMillis() + "ms.");
         }
     }
 

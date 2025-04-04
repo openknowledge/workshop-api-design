@@ -18,11 +18,12 @@ services:
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
 #      - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://prometheus:9090/api/v1/write
       - OTEL_TRACES_EXPORTER=otlp
-#      - OTEL_METRICS_EXPORTER=otlp
-      - OTEL_LOGS_EXPORTER=console
-      - OTEL_METRIC_EXPORT_INTERVAL=10000
-#      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://loki:3100/v1/logs
-#      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=console
+#      - OTEL_LOGS_EXPORTER=console
+#      - OTEL_METRIC_EXPORT_INTERVAL=10000
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://loki:3100/loki/api/v1/push
+      - OTEL_LOGS_EXPORTER=otlp
+#      - OTEL_EXPORTER_OTLP_LOGS_PROTOCOL=http/json
     networks:
       - api-design
     depends_on:
@@ -79,6 +80,7 @@ services:
     image: grafana/loki:3.4.0
     ports:
       - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
     networks:
       - api-design
 
@@ -120,6 +122,20 @@ services:
     networks:
       - api-design
 
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib
+#    volumes:
+#      - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+#    ports:
+#      - 1888:1888 # pprof extension
+#      - 8888:8888 # Prometheus metrics exposed by the Collector
+#      - 8889:8889 # Prometheus exporter metrics
+#      - 13133:13133 # health_check extension
+#      - 4317:4317 # OTLP gRPC receiver
+#      - 4318:4318 # OTLP http receiver
+#      - 55679:55679 # zpages extension
+    networks:
+      - api-design
 
 networks:
   api-design:

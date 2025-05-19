@@ -66,6 +66,11 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
         </dependency>
+        <dependency>
+            <groupId>pl.tkowalcz.tjahzi</groupId>
+            <artifactId>log4j2-appender-nodep</artifactId>
+            <version>0.9.17</version>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>

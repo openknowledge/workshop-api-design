@@ -15,14 +15,15 @@
  */
 package de.openknowledge.sample.customer.application;
 
-import static org.eclipse.microprofile.metrics.MetricUnits.MILLISECONDS;
+import de.openknowledge.sample.address.domain.Address;
+import de.openknowledge.sample.address.domain.BillingAddressRepository;
+import de.openknowledge.sample.address.domain.DeliveryAddressRepository;
+import de.openknowledge.sample.customer.domain.Customer;
+import de.openknowledge.sample.customer.domain.CustomerNumber;
+import de.openknowledge.sample.customer.domain.CustomerRepository;
 
-import java.net.URISyntaxException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -39,18 +40,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.eclipse.microprofile.metrics.Histogram;
-import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Metric;
-import org.eclipse.microprofile.metrics.annotation.Timed;
+import java.net.URISyntaxException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
 
-import de.openknowledge.sample.address.domain.Address;
-import de.openknowledge.sample.address.domain.BillingAddressRepository;
-import de.openknowledge.sample.address.domain.DeliveryAddressRepository;
-import de.openknowledge.sample.customer.domain.Customer;
-import de.openknowledge.sample.customer.domain.CustomerNumber;
-import de.openknowledge.sample.customer.domain.CustomerRepository;
 import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
@@ -73,10 +72,7 @@ public class CustomerResource {
     private BillingAddressRepository billingAddressRepository;
     @Inject
     private DeliveryAddressRepository deliveryAddressRepository;
-    @Inject
-    @Metric(name = "setAddressRequestDurations", unit = MILLISECONDS)
-    private Histogram setAddressHistogram;
-    private final DoubleHistogram setAddressDoubleHistogram = GlobalOpenTelemetry.meterBuilder("de.openknowledge.sample").build()
+    private final DoubleHistogram setAddressHistogram = GlobalOpenTelemetry.meterBuilder("de.openknowledge.sample").build()
             .histogramBuilder("setAddressRequestDurations")
             .setUnit("Milliseconds")
             .build();
@@ -139,10 +135,8 @@ public class CustomerResource {
             deliveryAddressRepository.update(customerNumber, deliveryAddress);
         } finally {
             Duration duration = Duration.between(start, Instant.now());
-            setAddressHistogram.update(duration.toMillis());
-            setAddressDoubleHistogram.record(duration.toMillis());
+            setAddressHistogram.record(duration.toMillis());
             Span.current().addEvent("Adding a Record of " + duration.toMillis() + "ms to Histogram");
-            LOG.info("Call consumed " + duration.toMillis() + "ms.");
         }
     }
 

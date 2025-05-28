@@ -66,11 +66,6 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
         </dependency>
-        <dependency>
-            <groupId>pl.tkowalcz.tjahzi</groupId>
-            <artifactId>log4j2-appender-nodep</artifactId>
-            <version>0.9.17</version>
-        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -182,8 +177,13 @@
                                 <artifactItem>
                                     <groupId>io.opentelemetry.javaagent</groupId>
                                     <artifactId>opentelemetry-javaagent</artifactId>
-                                    <version>2.13.1</version>
-								</artifactItem>
+                                    <version>2.16.0</version>
+                                </artifactItem>
+                                <artifactItem>
+    <groupId>io.opentelemetry.contrib</groupId>
+    <artifactId>opentelemetry-samplers</artifactId>
+    <version>1.46.0-alpha</version>
+                                </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/runner</outputDirectory>
                             <stripVersion>true</stripVersion>

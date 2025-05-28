@@ -1,36 +1,12 @@
-<Configuration status="WARN" packages="pl.tkowalcz.tjahzi.log4j2">
-      <Properties>
-        <Property name="LOKI_HOST">localhost</Property>
-        <Property name="LOKI_PORT">3100</Property>
-      </Properties>
-      <Appenders>
+<Configuration status="WARN">
+    <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout>
-                <Pattern>%d %-5p [%t] %c{1}: %m%n</Pattern>
-            </PatternLayout>
+            <PatternLayout pattern="[logLevel=%-5p] %d [%t] %c [TraceId: %X{traceId} / SpanId: %X{spanId}]: %L - %m%n%"/>
         </Console>
-        <RollingFile name="File" fileName="logs/app.log" filePattern="logs/app.%d{MM-dd-yyyy}.log">
-            <TimeBasedTriggeringPolicy/>
-            <PatternLayout>
-                <Pattern>%d %-5p [%t] %c{1}: %m%n</Pattern>
-            </PatternLayout>
-        </RollingFile>
-        <Loki name="Loki">
-            <host>${env:LOKI_HOST}</host>
-            <port>${env:LOKI_PORT}</port>
-
-            <PatternLayout>
-                <Pattern>%X{tid} [%t] %d{MM-dd HH:mm:ss.SSS} %5p %c{1} - %m%n%exception{full}</Pattern>
-            </PatternLayout>
-
-            <Label name="server" value="${hostName}"/>
-        </Loki>
     </Appenders>
     <Loggers>
         <Root level="info">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="File"/>
-            <AppenderRef ref="Loki"/>
         </Root>
     </Loggers>
 </Configuration>

@@ -601,7 +601,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{namespace=\"production\"} |= \"${traceId}\"",
+          "expr": "{service_name=~ \".+\"} |= \"${traceId}\"",
           "queryType": "range",
           "refId": "A"
         }

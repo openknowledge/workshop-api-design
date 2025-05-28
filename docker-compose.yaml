@@ -1,10 +1,4 @@
 services:
-#  gateway:
-#    image: nginx:1.27.1
-#    ports:
-#      - "9090:8080"
-#    volumes:
-#      - ./gateway/nginx.conf:/etc/nginx/nginx.conf
 
   customer-service:
     build: customer-service/
@@ -16,18 +10,12 @@ services:
       - DELIVERY_SERVICE_URL=http://delivery-service:8080
       - OTEL_SERVICE_NAME=customer-service
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
-#      - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://prometheus:9090/api/v1/write
       - OTEL_TRACES_EXPORTER=otlp
       - OTEL_METRICS_EXPORTER=console
       - OTEL_LOGS_EXPORTER=otlp
-#      - OTEL_METRIC_EXPORT_INTERVAL=10000
       - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
-#      - OTEL_LOGS_EXPORTER=otlp
-#      - OTEL_EXPORTER_OTLP_LOGS_PROTOCOL=http/json
       - LOKI_HOST=loki
       - LOKI_PORT=3100
-#    networks:
-#      - api-design
     depends_on:
       loki:
         condition: service_started
@@ -41,11 +29,6 @@ services:
       - OTEL_SERVICE_NAME=billing-service
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
       - OTEL_TRACES_EXPORTER=otlp
- #     - OTEL_METRICS_EXPORTER=console
- #     - OTEL_LOGS_EXPORTER=console
- #     - OTEL_METRIC_EXPORT_INTERVAL=10000
-#    networks:
-#      - api-design
 
   delivery-service:
     build: delivery-service/
@@ -57,11 +40,6 @@ services:
       - OTEL_SERVICE_NAME=delivery-service
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
       - OTEL_TRACES_EXPORTER=otlp
- #     - OTEL_METRICS_EXPORTER=console
- #     - OTEL_LOGS_EXPORTER=console
- #     - OTEL_METRIC_EXPORT_INTERVAL=10000
-#    networks:
-#      - api-design
 
   address-validation-service:
     build: address-validation-service/
@@ -72,19 +50,12 @@ services:
       - OTEL_SERVICE_NAME=address-validation-service
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
       - OTEL_TRACES_EXPORTER=otlp
-#      - OTEL_METRICS_EXPORTER=console
-#      - OTEL_LOGS_EXPORTER=console
-#      - OTEL_METRIC_EXPORT_INTERVAL=10000
-#    networks:
-#      - api-design
 
   loki:
     image: grafana/loki:3.4.0
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
-#    networks:
-#      - api-design
 
   jaeger:
     image: jaegertracing/all-in-one:1.66.0
@@ -93,8 +64,6 @@ services:
     ports:
       - "5318:4318"
       - "16686:16686"
-#    networks:
-#      - api-design
 
   prometheus:
     image: prom/prometheus:v3.2.0
@@ -104,8 +73,6 @@ services:
       - "9090:9090"
     volumes:
       - ./deployment/docker-compose/prometheus.yml:/etc/prometheus/prometheus.yml
-#    networks:
-#      - api-design
 
   grafana:
     image: grafana/grafana:11.5.2
@@ -115,14 +82,11 @@ services:
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-#      - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/tracing-dashboard.json
     volumes:
       - ./deployment/docker-compose/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
       - ./deployment/docker-compose/dashboard.json:/etc/grafana/provisioning/dashboards/tracing-dashboard.json
       - ./deployment/docker-compose/datasource.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
-#    networks:
-#      - api-design
 
   collector:
     image: otel/opentelemetry-collector-contrib:0.126.0
@@ -132,17 +96,3 @@ services:
       - 4318:4318
     expose:
       - 4318
-#    ports:
-#      - 1888:1888 # pprof extension
-#      - 8888:8888 # Prometheus metrics exposed by the Collector
-#      - 8889:8889 # Prometheus exporter metrics
-#      - 13133:13133 # health_check extension
-#      - 4317:4317 # OTLP gRPC receiver
-#      - 4318:4318 # OTLP http receiver
-#      - 55679:55679 # zpages extension
-#    networks:
-#      - api-design
-#
-#networks:
-#  api-design:
-#    driver: bridge

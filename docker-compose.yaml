@@ -11,9 +11,10 @@ services:
       - OTEL_SERVICE_NAME=customer-service
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
       - OTEL_TRACES_EXPORTER=otlp
-      - OTEL_METRICS_EXPORTER=console
+      - OTEL_METRICS_EXPORTER=otlp
       - OTEL_LOGS_EXPORTER=otlp
       - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
+      - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://collector:4318/v1/metrics
     depends_on:
       loki:
         condition: service_started

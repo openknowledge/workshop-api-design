@@ -8,11 +8,13 @@ exporters:
     endpoint: http://loki:3100/otlp
   debug:
     verbosity: detailed
+  prometheus:
+    endpoint: 'prometheus:8889'
 service:
   pipelines:
     metrics:
       receivers: [otlp]
-      exporters: [debug]
+      exporters: [prometheus]
     traces:
       receivers: [otlp]
       exporters: [debug]

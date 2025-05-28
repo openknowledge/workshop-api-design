@@ -180,9 +180,9 @@
                                     <version>2.16.0</version>
                                 </artifactItem>
                                 <artifactItem>
-    <groupId>io.opentelemetry.contrib</groupId>
-    <artifactId>opentelemetry-samplers</artifactId>
-    <version>1.46.0-alpha</version>
+                                    <groupId>io.opentelemetry.contrib</groupId>
+                                    <artifactId>opentelemetry-samplers</artifactId>
+                                    <version>1.46.0-alpha</version>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/runner</outputDirectory>

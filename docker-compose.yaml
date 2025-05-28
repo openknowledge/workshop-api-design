@@ -14,8 +14,6 @@ services:
       - OTEL_METRICS_EXPORTER=console
       - OTEL_LOGS_EXPORTER=otlp
       - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
-      - LOKI_HOST=loki
-      - LOKI_PORT=3100
     depends_on:
       loki:
         condition: service_started
@@ -29,6 +27,9 @@ services:
       - OTEL_SERVICE_NAME=billing-service
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
       - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=console
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
 
   delivery-service:
     build: delivery-service/
@@ -40,6 +41,9 @@ services:
       - OTEL_SERVICE_NAME=delivery-service
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
       - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=console
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
 
   address-validation-service:
     build: address-validation-service/
@@ -50,6 +54,9 @@ services:
       - OTEL_SERVICE_NAME=address-validation-service
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
       - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=console
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
 
   loki:
     image: grafana/loki:3.4.0

@@ -17,3 +17,6 @@ scrape_configs:
   - job_name: "jaeger"
     static_configs:
       - targets: ["jaeger:5777"]
+  - job_name: "collector"
+    static_configs:
+      - targets: ["collector:8889"]

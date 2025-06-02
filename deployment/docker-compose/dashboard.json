@@ -82,7 +82,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "application_de_openknowledge_sample_customer_application_CustomerResource_setAddressRequestDurations_mean_seconds[5m] * 1000",
+		  "expr": "sum(rate(setAddressRequestDurations_Milliseconds_sum[5m])) / sum(rate(setAddressRequestDurations_Milliseconds_count[5m]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,

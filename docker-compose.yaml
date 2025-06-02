@@ -14,9 +14,12 @@ services:
       - OTEL_METRICS_EXPORTER=otlp
       - OTEL_LOGS_EXPORTER=otlp
       - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
-      - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://collector:4318/v1/metrics
+      - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://grafana:3000/otlp
+      - OTEL_EXPORTER_OTLP_METRICS_PROTOCOL=http/protobuf
     depends_on:
-      loki:
+      collector:
+        condition: service_started
+      jaeger:
         condition: service_started
 
   billing-service:
@@ -31,6 +34,11 @@ services:
       - OTEL_METRICS_EXPORTER=console
       - OTEL_LOGS_EXPORTER=otlp
       - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
+    depends_on:
+      collector:
+        condition: service_started
+      jaeger:
+        condition: service_started
 
   delivery-service:
     build: delivery-service/
@@ -45,6 +53,11 @@ services:
       - OTEL_METRICS_EXPORTER=console
       - OTEL_LOGS_EXPORTER=otlp
       - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
+    depends_on:
+      collector:
+        condition: service_started
+      jaeger:
+        condition: service_started
 
   address-validation-service:
     build: address-validation-service/
@@ -58,12 +71,20 @@ services:
       - OTEL_METRICS_EXPORTER=console
       - OTEL_LOGS_EXPORTER=otlp
       - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
+    depends_on:
+      collector:
+        condition: service_started
+      jaeger:
+        condition: service_started
 
   loki:
     image: grafana/loki:3.4.0
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
+    depends_on:
+      grafana:
+        condition: service_started
 
   jaeger:
     image: jaegertracing/all-in-one:1.66.0
@@ -72,6 +93,9 @@ services:
     ports:
       - "5318:4318"
       - "16686:16686"
+    depends_on:
+      grafana:
+        condition: service_started
 
   prometheus:
     image: prom/prometheus:v3.2.0
@@ -81,6 +105,9 @@ services:
       - "9090:9090"
     volumes:
       - ./deployment/docker-compose/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      grafana:
+        condition: service_started
 
   grafana:
     image: grafana/grafana:11.5.2
@@ -104,3 +131,8 @@ services:
       - 4318:4318
     expose:
       - 4318
+    depends_on:
+      loki:
+        condition: service_started
+      prometheus:
+        condition: service_started

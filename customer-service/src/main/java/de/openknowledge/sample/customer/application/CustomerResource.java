@@ -114,10 +114,6 @@ public class CustomerResource {
         billingAddressRepository.update(customerNumber, billingAddress);
     }
 
-    @Timed(name = "setDeliveryAddressForCustomer2",
-            description = "Metrics to monitor the times of processItem method.",
-            unit = MetricUnits.MILLISECONDS,
-            absolute = true)
     @PUT
     @Path("/{customerNumber}/delivery-address")
     @Produces(MediaType.APPLICATION_JSON)

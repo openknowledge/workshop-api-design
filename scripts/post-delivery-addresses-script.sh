@@ -1,7 +1,6 @@
-set -B # enable brace expansion
 while true
 do
-curl --location --request PUT 'http://localhost:30082/customers/0815/delivery-address' \
+curl --location --request PUT 'http://customer-service:8080/customers/0815/delivery-address' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "city": "26121 Oldenburg (Oldenburg)",

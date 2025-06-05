@@ -15,7 +15,6 @@ services:
       - OTEL_LOGS_EXPORTER=otlp
       - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://collector:4318/v1/logs
       - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://collector:4318/v1/metrics
-#      - OTEL_EXPORTER_OTLP_METRICS_PROTOCOL=http/protobuf
     depends_on:
       collector:
         condition: service_started
@@ -138,3 +137,16 @@ services:
         condition: service_started
       prometheus:
         condition: service_started
+  traffic-generator:
+    image: curlimages/curl:8.7.1
+    volumes:
+    - "./scripts/post-delivery-addresses-script.sh:/work/post-delivery-addresses-script.sh:rwx"
+    command: /work/post-delivery-addresses-script.sh
+    depends_on:
+      customer-service:
+        condition: service_started
+      delivery-service:
+        condition: service_started
+      address-validation-service:
+        condition: service_started
+

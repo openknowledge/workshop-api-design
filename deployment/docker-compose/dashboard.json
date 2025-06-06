@@ -153,7 +153,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(setAddressRequestDurations_Milliseconds_bucket{le=\"100\"}[5m])) by (job)/sum(rate(setAddressRequestDurations_Milliseconds_count[5m])) by (job)\n\n  ",
+          "expr": "sum(rate(setAddressRequestDurations_Milliseconds_bucket{le='100.0'}[5m]))/sum(rate(setAddressRequestDurations_Milliseconds_count[5m]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -186,7 +186,7 @@
           "refId": "A"
         }
       ],
-      "title": "Delivery Service",
+      "title": "Trace",
       "type": "traces"
     },
     {
@@ -346,10 +346,10 @@
           },
           "queryType": "search",
           "refId": "A",
-          "service": "delivery-service"
+          "service": "customer-service"
         }
       ],
-      "title": "Delivery Service",
+      "title": "Customer Service",
       "type": "table"
     },
     {
@@ -420,10 +420,10 @@
           },
           "queryType": "search",
           "refId": "A",
-          "service": "customer-service"
+          "service": "billing-service"
         }
       ],
-      "title": "Customer Service",
+      "title": "Billing Service",
       "type": "table"
     },
     {
@@ -493,10 +493,10 @@
           },
           "queryType": "search",
           "refId": "A",
-          "service": "billing-service"
+          "service": "delivery-service"
         }
       ],
-      "title": "Billing Service",
+      "title": "Delivery Service",
       "type": "table"
     },
     {

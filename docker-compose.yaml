@@ -4,7 +4,8 @@ services:
     ports:
       - "6060:8080"
   openapi-linter:
-    image: ibmdevxsdk/openapi-validator:1.17.0
-    command: "--ruleset ruleset.yaml openapi.yaml"
+    image: stoplight/spectral:6.15.1
+    command: "lint /usr/src/openapi.yaml"
     volumes:
-      - .:/data
+      - ./spectral:/usr/src/spectral
+      - ./openapi.yaml:/usr/src/openapi.yaml

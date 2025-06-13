@@ -1,0 +1,490 @@
+{
+  "description": "**Set of rules to enforce Zalando Restful API guidelines**\r\n\r\nTo use these rules: \r\n1. Go to your Stoplight workspace.\r\n2. Create a [style guide project](https://docs.stoplight.io/docs/platform/364e30f79daa0-create-a-style-guide) OR edit a project that has an API.\r\n3. Select **Manage Style Guides**.\r\n4. Enable `Zalando` from list of public style guides.\r\n\r\nYou can then:\r\n\r\n- Use the style guide as-is to [automatically lint](https://docs.stoplight.io/docs/platform/7975f76a794c4-validation-and-linting) your API files\r\n- [Disable individual rules](https://docs.stoplight.io/docs/platform/3f80fd36750e3-disable-inherited-rules)  that do not follow your organization's standards\r\n- [Reuse and customize rules](https://docs.stoplight.io/docs/platform/2331c5241ddfc) to meet your needs\r\n\r\nNot covered: Zalando guidelines [223](https://opensource.zalando.com/restful-api-guidelines/#223), [224](https://opensource.zalando.com/restful-api-guidelines/#224), [104](https://opensource.zalando.com/restful-api-guidelines/#104), [105](https://opensource.zalando.com/restful-api-guidelines/#105), and [225](https://opensource.zalando.com/restful-api-guidelines/#225)",
+  "formats": [
+    "oas2",
+    "oas3",
+    "oas3.0",
+    "oas3.1"
+  ],
+  "aliases": {},
+  "rules": {
+    "must-always-return-json-objects-as-top-level-data-structures": {
+      "given": [
+        "$.paths.*.*[responses,requestBody]..content..schema"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "is-object-schema"
+      },
+      "description": "The top-level data structure for a`request body` or `response body` must be an object.\r\n\r\n**Invalid Example**\r\n\r\n```yaml lineNumbers\r\nrequestBody:\r\n   content:\r\n     application/json:\r\n       schema:\r\n         type: array\r\n         items:\r\n           type: string\r\n```\r\n\r\n**Valid Example**\r\n\r\n```yaml lineNumbers\r\nrequestBody:\r\n   content:\r\n     application/json:\r\n       schema:\r\n         type: object\r\n         properties:\r\n           first_name:\r\n             type: string\r\n           last_name:\r\n             type: string\r\n```\r\n\r\n[Zalando Guideline 210](https://opensource.zalando.com/restful-api-guidelines/#210)",
+      "message": "Top-level data structure must be an object"
+    },
+    "should-use-x-extensible-enum": {
+      "given": [
+        "$.paths..[?(@ && @.type=='string')].enum"
+      ],
+      "severity": "warn",
+      "then": {
+        "function": "undefined"
+      },
+      "description": "`enum` values should use the marker `x-extensible-enum` rather than `enum`. \r\n\r\n**Invalid Example**\r\n\r\n```yaml lineNumbers\r\ndelivery_methods:\r\n  type: string\r\n  enum:\r\n    - PARCEL\r\n    - LETTER\r\n    - EMAIL\r\n```\r\n\r\n**Valid Example**\r\n\r\n```yaml lineNumbers\r\ndelivery_methods:\r\n  type: string\r\n  x-extensible-enum:\r\n    - PARCEL\r\n    - LETTER\r\n    - EMAIL\r\n```\r\n\r\n[Zalando Guideline 112](https://opensource.zalando.com/restful-api-guidelines/#112)",
+      "message": "Should use `x-extensible-enum` instead of `enum`"
+    },
+    "must-not-use-uri-versioning": {
+      "given": [
+        "$.paths.*~"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "notMatch": "/v[0-9]+/"
+        }
+      },
+      "description": "Path must not contain versions. \r\n\r\n**Invalid Example**\r\n\r\n```yaml\r\n /user/v2:\r\n```\r\n\r\n**Valid Example**\r\n\r\n```yaml\r\n /user:\r\n```\r\n\r\n[Zalando Guideline 115](https://opensource.zalando.com/restful-api-guidelines/#115)\r\n",
+      "message": "Path must not contain versioning"
+    },
+    "must-use-snake-case-for-property-names": {
+      "given": [
+        "$.paths.*.*[responses,requestBody]..content..schema..properties.*~"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "match": "^[a-z_][a-z_0-9]*$"
+        }
+      },
+      "description": "Property names must use snake-case strings that match this pattern: `^[a-z_][a-z_0-9]*$`. \r\n\r\nThe first character must be a lower case letter, or an underscore, and subsequent characters can be a letter, an underscore, or a number.\r\n\r\n**Valid Examples**\r\n\r\n`customer_number`\r\n`sales_order_number`\r\n`billing_address`\r\n\r\n[Zalando Guideline 118](https://opensource.zalando.com/restful-api-guidelines/#118)",
+      "message": "Property name has to be ASCII snake_case"
+    },
+    "must-use-lowercase-with-hypens-for-path-segments": {
+      "given": [
+        "$.paths.*~"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "match": "^(([\\/a-z][a-z0-9\\-\\/]*)?({[^}]*})?)+$"
+        }
+      },
+      "description": "Path segments must use lowercase letters and hyphens to separate words.\r\n\r\n**Invalid Example**\r\n\r\n```yaml\r\n/BeachReport:\r\n```\r\n**Valid Example**\r\n\r\n```yaml\r\n/beach-report:\r\n```\r\n\r\n[Zalando Guideline 129](https://opensource.zalando.com/restful-api-guidelines/#129)",
+      "message": "Path segments have to be lowercase separate words with hyphens"
+    },
+    "must-use-snake-case-for-query-parameters": {
+      "given": [
+        "$.paths.*.*.parameters[?(@ && @.in=='query')].name"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "match": "^[a-z][_a-z0-9]*$"
+        }
+      },
+      "description": "Query parameter must use snake-case and match this pattern: `^[a-z][_a-z0-9]*$`.\r\n\r\n**Invalid Example**\r\n\r\n```yaml lineNumbers\r\nparameters:\r\n   - schema:\r\n       type: string\r\n     in: query\r\n     name: weather-station\r\n```\r\n\r\n**Valid Example**\r\n\r\n```yaml lineNumbers\r\nparameters:\r\n   - schema:\r\n       type: string\r\n     in: query\r\n     name: weather_station\r\n```\r\n\r\n[Zalando Guideline 130](https://opensource.zalando.com/restful-api-guidelines/#130)",
+      "message": "Query parameters must be snake_case"
+    },
+    "should-use-hyphenated-pascal-case-for-header-parameters": {
+      "given": [
+        "$.paths.*.*.parameters[?(@ &&  @.in=='header')].name"
+      ],
+      "severity": "warn",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "match": "^([A-Z][a-z]*)(-[A-Z0-9][a-z0-9]*)*$"
+        }
+      },
+      "description": "Header parameters should use hyphenated Pascal case.\r\n\r\n**Invalid Example**\r\n\r\n```yaml lineNumbers\r\nparameters:\r\n  - schema:\r\n      type: string\r\n    in: header\r\n    name: PascalCaseHeader\r\n```\r\n**Valid Example**\r\n\r\n```yaml lineNumbers\r\nparameters:\r\n  - schema:\r\n      type: string\r\n    in: header\r\n    name: Pascal-Case-Header\r\n```",
+      "message": "Header parameters should be Hyphenated-Pascal-Case"
+    },
+    "should-not-use-api-as-base-path": {
+      "given": [
+        "$.paths.*~"
+      ],
+      "severity": "warn",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "notMatch": "^/api"
+        }
+      },
+      "description": "Base path should not include `api`.\r\n\r\n**Invalid Example**\r\n\r\n```yaml\r\n/api/user:\r\n```\r\n\r\n**Valid Example**\r\n\r\n```yaml\r\n/user:\r\n```\r\n[Zalando Guideline 135](https://opensource.zalando.com/restful-api-guidelines/#135)",
+      "message": "Path should not start with /api"
+    },
+    "must-use-normalized-paths-without-empty-path-segments": {
+      "given": [
+        "$.paths.*~"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "notMatch": "//"
+        }
+      },
+      "description": "Path segments must not contain duplicate slashes.\r\n\r\n**Invalid Example**\r\n\r\n```yaml\r\n/user//report:\r\n```\r\n**Valid Example**\r\n\r\n```yaml\r\n/beach-report:\r\n```\r\n\r\n[Zalando Guideline 136](https://opensource.zalando.com/restful-api-guidelines/#136)",
+      "message": "Empty path segments are not allowed"
+    },
+    "must-use-normalized-paths-without-trailing-slash": {
+      "given": [
+        "$.paths.*~"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "notMatch": "/$"
+        }
+      },
+      "description": "Path segments must not contain duplicate slashes.\r\n\r\n**Invalid Example**\r\n\r\n```yaml\r\n/user//report:\r\n```\r\n**Valid Example**\r\n\r\n```yaml\r\n/beach-report:\r\n```\r\n\r\n[Zalando Guideline 136](https://opensource.zalando.com/restful-api-guidelines/#136)",
+      "message": "Path with trailing slash is not allowed"
+    },
+    "should-limit-number-of-resource-types": {
+      "given": [
+        "$.paths"
+      ],
+      "severity": "warn",
+      "then": {
+        "function": "count-resource-types",
+        "functionOptions": {
+          "max": 8
+        }
+      },
+      "description": "Resource types (root URL paths) should be limited to no more than eight.\r\n\r\n[Zalando Guideline 146](https://opensource.zalando.com/restful-api-guidelines/#146)",
+      "message": "{{error}}"
+    },
+    "should-limit-number-of-sub-resource-levels": {
+      "given": [
+        "$.paths.*~"
+      ],
+      "severity": "warn",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "match": "^\\/[^\\/]*((\\/{[^}]*})*\\/[^\\/]*(\\/{[^}]*})*){0,3}\\/?$"
+        }
+      },
+      "description": "Path should contain no more than 3 sub-resources (nested resources with non-root URL paths).\r\n\r\n**Invalid Example**\r\n\r\n```yaml\r\n  /users/location/name/address/email:\r\n```\r\n\r\n**Valid Example**\r\n\r\n```yaml\r\n  /users/{userId}/{name}:\r\n```\r\n\r\n[Zalando Guideline 147](https://opensource.zalando.com/restful-api-guidelines/#147)",
+      "message": "Sub-resource levels should by <= 3"
+    },
+    "should-use-standard-http-status-codes": {
+      "given": [
+        "$.paths.*.*.responses.*~"
+      ],
+      "severity": "warn",
+      "then": {
+        "function": "enumeration",
+        "functionOptions": {
+          "values": [
+            "100",
+            "101",
+            "200",
+            "201",
+            "202",
+            "203",
+            "204",
+            "205",
+            "206",
+            "207",
+            "300",
+            "301",
+            "302",
+            "303",
+            "304",
+            "305",
+            "307",
+            "400",
+            "401",
+            "402",
+            "403",
+            "404",
+            "405",
+            "406",
+            "407",
+            "408",
+            "409",
+            "410",
+            "411",
+            "412",
+            "413",
+            "414",
+            "415",
+            "416",
+            "417",
+            "423",
+            "426",
+            "428",
+            "429",
+            "431",
+            "500",
+            "501",
+            "502",
+            "503",
+            "504",
+            "505",
+            "511",
+            "default"
+          ]
+        }
+      },
+      "description": "`response` should use standard HTTP status codes.\r\n\r\n**Invalid Example**\r\n\r\n`Error-500` is not a valid HTTP status code.\r\n\r\n```yaml lineNumbers\r\n  /weather:\r\n    get:\r\n      responses:\r\n        'Error-500':\r\n          description: Internal Server Error\r\n```\r\n**Valid Example**\r\n\r\n`500` is a valid HTTP status code.\r\n\r\n```yaml lineNumbers\r\n  /weather:\r\n    get:\r\n      responses:\r\n        '500':\r\n          description: Internal Server Error\r\n```\r\n\r\n[Zalando Guideline 150](https://opensource.zalando.com/restful-api-guidelines/#150)",
+      "message": "{{property}} is not a standardized response code"
+    },
+    "must-specify-default-response": {
+      "given": [
+        "$.paths.*.*.responses"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "truthy",
+        "field": "default"
+      },
+      "description": "Each `operation` must include a default error response that combines multiple errors. \r\n\r\n**Invalid Example**\r\n\r\nThe example below contains only a `200` response.\r\n\r\n```yaml lineNumbers\r\nresponses:\r\n   ...\r\nget:\r\n  summary: Get User Info by User ID\r\n   tags: []\r\n   responses:\r\n     '200':\r\n       description: OK\r\n```\r\n\r\n**Valid Example**\r\n\r\nThe example below contains a `200` response and a `default` response that references the `Problem` errors file.\r\n\r\n```yaml lineNumbers\r\nresponses:\r\n   ...\r\nget:\r\n  summary: Get User Info by User ID\r\n   tags: []\r\n   responses:\r\n     '200':\r\n       description: OK\r\n     default:\r\n       description: User Not Found\r\n       content:\r\n         application/problem+json:\r\n           schema:\r\n             $ref: ../models/Problem.yaml\r\n```\r\n\r\n[Zalando Guideline 151](https://opensource.zalando.com/restful-api-guidelines/#151)",
+      "message": "Operation does not contain a default response"
+    },
+    "must-use-problem-json-as-default-response": {
+      "given": [
+        "$.paths.*.*.responses.default"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "truthy",
+        "field": "content.application/problem+json"
+      },
+      "description": "The content type for the default response must be `application/problem+json`.\r\n\r\n**Invalid Example**\r\n\r\nThe default response in this example incorrectly uses `application/json` as the content type.\r\n\r\n```yaml lineNumbers\r\nresponses:\r\n   ...\r\nget:\r\n  summary: Get User Info by User ID\r\n   tags: []\r\n   responses:\r\n     ...\r\n     default:\r\n       description: ...\r\n       content:\r\n         application/json:\r\n           schema:\r\n             $ref: ../models/Problem.yaml\r\n```\r\n\r\n**Valid Example**\r\n\r\nThe default response in this example correctly uses `application/problem+json` as the content type.\r\n\r\n```yaml lineNumbers\r\nresponses:\r\n   ...\r\nget:\r\n  summary: Get User Info by User ID\r\n   tags: []\r\n   responses:\r\n     ...\r\n     default:\r\n       description: ...\r\n       content:\r\n         application/problem+json:\r\n           schema:\r\n             $ref: ../models/Problem.yaml\r\n```\r\n\r\n[Zalando Guideline 151](https://opensource.zalando.com/restful-api-guidelines/#151)",
+      "message": "Operation must use problem json as default response"
+    },
+    "must-define-a-format-for-number-types": {
+      "given": [
+        "$.paths.*.*..schema..properties..[?(@ && @.type=='number')]"
+      ],
+      "severity": "error",
+      "then": [
+        {
+          "function": "defined",
+          "field": "format"
+        },
+        {
+          "function": "pattern",
+          "functionOptions": {
+            "match": "^(float|double|decimal)$"
+          },
+          "field": "format"
+        }
+      ],
+      "description": "`number` properties must have a format defined (`float`, `double`, or `decimal`).\r\n\r\n**Invalid Example**\r\n\r\n``` yaml lineNumbers\r\nrequestBody:\r\n    content:\r\n      application/json:\r\n        schema:\r\n          type: object\r\n          properties:\r\n            range:\r\n              type: number\r\n```\r\n\r\n**Valid Example**\r\n\r\n``` yaml lineNumbers\r\nrequestBody:\r\n  content:\r\n    application/json:\r\n      schema:\r\n        type: object\r\n        properties:\r\n          range:\r\n            type: number\r\n            format: float\r\n```\r\n\r\n[Zalando Guideline 171](https://opensource.zalando.com/restful-api-guidelines/#171)\r\n",
+      "message": "Numeric properties must have valid format specified"
+    },
+    "must-define-a-format-for-integer-types": {
+      "given": [
+        "$.paths.*.*..schema..properties..[?(@ && @.type=='integer')]"
+      ],
+      "severity": "error",
+      "then": [
+        {
+          "function": "defined",
+          "field": "format"
+        },
+        {
+          "function": "pattern",
+          "functionOptions": {
+            "match": "^(int32|int64|bigint)$"
+          },
+          "field": "format"
+        }
+      ],
+      "description": "`integer` properties must have a format defined (`int32`, `int64`, or `bigint`).\r\n\r\n**Invalid Example**\r\n\r\n``` yaml lineNumbers\r\nrequestBody:\r\n    content:\r\n      application/json:\r\n        schema:\r\n          type: object\r\n          properties:\r\n            range:\r\n              type: integer\r\n```\r\n\r\n**Valid Example**\r\n\r\n``` yaml lineNumbers\r\nrequestBody:\r\n  content:\r\n    application/json:\r\n      schema:\r\n        type: object\r\n        properties:\r\n          range:\r\n            type: integer\r\n            format: int32\r\n```\r\n\r\n[Zalando Guideline 171](https://opensource.zalando.com/restful-api-guidelines/#171)\r\n",
+      "message": "Numeric properties must have valid format specified"
+    },
+    "should-prefer-standard-media-type-names": {
+      "given": [
+        "$.paths.*.*.responses.*.content.*~"
+      ],
+      "severity": "warn",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "match": "^application\\/(problem\\+)?json$|^[a-zA-Z0-9_]+\\/[-+.a-zA-Z0-9_]+;(v|version)=[0-9]+$"
+        }
+      },
+      "description": "Response content should use a standard media type `application/json` or `application/problem+json` (required for problem schemas).\r\n\r\n**Invalid Example**\r\n\r\n```yaml lineNumbers\r\n'204':\r\n      description: No Content\r\n      content:\r\n        application/xml:\r\n          schema:\r\n            type: object\r\n            properties:\r\n              name:\r\n                type: string\r\n              url:\r\n                type: string\r\n                format: uri-reference\r\n```\r\n**Valid Example**\r\n\r\n```yaml lineNumbers\r\n'204':\r\n      description: No Conten\r\n      content:\r\n        application/json:\r\n          schema:\r\n            type: object\r\n            properties:\r\n              name:\r\n                type: string\r\n              url:\r\n                type: string\r\n                format: uri-reference\r\n```\r\n\r\n[Zalando Guideline 172](https://opensource.zalando.com/restful-api-guidelines/#172)",
+      "message": "Custom media types should only be used for versioning"
+    },
+    "must-use-problem-json-for-errors": {
+      "given": [
+        "$.paths.*.*.responses[?(@property.match(/^(4|5)/))]"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "truthy",
+        "field": "content.application/problem+json"
+      },
+      "description": "The content type for 4xx and 5xx status codes must be `application/problem+json`.\r\n\r\n**Invalid Example**\r\n\r\nThe content type for the `503` response in this example incorrectly uses the `application/json` content type.\r\n\r\n```yaml lineNumbers\r\nresponses:\r\n   '503':\r\n     description: ...\r\n     content:\r\n       application/json:\r\n         schema:\r\n           $ref: ../models/Problem.yaml\r\n```\r\n\r\n**Valid Example**\r\n\r\nThe content type for the `503` response in this example correctly uses the `application/problem+json` content type.\r\n\r\n```yaml lineNumbers\r\nresponses:\r\n   '503':\r\n     description: ...\r\n     content:\r\n       application/problem+json:\r\n         schema:\r\n           $ref: ../models/Problem.yaml\r\n```\r\n\r\n[Zalando Guideline 176](https://opensource.zalando.com/restful-api-guidelines/#176)",
+      "message": "Error response must be application/problem+json"
+    },
+    "must-use-valid-problem-json-schema": {
+      "given": [
+        "$.paths.*.*.responses.*.content.application/problem+json"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "is-problem-json-schema",
+        "field": "schema"
+      },
+      "description": "`Problem` schema must include this set of minimal required properties and validations:\r\n\r\n```\r\ntype: object\r\nproperties:\r\n  type:\r\n    type: string\r\n    format: uri-reference\r\n  title:\r\n    type: string\r\n  status:\r\n    type: integer\r\n    format: int32\r\n  detail:\r\n    type: string\r\n  instance:\r\n    type: string\r\n*/\r\n```\r\n\r\n**Valid Example**\r\n\r\n```yaml lineNumbers\r\ntitle: Problem\r\ntype: object\r\nproperties:\r\n  type:\r\n    type: string\r\n    format: uri-reference\r\n    example: /my-example/user-error\r\n  title:\r\n    type: string\r\n    example: a title for the error situation\r\n  status:\r\n    type: integer\r\n    format: int32\r\n  detail:\r\n    type: string\r\n    example: description for the error situation\r\n  instance:\r\n    type: string\r\n    format: uri-reference\r\n    example:  /some/uri-reference#specific-occurrence-context\r\n```\r\n\r\n[Zalando Guideline 176](https://opensource.zalando.com/restful-api-guidelines/#176)",
+      "message": "{{error}}"
+    },
+    "must-have-info-description": {
+      "given": [
+        "$.info"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "truthy",
+        "field": "description"
+      },
+      "description": "The `info` object must have a `description` property defined.\n\n**Valid Example**\n\n```yaml lineNumbers\ninfo:\n  description: This describes my API.\n  ...\n```\n\n[Zalando Guideline 218](https://opensource.zalando.com/restful-api-guidelines/#218)\n\n",
+      "message": "Must have API description defined in `info.description`"
+    },
+    "must-have-info-contact-name": {
+      "given": [
+        "$.info"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "truthy",
+        "field": "contact.name"
+      },
+      "description": "The `info` object must have a `contact:name` property that contains a valid name for the team or person responsible for the API.\n\n**Valid Example**\n\n```yaml lineNumbers\ninfo:\n  ...\n  ...\n  contact:\n    name: 'Tequila Mockingbirds'\n```\n[Zalando Guideline 218](https://opensource.zalando.com/restful-api-guidelines/#218)\n",
+      "message": "Must have name defined in `info.contact.name`"
+    },
+    "must-have-info-contact-url": {
+      "given": [
+        "$.info"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "truthy",
+        "field": "contact.url"
+      },
+      "description": "The `info` object must have a `contact:url` property that contains a valid URL to contact the team or person responsible for the API.\n**Valid Example**\n\n```yaml lineNumbers\ninfo:\n  ...\n  ...\n  contact:\n    ...\n    url: https://acme.com\n    ...\n```\n[Zalando Guideline 218](https://opensource.zalando.com/restful-api-guidelines/#218)\n",
+      "message": "Must have email defined in `info.contact.url`"
+    },
+    "must-have-info-contact-email": {
+      "given": [
+        "$.info"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "truthy",
+        "field": "contact.email"
+      },
+      "description": "The `info` object must have a `contact email` property that contains a valid email address for the responsible team.\r\n\r\n**Valid Example**\r\n\r\n```yaml lineNumbers\r\ninfo:\r\n  ...\r\n  ...\r\n  contact:\r\n    email: 'support.contact@acme.com'\r\n```\r\n\r\n[Zalando Guideline 218](https://opensource.zalando.com/restful-api-guidelines/#218)",
+      "message": "Must have email defined in `info.contact.email`"
+    },
+    "must-have-info-x-api-id": {
+      "given": [
+        "$.info"
+      ],
+      "severity": "error",
+      "then": [
+        {
+          "function": "schema",
+          "functionOptions": {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-:.]{6,62}[a-z0-9]$"
+            }
+          },
+          "field": "x-api-id"
+        },
+        {
+          "function": "defined",
+          "field": "x-api-id"
+        }
+      ],
+      "description": "The `info` object must have an `x-api-id` property that conforms to this  pattern: `^[a-z0-9][a-z0-9-:.]{6,62}[a-z0-9]$`\n\n**Invalid Example**\n\n```yaml lineNumbers\ninfo:\n  api-id:\n  title: Payments API    \n``` \n\n**Valid Example**\n\n```yaml lineNumbers\ninfo:\n  x-api-id: d0184f38-b98d-11e7-9c56-68f728c1ba70\n  title: Payments API    \n``` \n[Zalando Guideline 218](https://opensource.zalando.com/restful-api-guidelines/#218) and [Zalando Guideline 215](https://opensource.zalando.com/restful-api-guidelines/#215)",
+      "message": "Missing `info.x-api-id`."
+    },
+    "must-provide-api-audience": {
+      "given": [
+        "$.info"
+      ],
+      "severity": "error",
+      "then": [
+        {
+          "function": "pattern",
+          "functionOptions": {
+            "match": "^(component-internal|business-unit-internal|company-internal|external-partner|external-public)$"
+          },
+          "field": "x-audience"
+        },
+        {
+          "function": "defined",
+          "field": "x-audience"
+        }
+      ],
+      "description": "The `info` object must have an `x-audience` that matches at least one of these values:\n\n* component-internal\n* business-unit-internal\n* company-internal\n* external-partner\n* external-public\n\n**Valid Example**\n\n```yaml\ninfo:\n  title: Payments API\n  x-audience: \n    - company-internal\n    - business-unit-internal\n```\n[Zalando Guideline 219](https://opensource.zalando.com/restful-api-guidelines/#219)\n",
+      "message": "Missing or wrong `info.x-audience`."
+    },
+    "should-declare-enum-values-using-upper-snake-case-format": {
+      "given": [
+        "$.paths..[?(@ && @.type=='string')].[enum,x-extensible-enum].*"
+      ],
+      "severity": "warn",
+      "then": {
+        "function": "pattern",
+        "functionOptions": {
+          "match": "^[A-Z][A-Z_0-9]*$"
+        }
+      },
+      "description": "`enum` and `x-extensible-enum` values should be in UPPER_SNAKE_CASE format.\r\n\r\n**Invalid Example**\r\n\r\n```yaml lineNumbers\r\nschema:\r\n  measurement:\r\n   type: string\r\n     x-extensible-enum:\r\n       - Standard\r\n       - Metric\r\n       - Imperial\r\n       - Non-standard\r\n```\r\n\r\n**Valid Example**\r\n\r\n```yaml lineNumbers\r\nschema:\r\n  mesurement:\r\n   type: string\r\n     x-extensible-enum:\r\n       - STANDARD\r\n       - METRIC\r\n       - IMPERIAL\r\n       - NON_STANDARD\r\n```\r\n\r\n[Zalando Guideline 240](https://opensource.zalando.com/restful-api-guidelines/#240)",
+      "message": "Enum values should be in UPPER_SNAKE_CASE format"
+    },
+    "must-have-info-title": {
+      "given": [
+        "$.info"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "truthy",
+        "field": "title"
+      },
+      "description": "The `info` object must have a `title` property defined.\n\n**Valid Example**\n\n```yaml lineNumbers\ninfo:\n  title: Payments API\n  ...\n```\n\n[Zalando Guideline 218](https://opensource.zalando.com/restful-api-guidelines/#218)\n",
+      "message": "Must have API title defined in `info.title`"
+    },
+    "must-have-info-version": {
+      "given": [
+        "$.info"
+      ],
+      "severity": "error",
+      "then": [
+        {
+          "function": "defined",
+          "field": "version"
+        },
+        {
+          "function": "schema",
+          "functionOptions": {
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9a-zA-Z-]+(\\.[0-9a-zA-Z-]+)*)?$"
+            }
+          },
+          "field": "version"
+        }
+      ],
+      "description": "The `info` object must have a `version` property that follows [semantic rules](http://semver.org/spec/v2.0.0.html) to distinguish API versions.\n\n**Invalid Example**\n\n```yaml lineNumbers\ninfo:\n  title: ...\n  description: ...\n  version: 1\n  <...>\n```\n**Valid Example**\n\n```yaml lineNumbers\ninfo:\n  title: ...\n  description: ...\n  version: 1.1.0\n  ...\n```\n\n[Zalando Guideline 218](https://opensource.zalando.com/restful-api-guidelines/#218) and [Zalando Guideline 116](https://opensource.zalando.com/restful-api-guidelines/#116)\n",
+      "message": "Must have API version defined in `info.version`"
+    }
+  },
+  "functions": [
+    "is-object-schema",
+    "is-problem-json-schema",
+    "count-resource-types"
+  ],
+  "functionsDir": "functions"
+}

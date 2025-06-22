@@ -7,10 +7,11 @@ Herzlich willkommen zum Workshop API Design.
 ### API Design
 
 - [OpenAPI](https://github.com/openknowledge/workshop-api-design/tree/openapi)
-- [Mocking](https://github.com/openknowledge/workshop-api-design/tree/wiremock)
+- [Mocking](https://github.com/openknowledge/workshop-api-design/tree/mocking)
+- [Contract Testing](https://github.com/openknowledge/workshop-api-design/tree/contrat-testing)
 - [AsyncAPI](https://github.com/openknowledge/workshop-api-design/tree/asyncapi)
 
-### API Testing
+### Consumer Driven Contract-Testing
 
 - [Pact](https://github.com/openknowledge/workshop-api-design/tree/pact-mock-server)
 - [Pact Pipeline](https://github.com/openknowledge/workshop-api-design/tree/pact)

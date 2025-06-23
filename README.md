@@ -8,7 +8,7 @@ Herzlich willkommen zum Workshop API Design.
 
 - [OpenAPI](https://github.com/openknowledge/workshop-api-design/tree/openapi)
 - [Mocking](https://github.com/openknowledge/workshop-api-design/tree/mocking)
-- [Contract Testing](https://github.com/openknowledge/workshop-api-design/tree/contrat-testing)
+- [Contract Testing](https://github.com/openknowledge/workshop-api-design/tree/contract-testing)
 - [AsyncAPI](https://github.com/openknowledge/workshop-api-design/tree/asyncapi)
 
 ### Consumer Driven Contract-Testing

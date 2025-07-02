@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/customers/0815"
+  },
+
+  "response": {
+    "status": 200,
+    "bodyFileName": "customer-response.json",
+    "headers": {
+        "Content-Type": "application/json"
+    }
+  }
+}

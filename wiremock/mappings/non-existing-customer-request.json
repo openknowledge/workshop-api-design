@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/customers/0817"
+  },
+
+  "response": {
+    "status": 404,
+    "headers": {
+        "Content-Type": "application/json"
+    }
+  }
+}

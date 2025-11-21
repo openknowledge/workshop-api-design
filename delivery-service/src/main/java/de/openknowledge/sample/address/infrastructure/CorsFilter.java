@@ -20,6 +20,9 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 
+/**
+ * Filter to allow cross origin calls.
+ */
 @Provider
 public class CorsFilter implements ContainerResponseFilter {
 
@@ -31,5 +34,4 @@ public class CorsFilter implements ContainerResponseFilter {
         responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
         responseContext.getHeaders().add("Access-Control-Max-Age", "1209600");
     }
-
 }

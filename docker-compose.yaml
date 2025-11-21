@@ -1,7 +1,6 @@
 services:
   customer-service:
     build: customer-service/
-    container_name: customer-service
     ports:
       - "8181:8080"
     environment:

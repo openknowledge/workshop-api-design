@@ -3,6 +3,5 @@
 !.gitignore
 !.github
 /keycloak/*
-!/keycloak/keycloak.mv.db
 target/
 *.iml

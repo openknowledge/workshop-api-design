@@ -66,7 +66,6 @@ public class AddressLine {
         return line;
     }
 
-
     @Override
     public int hashCode() {
         return line.hashCode();

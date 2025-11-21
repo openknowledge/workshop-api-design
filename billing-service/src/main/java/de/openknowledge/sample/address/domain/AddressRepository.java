@@ -25,9 +25,6 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 
-/**
- * Addresses repository
- */
 @ApplicationScoped
 public class AddressRepository {
 

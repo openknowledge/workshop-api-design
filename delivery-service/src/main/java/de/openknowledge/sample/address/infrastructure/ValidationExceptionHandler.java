@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 open knowledge GmbH
+ * Copyright 2019 - 2025 open knowledge GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

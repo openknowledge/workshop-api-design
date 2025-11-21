@@ -13,23 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.openknowledge.sample.infrastructure;
+package de.openknowledge.sample.address.domain;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Specializes;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import javax.enterprise.inject.Alternative;
-import javax.enterprise.inject.Stereotype;
-
-@Stereotype
-@Alternative
-@Retention(RUNTIME)
-@Target({TYPE, METHOD, FIELD})
-public @interface CdiMock {
+@Specializes
+@RequestScoped
+public class TestAddressRepository extends AddressRepository {
 
 }

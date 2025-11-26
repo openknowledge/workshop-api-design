@@ -20,8 +20,8 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.Objects;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 public class Address {
     private Recipient recipient;

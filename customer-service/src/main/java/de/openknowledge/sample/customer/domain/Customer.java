@@ -17,10 +17,9 @@ package de.openknowledge.sample.customer.domain;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
-
 import de.openknowledge.sample.address.domain.Address;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 public class Customer {
 

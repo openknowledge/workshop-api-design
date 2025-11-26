@@ -17,10 +17,9 @@ package de.openknowledge.sample.customer.domain;
 
 import static org.apache.commons.lang3.Validate.notBlank;
 
-import javax.json.bind.adapter.JsonbAdapter;
-import javax.json.bind.annotation.JsonbTypeAdapter;
-
 import de.openknowledge.sample.customer.domain.CustomerName.Adapter;
+import jakarta.json.bind.adapter.JsonbAdapter;
+import jakarta.json.bind.annotation.JsonbTypeAdapter;
 
 @JsonbTypeAdapter(Adapter.class)
 public class CustomerName {

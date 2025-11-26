@@ -15,8 +15,8 @@
  */
 package de.openknowledge.sample.address.domain;
 
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Specializes;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Specializes;
 
 @Specializes
 @RequestScoped

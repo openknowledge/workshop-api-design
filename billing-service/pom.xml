@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ~ Copyright (C) open knowledge GmbH. ~ ~ Licensed under the Apache License, 
-    Version 2.0 (the "License"); you may not use this file except in compliance 
-    with ~ the License. You may obtain a copy of the License at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 
-    ~ ~ Unless required by applicable law or agreed to in writing, software distributed 
-    under the License is distributed on ~ an "AS IS" BASIS, WITHOUT WARRANTIES 
-    OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
-    the ~ specific language governing permissions and limitations under the License. -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.openkonwledge.sample.shop</groupId>
@@ -21,13 +15,14 @@
         <maven.compiler.target>17</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <meecrowave.version>1.2.15</meecrowave.version>
+        <meecrowave.version>2.0.0</meecrowave.version>
         <deltaspike.version>1.9.6</deltaspike.version>
         <junit.version>5.8.2</junit.version>
     </properties>
 
     <dependencies>
 
+        <!-- Jakarta kompatibles Meecrowave -->
         <dependency>
             <groupId>org.apache.meecrowave</groupId>
             <artifactId>meecrowave-specs-api</artifactId>
@@ -42,85 +37,39 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-validation_1.0_spec</artifactId>
-            <version>1.1</version>
+            <artifactId>geronimo-validation_2.0_spec</artifactId>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile.config</groupId>
             <artifactId>microprofile-config-api</artifactId>
-            <version>1.4</version>
+            <version>3.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.config</groupId>
             <artifactId>geronimo-config-impl</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.3</version>
+            <classifier>jakarta</classifier>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile.jwt</groupId>
             <artifactId>microprofile-jwt-auth-api</artifactId>
-            <version>1.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo</groupId>
-            <artifactId>geronimo-jwt-auth</artifactId>
-            <version>1.0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.deltaspike.modules</groupId>
-            <artifactId>deltaspike-security-module-api</artifactId>
-            <version>${deltaspike.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.deltaspike.modules</groupId>
-            <artifactId>deltaspike-security-module-impl</artifactId>
-            <version>${deltaspike.version}</version>
-            <scope>runtime</scope>
+            <version>2.0</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile.opentracing</groupId>
             <artifactId>microprofile-opentracing-api</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>io.opentracing</groupId>
-            <artifactId>opentracing-api</artifactId>
-            <version>0.31.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo</groupId>
-            <artifactId>geronimo-opentracing</artifactId>
-            <version>1.0.3</version>
+            <version>2.0</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile.health</groupId>
             <artifactId>microprofile-health-api</artifactId>
-            <version>3.0-RC3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo</groupId>
-            <artifactId>geronimo-health</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.microprofile-ext.health-ext</groupId>
-            <artifactId>healthprobe-jvm</artifactId>
-            <version>1.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.microprofile-ext.health-ext</groupId>
-            <artifactId>healthprobe-system</artifactId>
-            <version>1.2.0</version>
+            <version>4.0</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile.metrics</groupId>
             <artifactId>microprofile-metrics-api</artifactId>
-            <version>3.0-RC2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo</groupId>
-            <artifactId>geronimo-metrics</artifactId>
-            <version>1.0.6</version>
+            <version>4.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -128,6 +77,7 @@
             <version>3.9</version>
         </dependency>
 
+        <!-- Test Dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -161,14 +111,14 @@
         <dependency>
             <groupId>rocks.limburg.cdimock</groupId>
             <artifactId>cdimock</artifactId>
-            <version>1.0.4</version>
+            <version>2.0.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit</artifactId>
             <version>1.0.1</version>
-             <scope>test</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -177,7 +127,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>3.5.4</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.meecrowave</groupId>
@@ -186,7 +136,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.2.1</version>
                 <configuration>
                     <consoleOutput>true</consoleOutput>
                     <headerLocation>${project.basedir}/src/main/checkstyle/java.header</headerLocation>

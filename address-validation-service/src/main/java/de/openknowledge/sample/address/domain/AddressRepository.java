@@ -60,6 +60,11 @@ public class AddressRepository {
 
     public List<City> findSuggestions(City city) {
         ZipCode zipCode = city.getZipCode();
-        return cities.stream().filter(c -> c.getZipCode().equals(zipCode)).collect(toList());
+        List<City> suggestions = cities.stream().filter(c -> c.getZipCode().equals(zipCode)).collect(toList());
+        if (suggestions.isEmpty()) {
+            CityName name = city.getCityName();
+            suggestions = cities.stream().filter(c -> c.getCityNames().contains(name)).collect(toList());
+        }
+        return suggestions;
     }
 }

@@ -15,9 +15,8 @@
  */
 package de.openknowledge.sample.address.infrastructure;
 
-import javax.validation.ValidationException;
-
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.validation.ValidationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;

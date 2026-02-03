@@ -19,16 +19,17 @@ import static jakarta.ws.rs.client.Entity.entity;
 import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
 import java.io.StringReader;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Logger;
-
-import javax.validation.ValidationException;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import jakarta.validation.ValidationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
@@ -47,6 +48,8 @@ public class DeliveryAddressRepository {
     @Inject
     @ConfigProperty(name = "delivery-service.url")
     String deliveryServiceUrl;
+    @Inject
+    Provider<Locale> localeProvider;
 
     Client client;
 
@@ -75,6 +78,7 @@ public class DeliveryAddressRepository {
             .path(DELIVERY_ADDRESSES_PATH)
             .path(customerNumber.toString())
             .request(MediaType.APPLICATION_JSON)
+            .header("Accept-Language", localeProvider.get().getLanguage())
             .post(entity(deliveryAddress, MediaType.APPLICATION_JSON_TYPE));
         handleValidationError(response);
     }
@@ -84,9 +88,26 @@ public class DeliveryAddressRepository {
             return;
         }
         if (!response.hasEntity()) {
-            throw new ValidationException("invalid address");
+            throw new ValidationException("invalid address: empty");
         }
-        JsonObject problem = Json.createReader(new StringReader(response.readEntity(String.class))).readObject();
-        throw new ValidationException(problem.getString("detail"));
+
+        try {
+            String responseBody = response.readEntity(String.class);
+            JsonObject problem = Json.createReader(new StringReader(responseBody)).readObject();
+
+            // Check if "detail" field exists, fallback to full JSON if not present
+            String detail = problem.containsKey("detail")
+                ? problem.getString("detail")
+                : responseBody;
+            LOG.info("Error saving address: " + detail);
+
+            throw new ValidationException(detail);
+        } catch (ValidationException e) {
+            throw e; // Re-throw ValidationException
+        } catch (Exception e) {
+            // If JSON parsing fails, throw a generic validation exception
+            LOG.warning("Failed to parse problem JSON from delivery service: " + e.getMessage());
+            throw new ValidationException("invalid address - delivery service validation failed");
+        }
     }
 }

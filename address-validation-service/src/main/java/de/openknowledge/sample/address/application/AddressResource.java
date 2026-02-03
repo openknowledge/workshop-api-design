@@ -15,17 +15,21 @@
  */
 package de.openknowledge.sample.address.application;
 
+import static jakarta.ws.rs.core.HttpHeaders.ACCEPT_LANGUAGE;
+import static java.util.Locale.GERMANY;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -64,10 +68,9 @@ public class AddressResource {
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response validateAddress(Address address, @Context UriInfo uri) throws URISyntaxException {
+    public Response validateAddress(Address address, @Context UriInfo uri, @HeaderParam(ACCEPT_LANGUAGE) Locale locale) {
         LOGGER.info("RESTful call 'POST valid address'");
         if (addressesRepository.isValid(address)) {
-            LOGGER.fine("address is valid");
             return Response.ok().build();
         } else {
             URI type = uri.getRequestUri().resolve("/errors/invalid-city");
@@ -76,24 +79,49 @@ public class AddressResource {
             LOGGER.fine(suggestions.size() + " suggestions found: " + suggestions);
             if (suggestions.size() == 1) {
                 return Response.status(Response.Status.BAD_REQUEST).type(PROBLEM_JSON_TYPE)
-                        .entity(String.format(PROBLEM_JSON, type, "invalid city",
+                        .entity(String.format(PROBLEM_JSON, type,
+                                translate("invalid city", locale),
                                 Response.Status.BAD_REQUEST.getStatusCode(),
-                                "Did you mean " + suggestions.iterator().next() + "?", instance))
+                                translate("Did you mean %s?", locale, suggestions.iterator().next()),
+                                instance))
                         .build();
             } else if (!suggestions.isEmpty()) {
+                String suggestionList = suggestions.stream().map(Object::toString).collect(joining(", "));
                 return Response.status(Response.Status.BAD_REQUEST).type(PROBLEM_JSON_TYPE)
-                        .entity(String.format(PROBLEM_JSON, type, "invalid city",
+                        .entity(String.format(PROBLEM_JSON, type,
+                                translate("invalid city", locale),
                                 Response.Status.BAD_REQUEST.getStatusCode(),
-                                "Did you mean one of "
-                                        + suggestions.stream().map(Object::toString).collect(joining(", ")) + "?",
+                                translate("Did you mean one of %s?", locale, suggestionList),
                                 instance))
                         .build();
             } else {
                 return Response.status(Response.Status.BAD_REQUEST).type(PROBLEM_JSON_TYPE)
-                        .entity(String.format(PROBLEM_JSON, type, "invalid city",
-                                Response.Status.BAD_REQUEST.getStatusCode(), "no matching city found", instance))
+                        .entity(String.format(PROBLEM_JSON, type,
+                                translate("invalid city", locale),
+                                Response.Status.BAD_REQUEST.getStatusCode(),
+                                translate("no matching city found",
+                                locale),
+                                instance))
                         .build();
             }
         }
+    }
+
+    private String translate(String template, Locale language, Object... parameters) {
+        if (ofNullable(language).map(Locale::getLanguage).filter(GERMANY.getLanguage()::equals).isPresent()) {
+            switch (template) {
+                case "Did you mean %s?":
+                    return "Meinten Sie %s?".formatted(parameters);
+                case "invalid city":
+                    return "ungültige Stadt";
+                case "no matching city found":
+                    return "keine passende Stadt gefunden";
+                case "Did you mean one of %s?":
+                    return "Meinten Sie eine von %s?".formatted(parameters);
+                default:
+                    return template.formatted(parameters);
+            }
+        }
+        return template.formatted(parameters);
     }
 }

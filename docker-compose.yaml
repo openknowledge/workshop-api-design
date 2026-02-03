@@ -26,3 +26,14 @@ services:
     container_name: address-validation_service
     ports:
       - "8184:8080"
+
+  customer-client:
+    build:
+      context: customer-client/
+      args:
+        - VITE_API_URL=http://localhost:8181
+    container_name: customer-client
+    ports:
+      - "3000:80"
+    depends_on:
+      - customer-service

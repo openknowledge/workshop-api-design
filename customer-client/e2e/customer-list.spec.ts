@@ -15,37 +15,22 @@
  */
 import { test, expect } from '@playwright/test';
 
-const API_URL = process.env.VITE_API_URL!;
-
-const mockCustomers = [
-  { number: '0816', name: 'Müller' },
-  { number: '0815', name: 'Schmidt' },
-];
-
-test.beforeEach(async ({ page }) => {
-  await page.route(`${API_URL}/customers/`, async (route) => {
-    await route.fulfill({ json: mockCustomers });
-  });
-});
-
 test('zeigt Kunden mit Kundennummer und Name in der Tabelle', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByRole('cell', { name: '0816' })).toBeVisible();
-  await expect(page.getByRole('cell', { name: 'Müller' })).toBeVisible();
   await expect(page.getByRole('cell', { name: '0815' })).toBeVisible();
-  await expect(page.getByRole('cell', { name: 'Schmidt' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Max Mustermann' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: '0816' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Erika Mustermann' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: '007' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'James Bond' })).toBeVisible();
 });
 
 test('navigiert zu Kundendetails beim Klick auf eine Zeile', async ({ page }) => {
-  await page.route(`${API_URL}/customers/0816`, async (route) => {
-    await route.fulfill({ json: mockCustomers[0] });
-  });
-
   await page.goto('/');
-  await page.getByRole('cell', { name: 'Müller' }).click();
+  await page.getByRole('cell', { name: 'Max Mustermann' }).click();
 
-  await expect(page).toHaveURL('/customers/0816');
+  await expect(page).toHaveURL('/customers/0815');
 });
 
 test('navigiert zu Neuer Kunde beim Klick auf den Button', async ({ page }) => {
@@ -58,35 +43,27 @@ test('navigiert zu Neuer Kunde beim Klick auf den Button', async ({ page }) => {
 test('sortiert nach Kundennummer aufsteigend und absteigend', async ({ page }) => {
   await page.goto('/');
 
-  const rows = page.locator('tbody tr');
-
-  // Unsortiert: Reihenfolge aus API (0816, 0815)
-  await expect(rows.nth(0).getByRole('cell').first()).toHaveText('0816');
-  await expect(rows.nth(1).getByRole('cell').first()).toHaveText('0815');
-
-  // Klick → aufsteigend (0815, 0816)
   await page.getByRole('columnheader', { name: 'Kundennummer' }).click();
-  await expect(rows.nth(0).getByRole('cell').first()).toHaveText('0815');
-  await expect(rows.nth(1).getByRole('cell').first()).toHaveText('0816');
+  let numbers = await page.locator('tbody tr td:first-child').allTextContents();
+  expect(numbers.indexOf('007')).toBeLessThan(numbers.indexOf('0815'));
+  expect(numbers.indexOf('0815')).toBeLessThan(numbers.indexOf('0816'));
 
-  // Klick → absteigend (0816, 0815)
   await page.getByRole('columnheader', { name: 'Kundennummer' }).click();
-  await expect(rows.nth(0).getByRole('cell').first()).toHaveText('0816');
-  await expect(rows.nth(1).getByRole('cell').first()).toHaveText('0815');
+  numbers = await page.locator('tbody tr td:first-child').allTextContents();
+  expect(numbers.indexOf('0816')).toBeLessThan(numbers.indexOf('0815'));
+  expect(numbers.indexOf('0815')).toBeLessThan(numbers.indexOf('007'));
 });
 
 test('sortiert nach Name aufsteigend und absteigend', async ({ page }) => {
   await page.goto('/');
 
-  const rows = page.locator('tbody tr');
-
-  // Klick → aufsteigend (Müller, Schmidt)
   await page.getByRole('columnheader', { name: 'Name' }).click();
-  await expect(rows.nth(0).getByRole('cell').nth(1)).toHaveText('Müller');
-  await expect(rows.nth(1).getByRole('cell').nth(1)).toHaveText('Schmidt');
+  let names = await page.locator('tbody tr td:nth-child(2)').allTextContents();
+  expect(names.indexOf('Erika Mustermann')).toBeLessThan(names.indexOf('James Bond'));
+  expect(names.indexOf('James Bond')).toBeLessThan(names.indexOf('Max Mustermann'));
 
-  // Klick → absteigend (Schmidt, Müller)
   await page.getByRole('columnheader', { name: 'Name' }).click();
-  await expect(rows.nth(0).getByRole('cell').nth(1)).toHaveText('Schmidt');
-  await expect(rows.nth(1).getByRole('cell').nth(1)).toHaveText('Müller');
+  names = await page.locator('tbody tr td:nth-child(2)').allTextContents();
+  expect(names.indexOf('Max Mustermann')).toBeLessThan(names.indexOf('James Bond'));
+  expect(names.indexOf('James Bond')).toBeLessThan(names.indexOf('Erika Mustermann'));
 });

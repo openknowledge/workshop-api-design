@@ -15,14 +15,8 @@
  */
 import { test, expect } from '@playwright/test';
 
-const API_URL = process.env.VITE_API_URL!;
-
 test.describe('Neuer Kunde', () => {
   test('Abbrechen-Button navigiert zur Kundenliste', async ({ page }) => {
-    await page.route(`${API_URL}/customers/`, async (route) => {
-      await route.fulfill({ json: [] });
-    });
-
     await page.goto('/customers/new');
     await page.getByRole('button', { name: 'Abbrechen' }).click();
 
@@ -30,10 +24,6 @@ test.describe('Neuer Kunde', () => {
   });
 
   test('Zurück-Button navigiert zur Kundenliste', async ({ page }) => {
-    await page.route(`${API_URL}/customers/`, async (route) => {
-      await route.fulfill({ json: [] });
-    });
-
     await page.goto('/customers/new');
     await page.getByRole('button', { name: /Zurück zur Übersicht/ }).click();
 
@@ -50,16 +40,8 @@ test.describe('Neuer Kunde', () => {
   });
 
   test('erstellt Kunden erfolgreich und navigiert zur Liste', async ({ page }) => {
-    await page.route(`${API_URL}/customers/`, async (route) => {
-      if (route.request().method() === 'POST') {
-        await route.fulfill({ status: 201 });
-      } else {
-        await route.fulfill({ json: [{ number: '0815', name: 'Max Mustermann' }] });
-      }
-    });
-
     await page.goto('/customers/new');
-    await page.getByLabel('Name *').fill('Max Mustermann');
+    await page.getByLabel('Name *').fill('Playwright Test Kunde');
     await page.getByRole('button', { name: 'Kunde erstellen' }).click();
 
     await expect(page).toHaveURL('/');

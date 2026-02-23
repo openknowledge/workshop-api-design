@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import { test, expect } from '@playwright/test';
-
-const API_URL = 'http://localhost:8181';
+import { PactV4 } from '@pact-foundation/pact';
+import { createProvider, setupApiProxy } from './pact-proxy';
 
 const customer0815 = {
   number: '0815',
@@ -32,319 +32,419 @@ const customer0815 = {
   },
 };
 
+function addCustomer0815Interaction(provider: PactV4) {
+  return provider
+    .addInteraction()
+    .uponReceiving('a request to get customer 0815')
+    .withRequest('GET', '/customers/0815')
+    .willRespondWith(200, (builder) => {
+      builder.headers({ 'Content-Type': 'application/json' }).jsonBody(customer0815);
+    });
+}
+
 test.describe('Adressen anlegen', () => {
   test('Rechnungsadresse anlegen', async ({ page }) => {
-    // Given
-    await page.route(`${API_URL}/customers/007`, async (route) => {
-      const customer = { number: '007', name: 'James Bond' };
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(customer),
+    const provider = createProvider();
+    provider
+      .addInteraction()
+      .uponReceiving('a request to get customer 007')
+      .withRequest('GET', '/customers/007')
+      .willRespondWith(200, (builder) => {
+        builder
+          .headers({ 'Content-Type': 'application/json' })
+          .jsonBody({ number: '007', name: 'James Bond' });
       });
-    });
+    await provider
+      .addInteraction()
+      .uponReceiving('a request to create billing address for customer 007')
+      .withRequest('PUT', '/customers/007/billing-address', (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'James Bond',
+          street: { name: 'Albert Embankment', number: '85' },
+          city: 'SE1 7TP London',
+        });
+      })
+      .willRespondWith(204)
+      .executeTest(async (mockServer) => {
+        await setupApiProxy(page, mockServer.url);
+        await page.goto('/customers/007');
+        await expect(page.getByText('007')).toBeVisible();
+        await expect(page.getByText('Name: James Bond')).toBeVisible();
 
-    await page.route(`${API_URL}/customers/007/billing-address`, async (route) => {
-      await route.fulfill({ status: 204 });
-    });
+        // When
+        const billingSection = page.locator('.address-section', {
+          has: page.locator('h3', { hasText: 'Rechnungsadresse' }),
+        });
+        await expect(billingSection.getByText('Keine Adresse hinterlegt')).toBeVisible();
+        await billingSection.getByRole('button', { name: 'Hinzufügen' }).click();
+        await billingSection.getByRole('textbox', { name: 'Empfänger *' }).fill('James Bond');
+        await billingSection.getByRole('textbox', { name: 'Straße' }).fill('Albert Embankment');
+        await billingSection.getByRole('textbox', { name: 'Hausnummer' }).fill('85');
+        await billingSection.getByRole('textbox', { name: 'PLZ / Ort' }).fill('SE1 7TP London');
+        await billingSection.getByRole('button', { name: 'Speichern' }).click();
 
-    await page.goto('/customers/007');
-    await expect(page.getByText('007')).toBeVisible();
-    await expect(page.getByText('Name: James Bond')).toBeVisible();
-
-    // When
-    const billingSection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Rechnungsadresse' }),
-    });
-    await expect(billingSection.getByText('Keine Adresse hinterlegt')).toBeVisible();
-    await billingSection.getByRole('button', { name: 'Hinzufügen' }).click();
-    await billingSection.getByRole('textbox', { name: 'Empfänger *' }).fill('James Bond');
-    await billingSection.getByRole('textbox', { name: 'Straße' }).fill('Albert Embankment');
-    await billingSection.getByRole('textbox', { name: 'Hausnummer' }).fill('85');
-    await billingSection.getByRole('textbox', { name: 'PLZ / Ort' }).fill('SE1 7TP London');
-    await billingSection.getByRole('button', { name: 'Speichern' }).click();
-
-    // Then
-    await expect(billingSection.getByRole('button', { name: 'Speichern' })).not.toBeVisible();
-    await expect(billingSection.getByRole('button', { name: 'Hinzufügen' })).not.toBeVisible();
+        // Then
+        await expect(billingSection.getByRole('button', { name: 'Speichern' })).not.toBeVisible();
+        await expect(billingSection.getByRole('button', { name: 'Hinzufügen' })).not.toBeVisible();
+      });
   });
 
   test('Lieferadresse anlegen', async ({ page }) => {
-    // Given
-    await page.route(`${API_URL}/customers/007`, async (route) => {
-      const customer = { number: '007', name: 'James Bond' };
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(customer),
+    const provider = createProvider();
+    provider
+      .addInteraction()
+      .uponReceiving('a request to get customer 007')
+      .withRequest('GET', '/customers/007')
+      .willRespondWith(200, (builder) => {
+        builder
+          .headers({ 'Content-Type': 'application/json' })
+          .jsonBody({ number: '007', name: 'James Bond' });
       });
-    });
+    await provider
+      .addInteraction()
+      .uponReceiving('a request to create delivery address for customer 007')
+      .withRequest('PUT', '/customers/007/delivery-address', (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'James Bond',
+          street: { name: 'Chausseestraße', number: '96 - 99a' },
+          city: '10115 Berlin Mitte',
+        });
+      })
+      .willRespondWith(204)
+      .executeTest(async (mockServer) => {
+        await setupApiProxy(page, mockServer.url);
+        await page.goto('/customers/007');
+        await expect(page.getByText('007')).toBeVisible();
+        await expect(page.getByText('Name: James Bond')).toBeVisible();
 
-    await page.route(`${API_URL}/customers/007/delivery-address`, async (route) => {
-      await route.fulfill({ status: 204 });
-    });
+        // When
+        const deliverySection = page.locator('.address-section', {
+          has: page.locator('h3', { hasText: 'Lieferadresse' }),
+        });
+        await expect(deliverySection.getByText('Keine Adresse hinterlegt')).toBeVisible();
+        await deliverySection.getByRole('button', { name: 'Hinzufügen' }).click();
+        await deliverySection.getByRole('textbox', { name: 'Empfänger *' }).fill('James Bond');
+        await deliverySection.getByRole('textbox', { name: 'Straße' }).fill('Chausseestraße');
+        await deliverySection.getByRole('textbox', { name: 'Hausnummer' }).fill('96 - 99a');
+        await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('10115');
+        await deliverySection.getByRole('textbox', { name: 'Stadt' }).fill('Berlin Mitte');
+        await deliverySection.getByRole('button', { name: 'Speichern' }).click();
 
-    await page.goto('/customers/007');
-    await expect(page.getByText('007')).toBeVisible();
-    await expect(page.getByText('Name: James Bond')).toBeVisible();
-
-    // When
-    const deliverySection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Lieferadresse' }),
-    });
-    await expect(deliverySection.getByText('Keine Adresse hinterlegt')).toBeVisible();
-    await deliverySection.getByRole('button', { name: 'Hinzufügen' }).click();
-    await deliverySection.getByRole('textbox', { name: 'Empfänger *' }).fill('James Bond');
-    await deliverySection.getByRole('textbox', { name: 'Straße' }).fill('Chausseestraße');
-    await deliverySection.getByRole('textbox', { name: 'Hausnummer' }).fill('96 - 99a');
-    await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('10115');
-    await deliverySection.getByRole('textbox', { name: 'Stadt' }).fill('Berlin Mitte');
-    await deliverySection.getByRole('button', { name: 'Speichern' }).click();
-
-    // Then
-    await expect(deliverySection.getByRole('button', { name: 'Speichern' })).not.toBeVisible();
-    await expect(deliverySection.getByRole('button', { name: 'Hinzufügen' })).not.toBeVisible();
+        // Then
+        await expect(deliverySection.getByRole('button', { name: 'Speichern' })).not.toBeVisible();
+        await expect(deliverySection.getByRole('button', { name: 'Hinzufügen' })).not.toBeVisible();
+      });
   });
 });
 
 test.describe('Adressen bearbeiten', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.route(`${API_URL}/customers/0815`, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(customer0815),
-      });
-    });
-  });
-
   test('Rechnungsadresse: Straße ohne Hausnummer zeigt Fehlermeldung', async ({ page }) => {
-    // Given
-    await page.goto('/customers/0815');
-    const billingSection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Rechnungsadresse' }),
+    await addCustomer0815Interaction(createProvider()).executeTest(async (mockServer) => {
+      await setupApiProxy(page, mockServer.url);
+      await page.goto('/customers/0815');
+      const billingSection = page.locator('.address-section', {
+        has: page.locator('h3', { hasText: 'Rechnungsadresse' }),
+      });
+      await billingSection.getByRole('button', { name: 'Bearbeiten' }).click();
+
+      // When
+      await billingSection.getByRole('textbox', { name: 'Hausnummer' }).fill('');
+
+      // Then
+      await expect(
+        billingSection.getByText('Hausnummer ist erforderlich wenn Straße angegeben'),
+      ).toBeVisible();
     });
-    await billingSection.getByRole('button', { name: 'Bearbeiten' }).click();
-
-    // When
-    await billingSection.getByRole('textbox', { name: 'Hausnummer' }).fill('');
-
-    // Then
-    await expect(
-      billingSection.getByText('Hausnummer ist erforderlich wenn Straße angegeben'),
-    ).toBeVisible();
   });
 
   test('Rechnungsadresse: Hausnummer ohne Straße zeigt Fehlermeldung', async ({ page }) => {
-    // Given
-    await page.goto('/customers/0815');
-    const billingSection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Rechnungsadresse' }),
+    await addCustomer0815Interaction(createProvider()).executeTest(async (mockServer) => {
+      await setupApiProxy(page, mockServer.url);
+      await page.goto('/customers/0815');
+      const billingSection = page.locator('.address-section', {
+        has: page.locator('h3', { hasText: 'Rechnungsadresse' }),
+      });
+      await billingSection.getByRole('button', { name: 'Bearbeiten' }).click();
+
+      // When
+      await billingSection.getByRole('textbox', { name: 'Straße' }).fill('');
+
+      // Then
+      await expect(
+        billingSection.getByText('Straße ist erforderlich wenn Hausnummer angegeben'),
+      ).toBeVisible();
     });
-    await billingSection.getByRole('button', { name: 'Bearbeiten' }).click();
-
-    // When
-    await billingSection.getByRole('textbox', { name: 'Straße' }).fill('');
-
-    // Then
-    await expect(
-      billingSection.getByText('Straße ist erforderlich wenn Hausnummer angegeben'),
-    ).toBeVisible();
   });
 
   test('Lieferadresse: Straße ohne Hausnummer zeigt Fehlermeldung', async ({ page }) => {
-    // Given
-    await page.goto('/customers/0815');
-    const deliverySection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Lieferadresse' }),
+    await addCustomer0815Interaction(createProvider()).executeTest(async (mockServer) => {
+      await setupApiProxy(page, mockServer.url);
+      await page.goto('/customers/0815');
+      const deliverySection = page.locator('.address-section', {
+        has: page.locator('h3', { hasText: 'Lieferadresse' }),
+      });
+      await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
+
+      // When
+      await deliverySection.getByRole('textbox', { name: 'Hausnummer' }).fill('');
+
+      // Then
+      await expect(
+        deliverySection.getByText('Hausnummer ist erforderlich wenn Straße angegeben'),
+      ).toBeVisible();
     });
-    await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
-
-    // When
-    await deliverySection.getByRole('textbox', { name: 'Hausnummer' }).fill('');
-
-    // Then
-    await expect(
-      deliverySection.getByText('Hausnummer ist erforderlich wenn Straße angegeben'),
-    ).toBeVisible();
   });
 
   test('Lieferadresse: Hausnummer ohne Straße zeigt Fehlermeldung', async ({ page }) => {
-    // Given
-    await page.goto('/customers/0815');
-    const deliverySection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Lieferadresse' }),
+    await addCustomer0815Interaction(createProvider()).executeTest(async (mockServer) => {
+      await setupApiProxy(page, mockServer.url);
+      await page.goto('/customers/0815');
+      const deliverySection = page.locator('.address-section', {
+        has: page.locator('h3', { hasText: 'Lieferadresse' }),
+      });
+      await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
+
+      // When
+      await deliverySection.getByRole('textbox', { name: 'Straße' }).fill('');
+
+      // Then
+      await expect(
+        deliverySection.getByText('Straße ist erforderlich wenn Hausnummer angegeben'),
+      ).toBeVisible();
     });
-    await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
-
-    // When
-    await deliverySection.getByRole('textbox', { name: 'Straße' }).fill('');
-
-    // Then
-    await expect(
-      deliverySection.getByText('Straße ist erforderlich wenn Hausnummer angegeben'),
-    ).toBeVisible();
   });
 
   test('Lieferadresse: PLZ existiert nicht zeigt Fehlermeldung', async ({ page }) => {
-    // Given
-    await page.route(`${API_URL}/customers/0815/delivery-address`, async (route) => {
-      await route.fulfill({
-        status: 422,
-        contentType: 'application/problem+json',
-        body: JSON.stringify({ detail: 'Meinten Sie 26122 Oldenburg?' }),
+    const provider = createProvider();
+    addCustomer0815Interaction(provider);
+    await provider
+      .addInteraction()
+      .uponReceiving('a request to update delivery address for customer 0815 with invalid zip code')
+      .withRequest('PUT', '/customers/0815/delivery-address', (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'Max Mustermann',
+          street: { name: 'Poststr.', number: '1' },
+          city: '12345 Oldenburg',
+        });
+      })
+      .willRespondWith(400, (builder) => {
+        builder
+          .headers({ 'Content-Type': 'application/problem+json' })
+          .jsonBody({ detail: 'Meinten Sie 26122 Oldenburg?' });
+      })
+      .executeTest(async (mockServer) => {
+        await setupApiProxy(page, mockServer.url);
+        await page.goto('/customers/0815');
+        const deliverySection = page.locator('.address-section', {
+          has: page.locator('h3', { hasText: 'Lieferadresse' }),
+        });
+        await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
+
+        // When
+        await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('12345');
+        await deliverySection.getByRole('button', { name: 'Speichern' }).click();
+
+        // Then
+        await expect(deliverySection.getByText('Meinten Sie 26122 Oldenburg?')).toBeVisible();
       });
-    });
-
-    await page.goto('/customers/0815');
-    const deliverySection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Lieferadresse' }),
-    });
-    await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
-
-    // When
-    await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('12345');
-    await deliverySection.getByRole('button', { name: 'Speichern' }).click();
-
-    // Then
-    await expect(deliverySection.getByText('Meinten Sie 26122 Oldenburg?')).toBeVisible();
   });
 
   test('Lieferadresse: PLZ passt nicht zum Ort zeigt Fehlermeldung', async ({ page }) => {
-    // Given
-    await page.route(`${API_URL}/customers/0815/delivery-address`, async (route) => {
-      await route.fulfill({
-        status: 422,
-        contentType: 'application/problem+json',
-        body: JSON.stringify({ detail: 'Meinten Sie 10115 Berlin Mitte?' }),
+    const provider = createProvider();
+    addCustomer0815Interaction(provider);
+    await provider
+      .addInteraction()
+      .uponReceiving(
+        'a request to update delivery address for customer 0815 with mismatched zip and city',
+      )
+      .withRequest('PUT', '/customers/0815/delivery-address', (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'Max Mustermann',
+          street: { name: 'Poststr.', number: '1' },
+          city: '10115 Berlin',
+        });
+      })
+      .willRespondWith(400, (builder) => {
+        builder
+          .headers({ 'Content-Type': 'application/problem+json' })
+          .jsonBody({ detail: 'Meinten Sie 10115 Berlin Mitte?' });
+      })
+      .executeTest(async (mockServer) => {
+        await setupApiProxy(page, mockServer.url);
+        await page.goto('/customers/0815');
+        const deliverySection = page.locator('.address-section', {
+          has: page.locator('h3', { hasText: 'Lieferadresse' }),
+        });
+        await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
+
+        // When
+        await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('10115');
+        await deliverySection.getByRole('textbox', { name: 'Stadt' }).fill('Berlin');
+        await deliverySection.getByRole('button', { name: 'Speichern' }).click();
+
+        // Then
+        await expect(deliverySection.getByText('Meinten Sie 10115 Berlin Mitte?')).toBeVisible();
       });
-    });
-
-    await page.goto('/customers/0815');
-    const deliverySection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Lieferadresse' }),
-    });
-    await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
-
-    // When
-    await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('10115');
-    await deliverySection.getByRole('textbox', { name: 'Stadt' }).fill('Berlin');
-    await deliverySection.getByRole('button', { name: 'Speichern' }).click();
-
-    // Then
-    await expect(deliverySection.getByText('Meinten Sie 10115 Berlin Mitte?')).toBeVisible();
   });
 
   test('Lieferadresse: Unbekannte PLZ mit bekannter Stadt zeigt mögliche PLZ', async ({ page }) => {
-    // Given
-    await page.route(`${API_URL}/customers/0815/delivery-address`, async (route) => {
-      await route.fulfill({
-        status: 422,
-        contentType: 'application/problem+json',
-        body: JSON.stringify({
-          detail: 'Meinten Sie eine von 30159 Hannover oder 30161 Hannover?',
-        }),
+    const provider = createProvider();
+    addCustomer0815Interaction(provider);
+    await provider
+      .addInteraction()
+      .uponReceiving(
+        'a request to update delivery address for customer 0815 with unknown zip and known city',
+      )
+      .withRequest('PUT', '/customers/0815/delivery-address', (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'Max Mustermann',
+          street: { name: 'Poststr.', number: '1' },
+          city: '12345 Hannover',
+        });
+      })
+      .willRespondWith(400, (builder) => {
+        builder
+          .headers({ 'Content-Type': 'application/problem+json' })
+          .jsonBody({ detail: 'Meinten Sie eine von 30159 Hannover oder 30161 Hannover?' });
+      })
+      .executeTest(async (mockServer) => {
+        await setupApiProxy(page, mockServer.url);
+        await page.goto('/customers/0815');
+        const deliverySection = page.locator('.address-section', {
+          has: page.locator('h3', { hasText: 'Lieferadresse' }),
+        });
+        await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
+
+        // When
+        await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('12345');
+        await deliverySection.getByRole('textbox', { name: 'Stadt' }).fill('Hannover');
+        await deliverySection.getByRole('button', { name: 'Speichern' }).click();
+
+        // Then
+        await expect(deliverySection.locator('.error-message')).toContainText(
+          'Meinten Sie eine von',
+        );
+        await expect(deliverySection.locator('.error-message')).toContainText('Hannover');
       });
-    });
-
-    await page.goto('/customers/0815');
-    const deliverySection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Lieferadresse' }),
-    });
-    await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
-
-    // When
-    await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('12345');
-    await deliverySection.getByRole('textbox', { name: 'Stadt' }).fill('Hannover');
-    await deliverySection.getByRole('button', { name: 'Speichern' }).click();
-
-    // Then
-    await expect(deliverySection.locator('.error-message')).toContainText('Meinten Sie eine von');
-    await expect(deliverySection.locator('.error-message')).toContainText('Hannover');
   });
 
   test('Lieferadresse: PLZ mit mehreren möglichen Orten zeigt Fehlermeldung', async ({ page }) => {
-    // Given
-    await page.route(`${API_URL}/customers/0815/delivery-address`, async (route) => {
-      await route.fulfill({
-        status: 422,
-        contentType: 'application/problem+json',
-        body: JSON.stringify({
-          detail: 'Meinten Sie eine von 19322 Wittenberge oder 19322 Rühstädt?',
-        }),
+    const provider = createProvider();
+    addCustomer0815Interaction(provider);
+    await provider
+      .addInteraction()
+      .uponReceiving(
+        'a request to update delivery address for customer 0815 with zip matching multiple cities',
+      )
+      .withRequest('PUT', '/customers/0815/delivery-address', (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'Max Mustermann',
+          street: { name: 'Poststr.', number: '1' },
+          city: '19322 Oldenburg',
+        });
+      })
+      .willRespondWith(400, (builder) => {
+        builder
+          .headers({ 'Content-Type': 'application/problem+json' })
+          .jsonBody({ detail: 'Meinten Sie eine von 19322 Wittenberge oder 19322 Rühstädt?' });
+      })
+      .executeTest(async (mockServer) => {
+        await setupApiProxy(page, mockServer.url);
+        await page.goto('/customers/0815');
+        const deliverySection = page.locator('.address-section', {
+          has: page.locator('h3', { hasText: 'Lieferadresse' }),
+        });
+        await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
+
+        // When
+        await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('19322');
+        await deliverySection.getByRole('button', { name: 'Speichern' }).click();
+
+        // Then
+        await expect(deliverySection.locator('.error-message')).toContainText(
+          'Meinten Sie eine von',
+        );
+        await expect(deliverySection.locator('.error-message')).toContainText('19322 Wittenberge');
+        await expect(deliverySection.locator('.error-message')).toContainText('19322 Rühstädt');
       });
-    });
-
-    await page.goto('/customers/0815');
-    const deliverySection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Lieferadresse' }),
-    });
-    await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
-
-    // When
-    await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('19322');
-    await deliverySection.getByRole('button', { name: 'Speichern' }).click();
-
-    // Then
-    await expect(deliverySection.locator('.error-message')).toContainText('Meinten Sie eine von');
-    await expect(deliverySection.locator('.error-message')).toContainText('19322 Wittenberge');
-    await expect(deliverySection.locator('.error-message')).toContainText('19322 Rühstädt');
   });
 
   test('Rechnungsadresse ändern', async ({ page }) => {
-    // Given
-    await page.route(`${API_URL}/customers/0815/billing-address`, async (route) => {
-      await route.fulfill({ status: 204 });
-    });
+    const provider = createProvider();
+    addCustomer0815Interaction(provider);
+    await provider
+      .addInteraction()
+      .uponReceiving('a request to update billing address for customer 0815')
+      .withRequest('PUT', '/customers/0815/billing-address', (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'James Bond',
+          street: { name: 'Albert Embankment', number: '85' },
+          city: 'SE1 7TP London',
+        });
+      })
+      .willRespondWith(204)
+      .executeTest(async (mockServer) => {
+        await setupApiProxy(page, mockServer.url);
+        await page.goto('/customers/0815');
 
-    await page.goto('/customers/0815');
+        // When
+        const billingSection = page.locator('.address-section', {
+          has: page.locator('h3', { hasText: 'Rechnungsadresse' }),
+        });
+        await expect(billingSection.getByText('Empfänger: Max Mustermann')).toBeVisible();
+        await expect(billingSection.getByText('Straße: Poststr. 1')).toBeVisible();
+        await expect(billingSection.getByText('Ort: 26122 Oldenburg')).toBeVisible();
+        await billingSection.getByRole('button', { name: 'Bearbeiten' }).click();
+        await billingSection.getByRole('textbox', { name: 'Empfänger *' }).fill('James Bond');
+        await billingSection.getByRole('textbox', { name: 'Straße' }).fill('Albert Embankment');
+        await billingSection.getByRole('textbox', { name: 'Hausnummer' }).fill('85');
+        await billingSection.getByRole('textbox', { name: 'PLZ / Ort' }).fill('SE1 7TP London');
+        await billingSection.getByRole('button', { name: 'Speichern' }).click();
 
-    // When
-    const billingSection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Rechnungsadresse' }),
-    });
-    await expect(billingSection.getByText('Empfänger: Max Mustermann')).toBeVisible();
-    await expect(billingSection.getByText('Straße: Poststr. 1')).toBeVisible();
-    await expect(billingSection.getByText('Ort: 26122 Oldenburg')).toBeVisible();
-    await billingSection.getByRole('button', { name: 'Bearbeiten' }).click();
-    await billingSection.getByRole('textbox', { name: 'Empfänger *' }).fill('James Bond');
-    await billingSection.getByRole('textbox', { name: 'Straße' }).fill('Albert Embankment');
-    await billingSection.getByRole('textbox', { name: 'Hausnummer' }).fill('85');
-    await billingSection.getByRole('textbox', { name: 'PLZ / Ort' }).fill('SE1 7TP London');
-    await billingSection.getByRole('button', { name: 'Speichern' }).click();
-
-    // Then
-    await expect(billingSection.getByRole('button', { name: 'Speichern' })).not.toBeVisible();
-    await expect(billingSection.getByRole('button', { name: 'Hinzufügen' })).not.toBeVisible();
+        // Then
+        await expect(billingSection.getByRole('button', { name: 'Speichern' })).not.toBeVisible();
+        await expect(billingSection.getByRole('button', { name: 'Hinzufügen' })).not.toBeVisible();
+      });
   });
 
   test('Lieferadresse ändern', async ({ page }) => {
-    // Given
-    await page.route(`${API_URL}/customers/0815/delivery-address`, async (route) => {
-      await route.fulfill({ status: 204 });
-    });
+    const provider = createProvider();
+    addCustomer0815Interaction(provider);
+    await provider
+      .addInteraction()
+      .uponReceiving('a request to update delivery address for customer 0815')
+      .withRequest('PUT', '/customers/0815/delivery-address', (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody({
+          recipient: 'James Bond',
+          street: { name: 'Chausseestraße', number: '96 - 99a' },
+          city: '10115 Berlin Mitte',
+        });
+      })
+      .willRespondWith(204)
+      .executeTest(async (mockServer) => {
+        await setupApiProxy(page, mockServer.url);
+        await page.goto('/customers/0815');
+        await expect(page.getByText('0815')).toBeVisible();
+        await expect(page.getByText('Name: Max Mustermann')).toBeVisible();
 
-    await page.goto('/customers/0815');
-    await expect(page.getByText('0815')).toBeVisible();
-    await expect(page.getByText('Name: Max Mustermann')).toBeVisible();
+        // When
+        const deliverySection = page.locator('.address-section', {
+          has: page.locator('h3', { hasText: 'Lieferadresse' }),
+        });
+        await expect(deliverySection.getByText('Empfänger: Max Mustermann')).toBeVisible();
+        await expect(deliverySection.getByText('Straße: Poststr. 1')).toBeVisible();
+        await expect(deliverySection.getByText('Ort: 26122 Oldenburg')).toBeVisible();
+        await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
+        await deliverySection.getByRole('textbox', { name: 'Empfänger *' }).fill('James Bond');
+        await deliverySection.getByRole('textbox', { name: 'Straße' }).fill('Chausseestraße');
+        await deliverySection.getByRole('textbox', { name: 'Hausnummer' }).fill('96 - 99a');
+        await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('10115');
+        await deliverySection.getByRole('textbox', { name: 'Stadt' }).fill('Berlin Mitte');
+        await deliverySection.getByRole('button', { name: 'Speichern' }).click();
 
-    // When
-    const deliverySection = page.locator('.address-section', {
-      has: page.locator('h3', { hasText: 'Lieferadresse' }),
-    });
-    await expect(deliverySection.getByText('Empfänger: Max Mustermann')).toBeVisible();
-    await expect(deliverySection.getByText('Straße: Poststr. 1')).toBeVisible();
-    await expect(deliverySection.getByText('Ort: 26122 Oldenburg')).toBeVisible();
-    await deliverySection.getByRole('button', { name: 'Bearbeiten' }).click();
-    await deliverySection.getByRole('textbox', { name: 'Empfänger *' }).fill('James Bond');
-    await deliverySection.getByRole('textbox', { name: 'Straße' }).fill('Chausseestraße');
-    await deliverySection.getByRole('textbox', { name: 'Hausnummer' }).fill('96 - 99a');
-    await deliverySection.getByRole('textbox', { name: 'PLZ' }).fill('10115');
-    await deliverySection.getByRole('textbox', { name: 'Stadt' }).fill('Berlin Mitte');
-    await deliverySection.getByRole('button', { name: 'Speichern' }).click();
-
-    // Then
-    await expect(deliverySection.getByRole('button', { name: 'Speichern' })).not.toBeVisible();
-    await expect(deliverySection.getByRole('button', { name: 'Hinzufügen' })).not.toBeVisible();
+        // Then
+        await expect(deliverySection.getByRole('button', { name: 'Speichern' })).not.toBeVisible();
+        await expect(deliverySection.getByRole('button', { name: 'Hinzufügen' })).not.toBeVisible();
+      });
   });
 });

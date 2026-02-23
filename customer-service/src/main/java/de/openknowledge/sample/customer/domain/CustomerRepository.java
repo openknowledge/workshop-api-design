@@ -53,7 +53,11 @@ public class CustomerRepository {
     }
 
     public List<Customer> findAll() {
-        return customers.values().stream().map(Customer::clearAddresses).collect(toList());
+        return customers.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(Map.Entry::getValue)
+            .map(Customer::clearAddresses)
+            .collect(toList());
     }
 
     public void persist(Customer customer) {

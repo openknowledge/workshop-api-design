@@ -23,7 +23,7 @@ import jakarta.json.bind.annotation.JsonbTypeAdapter;
 import de.openknowledge.sample.customer.domain.CustomerNumber.Adapter;
 
 @JsonbTypeAdapter(Adapter.class)
-public class CustomerNumber {
+public class CustomerNumber implements Comparable<CustomerNumber> {
     private String number;
 
     protected CustomerNumber() {
@@ -59,6 +59,11 @@ public class CustomerNumber {
         return toString().equals(customerNumber.toString());
     }
 
+    @Override
+    public int compareTo(CustomerNumber n) {
+        return number.compareTo(n.number);
+    }
+
     public static class Adapter implements JsonbAdapter<CustomerNumber, String> {
 
         @Override
@@ -72,5 +77,4 @@ public class CustomerNumber {
         }
 
     }
-
 }

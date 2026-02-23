@@ -35,12 +35,8 @@ const customer0815 = {
 test.describe('Adressen anlegen', () => {
   test('Rechnungsadresse anlegen', async ({ page }) => {
     // Given
-    let billingAddress: object | undefined;
-
     await page.route(`${API_URL}/customers/007`, async (route) => {
-      const customer = billingAddress
-        ? { number: '007', name: 'James Bond', billingAddress }
-        : { number: '007', name: 'James Bond' };
+      const customer = { number: '007', name: 'James Bond' };
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -49,7 +45,6 @@ test.describe('Adressen anlegen', () => {
     });
 
     await page.route(`${API_URL}/customers/007/billing-address`, async (route) => {
-      billingAddress = JSON.parse(route.request().postData() || '{}');
       await route.fulfill({ status: 204 });
     });
 
@@ -76,12 +71,8 @@ test.describe('Adressen anlegen', () => {
 
   test('Lieferadresse anlegen', async ({ page }) => {
     // Given
-    let deliveryAddress: object | undefined;
-
     await page.route(`${API_URL}/customers/007`, async (route) => {
-      const customer = deliveryAddress
-        ? { number: '007', name: 'James Bond', deliveryAddress }
-        : { number: '007', name: 'James Bond' };
+      const customer = { number: '007', name: 'James Bond' };
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -90,7 +81,6 @@ test.describe('Adressen anlegen', () => {
     });
 
     await page.route(`${API_URL}/customers/007/delivery-address`, async (route) => {
-      deliveryAddress = JSON.parse(route.request().postData() || '{}');
       await route.fulfill({ status: 204 });
     });
 

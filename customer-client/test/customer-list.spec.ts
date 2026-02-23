@@ -18,9 +18,9 @@ import { test, expect } from '@playwright/test';
 const API_URL = 'http://localhost:8181';
 
 const customers = [
+  { number: '007', name: 'James Bond' },
   { number: '0815', name: 'Max Mustermann' },
   { number: '0816', name: 'Erika Mustermann' },
-  { number: '007', name: 'James Bond' },
 ];
 
 test.beforeEach(async ({ page }) => {

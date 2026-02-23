@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 import { test, expect } from '@playwright/test';
-
-const API_URL = 'http://localhost:8181';
+import { createProvider, setupApiProxy } from './pact-proxy';
 
 test.describe('Neuer Kunde', () => {
   test('zeigt Fehler bei leerem Namen', async ({ page }) => {
@@ -31,29 +30,38 @@ test.describe('Neuer Kunde', () => {
   });
 
   test('erstellt Kunden erfolgreich und navigiert zur Liste', async ({ page }) => {
-    // Given
-    const customerList: object[] = [];
+    const provider = createProvider();
 
-    await page.route(`${API_URL}/customers/`, async (route) => {
-      if (route.request().method() === 'POST') {
-        const body = JSON.parse(route.request().postData() || '{}');
-        customerList.push({ number: '0001', name: body.name });
-        await route.fulfill({ status: 201 });
-      } else {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify(customerList),
-        });
-      }
-    });
+    provider
+      .addInteraction()
+      .uponReceiving('a request to create a customer')
+      .withRequest('POST', '/customers/', (builder) => {
+        builder
+          .headers({ 'Content-Type': 'application/json' })
+          .jsonBody({ name: 'Max Mustermann' });
+      })
+      .willRespondWith(201);
 
-    await page.goto('/customers/new');
+    await provider
+      .addInteraction()
+      .uponReceiving('a request to get all customers')
+      .withRequest('GET', '/customers/')
+      .willRespondWith(200, (builder) => {
+        builder.headers({ 'Content-Type': 'application/json' }).jsonBody([
+          { number: '007', name: 'James Bond' },
+          { number: '0815', name: 'Max Mustermann' },
+          { number: '0816', name: 'Erika Mustermann' },
+        ]);
+      })
+      .executeTest(async (mockServer) => {
+        await setupApiProxy(page, mockServer.url);
+        await page.goto('/customers/new');
 
-    // When
-    await page.getByLabel('Name *').fill('Test Kunde');
-    await page.getByRole('button', { name: 'Kunde erstellen' }).click();
+        // When
+        await page.getByLabel('Name *').fill('Max Mustermann');
+        await page.getByRole('button', { name: 'Kunde erstellen' }).click();
 
-    await expect(page.getByRole('cell', { name: 'Test Kunde' })).toBeVisible();
+        await expect(page.getByRole('cell', { name: 'Max Mustermann' })).toBeVisible();
+      });
   });
 });

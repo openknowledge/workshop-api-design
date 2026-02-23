@@ -15,38 +15,39 @@
  */
 package de.openknowledge.sample.customer;
 
-import static de.openknowledge.sample.customer.JsonObjectComparision.sameAs;
-import static de.openknowledge.sample.customer.JsonObjectComparision.thatIsSameAs;
-import static jakarta.ws.rs.client.Entity.entity;
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Optional.ofNullable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.io.StringReader;
-import java.net.URI;
 import java.util.Optional;
 
 import jakarta.inject.Inject;
-import jakarta.json.Json;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import jakarta.validation.ValidationException;
 
 import org.apache.meecrowave.Meecrowave;
-import org.apache.meecrowave.junit5.MeecrowaveConfig;
+import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.meecrowave.testing.ConfigurationInject;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import au.com.dius.pact.provider.junit5.HttpTestTarget;
+import au.com.dius.pact.provider.junit5.PactVerificationContext;
+import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
+import au.com.dius.pact.provider.junitsupport.Provider;
+import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
 import de.openknowledge.sample.address.domain.Address;
 import de.openknowledge.sample.address.domain.BillingAddressRepository;
 import de.openknowledge.sample.address.domain.DeliveryAddressRepository;
 import de.openknowledge.sample.customer.domain.CustomerNumber;
 import rocks.limburg.cdimock.MockitoBeans;
 
+@Provider("customer-service")
+@PactFolder("../pacts")
 @MockitoBeans(types = {BillingAddressRepository.class, DeliveryAddressRepository.class})
-@MeecrowaveConfig
+@MonoMeecrowaveConfig
 public class CustomerServiceTest {
 
     @ConfigurationInject
@@ -57,8 +58,6 @@ public class CustomerServiceTest {
 
     @Inject
     private DeliveryAddressRepository deliveryAddressRepository;
-
-    private URI uri;
 
     @BeforeEach
     public void setUp() {
@@ -72,138 +71,29 @@ public class CustomerServiceTest {
         when(billingAddressRepository.find(new CustomerNumber("007")))
             .thenReturn(Optional.of(Address.of("Sherlock Holmes").atStreet("221B Baker Street").inCity("London NW1 6XE").build()));
 
-        uri = URI.create("http://localhost:" + config.getHttpPort());
+        doThrow(new ValidationException("Meinten Sie 26122 Oldenburg?"))
+            .when(deliveryAddressRepository).update(any(CustomerNumber.class),
+            argThat(a -> "12345 Oldenburg".equals(a.getCity().toString())));
+        doThrow(new ValidationException("Meinten Sie 10115 Berlin Mitte?"))
+            .when(deliveryAddressRepository).update(any(CustomerNumber.class),
+            argThat(a -> "10115 Berlin".equals(a.getCity().toString())));
+        doThrow(new ValidationException("Meinten Sie eine von 30159 Hannover oder 30161 Hannover?"))
+            .when(deliveryAddressRepository).update(any(CustomerNumber.class),
+            argThat(a -> "12345 Hannover".equals(a.getCity().toString())));
+        doThrow(new ValidationException("Meinten Sie eine von 19322 Wittenberge oder 19322 Rühstädt?"))
+            .when(deliveryAddressRepository).update(any(CustomerNumber.class),
+            argThat(a -> "19322 Oldenburg".equals(a.getCity().toString())));
     }
 
-    @Test
-    public void getCustomers() {
-        JsonArray result = Json.createReader(new StringReader(ClientBuilder
-            .newClient()
-            .target(uri)
-            .path("customers")
-            .request(MediaType.APPLICATION_JSON)
-            .get()
-            .readEntity(String.class)))
-            .readArray();
-        assertThat(result).haveAtLeastOne(thatIsSameAs(getClass().getResourceAsStream("max.json")));
-        assertThat(result).haveAtLeastOne(thatIsSameAs(getClass().getResourceAsStream("erika.json")));
-        assertThat(result).haveAtLeastOne(thatIsSameAs(getClass().getResourceAsStream("james.json")));
+    @BeforeEach
+    public void setUp(PactVerificationContext verificationContext) {
+        ofNullable(verificationContext)
+            .ifPresent(context -> context.setTarget(new HttpTestTarget("localhost", config.getHttpPort(), "/")));
     }
 
-    @Test
-    public void getCustomerWithAddresses() {
-        JsonObject result = Json.createReader(new StringReader(ClientBuilder
-            .newClient()
-            .target(uri)
-            .path("customers")
-            .path("0815")
-            .request(MediaType.APPLICATION_JSON)
-            .get()
-            .readEntity(String.class)))
-            .readObject();
-        assertThat(result).is(sameAs(getClass().getResourceAsStream("max-with-addresses.json")));
-    }
-
-    @Test
-    public void createCustomer() {
-        Response response = ClientBuilder
-            .newClient()
-            .target(uri)
-            .path("customers")
-            .request(MediaType.APPLICATION_JSON)
-            .post(entity(getClass().getResourceAsStream("sherlock.json"), MediaType.APPLICATION_JSON));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-
-        JsonObject result = Json.createReader(new StringReader(ClientBuilder
-            .newClient()
-            .target(response.getLocation())
-            .request(MediaType.APPLICATION_JSON)
-            .get()
-            .readEntity(String.class)))
-            .readObject();
-        assertThat(result).is(sameAs(getClass().getResourceAsStream("sherlock.json")));
-
-        JsonArray customers = Json.createReader(new StringReader(ClientBuilder
-            .newClient()
-            .target(uri)
-            .path("customers")
-            .request(MediaType.APPLICATION_JSON)
-            .get()
-            .readEntity(String.class)))
-            .readArray();
-        assertThat(customers).haveAtLeastOne(thatIsSameAs(getClass().getResourceAsStream("sherlock.json")));
-    }
-
-    @Test
-    public void getCustomerWithBillingAddress() {
-        JsonObject result = Json.createReader(new StringReader(ClientBuilder
-            .newClient()
-            .target(uri)
-            .path("customers")
-            .path("007")
-            .request(MediaType.APPLICATION_JSON)
-            .get()
-            .readEntity(String.class)))
-            .readObject();
-        assertThat(result).is(sameAs(getClass().getResourceAsStream("james-with-addresses.json")));
-    }
-
-    @Test
-    public void getCustomerWithDeliveryAddress() {
-        JsonObject result = Json.createReader(new StringReader(ClientBuilder
-            .newClient()
-            .target(uri)
-            .path("customers")
-            .path("0816")
-            .request(MediaType.APPLICATION_JSON)
-            .get()
-            .readEntity(String.class)))
-            .readObject();
-        assertThat(result).is(sameAs(getClass().getResourceAsStream("erika-with-addresses.json")));
-    }
-
-    @Test
-    public void setBillingAddressOfExistingCustomer() {
-        Response response = ClientBuilder
-            .newClient()
-            .target(uri)
-            .path("customers/0816/billing-address")
-            .request(MediaType.APPLICATION_JSON)
-            .put(entity(getClass().getResourceAsStream("sherlock-address.json"), MediaType.APPLICATION_JSON));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-    }
-
-    @Test
-    public void setBillingAddressOfNonExistingCustomerFails() {
-        Response response = ClientBuilder
-            .newClient()
-            .target(uri)
-            .path("customers/0817/billing-address")
-            .request(MediaType.APPLICATION_JSON)
-            .put(entity(getClass().getResourceAsStream("sherlock-address.json"), MediaType.APPLICATION_JSON));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-    }
-
-
-    @Test
-    public void setDeliveryAddressOfExistingCustomer() {
-        Response response = ClientBuilder
-            .newClient()
-            .target(uri)
-            .path("customers/0816/delivery-address")
-            .request(MediaType.APPLICATION_JSON)
-            .put(entity(getClass().getResourceAsStream("sherlock-address.json"), MediaType.APPLICATION_JSON));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-    }
-
-    @Test
-    public void setDeliveryAddressOfNonExistingCustomerFails() {
-        Response response = ClientBuilder
-            .newClient()
-            .target(uri)
-            .path("customers/0817/delivery-address")
-            .request(MediaType.APPLICATION_JSON)
-            .put(entity(getClass().getResourceAsStream("sherlock-address.json"), MediaType.APPLICATION_JSON));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    @TestTemplate
+    @ExtendWith(PactVerificationInvocationContextProvider.class)
+    void pactVerificationTestTemplate(PactVerificationContext context) {
+        ofNullable(context).ifPresent(PactVerificationContext::verifyInteraction);
     }
 }

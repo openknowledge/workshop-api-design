@@ -15,7 +15,7 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customerApi } from './client';
-import type { Address, CreateCustomerInput } from '../types/customer';
+import type { Address, CreateCustomerInput, Customer } from '../types/customer';
 
 export const useCustomers = () => {
   return useQuery({
@@ -50,8 +50,10 @@ export const useUpdateBillingAddress = () => {
     mutationFn: ({ customerNumber, address }: { customerNumber: string; address: Address }) =>
       customerApi.updateBillingAddress(customerNumber, address),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['customer', variables.customerNumber] });
-      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.setQueryData(
+        ['customer', variables.customerNumber],
+        (old: Customer | undefined) => (old ? { ...old, billingAddress: variables.address } : old),
+      );
     },
   });
 };
@@ -63,8 +65,10 @@ export const useUpdateDeliveryAddress = () => {
     mutationFn: ({ customerNumber, address }: { customerNumber: string; address: Address }) =>
       customerApi.updateDeliveryAddress(customerNumber, address),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['customer', variables.customerNumber] });
-      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.setQueryData(
+        ['customer', variables.customerNumber],
+        (old: Customer | undefined) => (old ? { ...old, deliveryAddress: variables.address } : old),
+      );
     },
   });
 };

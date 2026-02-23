@@ -39,6 +39,12 @@ jobs:
         run: npm run test
         working-directory: customer-client
 
+      - name: Upload pact files
+        uses: actions/upload-artifact@v4
+        with:
+          name: pact-files
+          path: pacts/
+
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: failure()
@@ -47,6 +53,7 @@ jobs:
           path: customer-client/playwright-report/
 
   build:
+    needs: build-client
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -58,6 +65,12 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+
+      - name: Download pact files
+        uses: actions/download-artifact@v4
+        with:
+          name: pact-files
+          path: pacts/
 
       - name: Set up Node.js
         uses: actions/setup-node@v4

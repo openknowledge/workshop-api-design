@@ -35,11 +35,7 @@ Alle HTTP-Requests in den Playwright-Tests sollen durch WireMock-Mappings ersetz
 1. **Playwright auf WireMock umstellen**
    Ändere in `customer-client/playwright.config.ts` die `VITE_API_URL` so, dass sie auf den WireMock-Server (`http://localhost:8080`) zeigt.
 
-2. **WireMock-Mappings für die Kundenliste ergänzen**
-   Die Mappings für `GET /customers/` und `OPTIONS /customers/` sind bereits vorhanden.
-   Führe die Tests aus und prüfe, welche weiteren Requests fehlen.
-
-3. **WireMock-Mappings für die Kundendetailseite anlegen**
+2. **WireMock-Mappings für die Kundendetailseite anlegen**
    Für die Tests in `customer-detail.spec.ts` werden Kundendaten für `0815` (Max Mustermann) und `007` (James Bond) benötigt. Lege entsprechende Mappings an:
    - `GET /customers/0815` – Max Mustermann mit Rechnungs- und Lieferadresse
    - `GET /customers/007` – James Bond ohne Adressen
@@ -47,60 +43,22 @@ Alle HTTP-Requests in den Playwright-Tests sollen durch WireMock-Mappings ersetz
    - `PUT /customers/0815/delivery-address` – Lieferadresse speichern
    - Adressvalidierung (PLZ-Prüfung) für die entsprechenden Testszenarien
 
-4. **WireMock-Mapping für das Anlegen neuer Kunden anlegen**
+3. **WireMock-Mapping für das Anlegen neuer Kunden anlegen**
    Für `create-customer.spec.ts` wird ein `POST /customers/` benötigt, der einen neuen Kunden anlegt.
 
-5. **Alle Tests erfolgreich ausführen**
+4. **Alle Tests erfolgreich ausführen**
    Starte WireMock per Docker Compose und führe die Tests aus:
    ```bash
    docker compose up wiremock
    cd customer-client
    npm test
    ```
+   Alternativ kann auch `npm test:ui` verwendet werden, um sich die UI-Interaktionen in der Playwright UI anzusehen.
 
 ### Tipps
 
 - WireMock-Mappings liegen als JSON-Dateien in `wiremock/mappings/`. WireMock lädt diese Dateien beim Start automatisch.
 - Die bestehenden Mappings (`get-customers.json`, `options-customers.json`) können als Vorlage für neue Mappings genutzt werden.
-- Für das Laden neuer Mappings ohne Neustart kann die WireMock Admin API unter `http://localhost:8080/__admin/mappings` genutzt werden – oder WireMock einfach neu starten.
-- Bei einem `POST`- oder `PUT`-Request muss ggf. auch der entsprechende `OPTIONS`-Preflight-Request gemockt werden (CORS).
+- Für das Laden neuer Mappings ohne Neustart kann die WireMock Admin API unter `http://localhost:8080/__admin/mappings` genutzt – oder der WireMock-Container einfach neu gestartet werden.
+- Bei einem `GET`, `POST`- oder `PUT`-Request muss ggf. auch der entsprechende `OPTIONS`-Preflight-Request gemockt werden (CORS).
 - Die Adressvalidierung in `customer-detail.spec.ts` erwartet spezifische Fehlermeldungen – die Responses im Mapping müssen die exakten Fehlertexte aus den Tests zurückliefern.
-
----
-
-## Alle Übungen
-
-### API Design
-
-- [OpenAPI](https://github.com/openknowledge/workshop-api-design/tree/openapi)
-- [Mocking](https://github.com/openknowledge/workshop-api-design/tree/wiremock)
-- [AsyncAPI](https://github.com/openknowledge/workshop-api-design/tree/asyncapi)
-
-### API Testing
-
-- [Playwright + WireMock](https://github.com/openknowledge/workshop-api-design/tree/playwright-wiremock)
-- [Pact](https://github.com/openknowledge/workshop-api-design/tree/pact-mock-server)
-- [Pact Pipeline](https://github.com/openknowledge/workshop-api-design/tree/pact)
-
-### API Security
-
-- [JWT](https://github.com/openknowledge/workshop-api-design/tree/jwt)
-- [OAuth2](https://github.com/openknowledge/workshop-api-design/tree/oauth2)
-- [OAuth2 mit PKCE](https://github.com/openknowledge/workshop-api-design/tree/oauth2-pkce)
-
-### API Governance
-
-- [Linting](https://github.com/openknowledge/workshop-api-design/tree/linting)
-
-### API Management
-
-- [Rate Limiting](https://github.com/openknowledge/workshop-api-design/tree/rate-limiting)
-- [Backstage](https://github.com/openknowledge/workshop-api-design/tree/backstage)
-
-### API Operation
-
-- [Observability](https://github.com/openknowledge/workshop-api-design/tree/observability)
-
-### API Evolution
-
-- [Versioning](https://github.com/openknowledge/workshop-api-design/tree/versioning)
